@@ -1,0 +1,147 @@
+/* =============================================
+   ARHAM TRADERS — WAREHOUSE CSS
+   css/warehouse.css
+   ============================================= */
+
+/* ===== STOCK SUMMARY BAR ===== */
+.wh-stock-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.wh-stock-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-sm); transition: var(--transition);
+  position: relative; overflow: hidden;
+}
+.wh-stock-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+}
+.wh-stock-card.wh-total::after    { background: var(--teal); }
+.wh-stock-card.wh-remaining::after{ background: var(--emerald); }
+.wh-stock-card.wh-used::after     { background: var(--copper); }
+.wh-stock-card.wh-entries::after  { background: var(--mineral-blue); }
+.wh-stock-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.wh-stock-icon {
+  width: 42px; height: 42px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.wh-total     .wh-stock-icon { background: var(--teal-light);         color: var(--teal); }
+.wh-remaining .wh-stock-icon { background: var(--emerald-light);      color: var(--emerald); }
+.wh-used      .wh-stock-icon { background: var(--copper-light);       color: var(--copper); }
+.wh-entries   .wh-stock-icon { background: var(--mineral-blue-light); color: var(--mineral-blue); }
+
+.wh-stock-info { min-width: 0; }
+.wh-stock-value {
+  font-size: 20px; font-weight: 800; color: var(--text-primary); line-height: 1.1;
+}
+.wh-stock-value small { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+.wh-stock-label {
+  font-size: 10.5px; color: var(--text-muted); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px;
+}
+
+/* ===== STOCK PROGRESS BAR (per row) ===== */
+.stock-progress-wrap {
+  display: flex; align-items: center; gap: 8px; min-width: 120px;
+}
+.stock-progress-bar {
+  flex: 1; height: 6px; background: var(--color-border);
+  border-radius: 3px; overflow: hidden;
+}
+.stock-progress-fill {
+  height: 100%; border-radius: 3px; transition: width 0.4s ease;
+}
+.stock-progress-pct {
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+  min-width: 36px; text-align: right;
+}
+
+/* ===== STATUS BADGES ===== */
+.stock-status {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.stock-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.status-in_stock  { background: var(--emerald-light); color: var(--emerald); }
+.status-partial   { background: var(--sand-light);    color: #b8960a; }
+.status-empty     { background: var(--stone-light);   color: var(--stone); }
+.status-in_stock .stock-status-dot  { background: var(--emerald); }
+.status-partial  .stock-status-dot  { background: #b8960a; }
+.status-empty    .stock-status-dot  { background: var(--stone); }
+
+/* ===== SEND TO PRODUCTION MODAL ===== */
+.prod-input-group {
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: 18px;
+  margin-bottom: 14px;
+}
+.prod-info-row {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 10px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--color-border);
+}
+.prod-info-row:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.prod-info-label { font-size: 12px; color: var(--text-muted); }
+.prod-info-value { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+
+.weight-slider-wrap {
+  margin: 16px 0;
+}
+.weight-slider-labels {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text-muted); margin-bottom: 6px;
+}
+.weight-slider {
+  width: 100%; -webkit-appearance: none; height: 6px;
+  background: var(--color-border); border-radius: 3px; outline: none;
+  cursor: pointer;
+}
+.weight-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px;
+  border-radius: 50%; background: var(--teal);
+  cursor: pointer; border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(42,157,143,0.35);
+}
+.weight-slider::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--teal); cursor: pointer;
+  border: 2px solid white;
+}
+
+.prod-remaining-preview {
+  display: flex; gap: 10px; margin-top: 14px;
+}
+.prod-preview-box {
+  flex: 1; padding: 12px; border-radius: var(--radius-md);
+  text-align: center;
+}
+.prod-preview-box.to-prod {
+  background: var(--teal-light); border: 1.5px solid var(--teal);
+}
+.prod-preview-box.stays {
+  background: var(--sand-light); border: 1.5px solid var(--sand);
+}
+.prod-preview-val   { font-size: 18px; font-weight: 800; }
+.prod-preview-label { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.to-prod .prod-preview-val { color: var(--teal); }
+.stays   .prod-preview-val { color: #b8960a; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .wh-stock-bar   { grid-template-columns: repeat(2, 1fr); }
+  .wh-stock-value { font-size: 17px; }
+  .stock-progress-wrap { display: none; }
+}
+@media (max-width: 480px) {
+  .wh-stock-bar { grid-template-columns: 1fr; }
+}

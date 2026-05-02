@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Warehouse — Arham Traders</title>
   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/warehouse.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
@@ -63,29 +64,172 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
     </div>
   </header>
+
   <div class="page-content">
-    <div class="coming-soon-wrapper">
-      <div class="coming-soon-card">
-        <div class="coming-soon-icon" style="background:var(--mineral-blue-light);color:var(--mineral-blue);">
-          <i class="fas fa-warehouse"></i>
-        </div>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
         <h2>Warehouse Inventory</h2>
-        <p>View all incoming raw material stock. Real-time weight calculations, supplier-wise breakdown, and stock filters.</p>
-        <div class="coming-soon-features">
-          <div class="feature-item"><i class="fas fa-table"></i> All bookings with stock status</div>
-          <div class="feature-item"><i class="fas fa-search"></i> Search by name / booking no</div>
-          <div class="feature-item"><i class="fas fa-filter"></i> Date & supplier filters</div>
-          <div class="feature-item"><i class="fas fa-calculator"></i> Real-time remaining stock</div>
-        </div>
-        <span class="badge badge-blue" style="font-size:12px;padding:6px 14px;">Phase 4 — Coming Soon</span>
+        <p>All incoming raw material stock with real-time remaining weight</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="booking.html" class="btn btn-primary"><i class="fas fa-plus"></i> New Booking</a>
       </div>
     </div>
+
+    <!-- STOCK SUMMARY -->
+    <div class="wh-stock-bar">
+      <div class="wh-stock-card wh-total">
+        <div class="wh-stock-icon"><i class="fas fa-weight-hanging"></i></div>
+        <div class="wh-stock-info">
+          <div class="wh-stock-value" id="whTotalStock">0 <small>KG</small></div>
+          <div class="wh-stock-label">Total Received</div>
+        </div>
+      </div>
+      <div class="wh-stock-card wh-remaining">
+        <div class="wh-stock-icon"><i class="fas fa-boxes-stacked"></i></div>
+        <div class="wh-stock-info">
+          <div class="wh-stock-value" id="whRemainingStock">0 <small>KG</small></div>
+          <div class="wh-stock-label">Remaining Stock</div>
+        </div>
+      </div>
+      <div class="wh-stock-card wh-used">
+        <div class="wh-stock-icon"><i class="fas fa-industry"></i></div>
+        <div class="wh-stock-info">
+          <div class="wh-stock-value" id="whUsedStock">0 <small>KG</small></div>
+          <div class="wh-stock-label">Sent to Production</div>
+        </div>
+      </div>
+      <div class="wh-stock-card wh-entries">
+        <div class="wh-stock-icon"><i class="fas fa-list"></i></div>
+        <div class="wh-stock-info">
+          <div class="wh-stock-value" id="whEntries">0</div>
+          <div class="wh-stock-label">Total Entries</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar" style="margin-bottom:14px;">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search booking no, supplier..." autocomplete="off" />
+      </div>
+      <select id="filterSupplier" class="form-control" style="height:38px;width:auto;min-width:160px;">
+        <option value="">All Suppliers</option>
+      </select>
+      <select id="filterStatus" class="form-control" style="height:38px;width:auto;min-width:130px;">
+        <option value="">All Status</option>
+        <option value="in_stock">In Stock</option>
+        <option value="partial">Partial</option>
+        <option value="empty">Empty</option>
+      </select>
+      <input type="date" id="filterDateFrom" class="form-control" style="height:38px;width:auto;" title="From date" />
+      <input type="date" id="filterDateTo"   class="form-control" style="height:38px;width:auto;" title="To date" />
+      <button class="btn btn-secondary btn-sm" id="clearFilters"><i class="fas fa-times"></i> Clear</button>
+      <span class="text-muted" id="warehouseCount" style="font-size:12.5px;white-space:nowrap;"></span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Booking No</th>
+              <th>Supplier</th>
+              <th>Date</th>
+              <th>Total Weight</th>
+              <th>Remaining</th>
+              <th>Used</th>
+              <th style="min-width:140px;">Stock Level</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="warehouseTableBody"></tbody>
+          <tfoot id="warehouseTfoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
 
+<!-- SEND TO PRODUCTION MODAL -->
+<div class="modal-overlay" id="sendToProductionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fas fa-industry" style="color:var(--teal);margin-right:8px;"></i>Send to Production
+      </h3>
+      <button class="modal-close" onclick="closeModal('sendToProductionModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="prod-input-group">
+        <div class="prod-info-row">
+          <span class="prod-info-label">Booking No</span>
+          <span class="prod-info-value" id="prodBookingNo"></span>
+        </div>
+        <div class="prod-info-row">
+          <span class="prod-info-label">Supplier</span>
+          <span class="prod-info-value" id="prodSupplier"></span>
+        </div>
+        <div class="prod-info-row">
+          <span class="prod-info-label">Total Received</span>
+          <span class="prod-info-value" id="prodTotalWeight"></span>
+        </div>
+        <div class="prod-info-row">
+          <span class="prod-info-label">Available to Send</span>
+          <span class="prod-info-value" style="color:var(--emerald);" id="prodAvailable"></span>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label">Weight to Send (KG) <span style="color:var(--crimson);">*</span></label>
+        <input type="number" id="prodWeightInput" class="form-control" min="0.01" step="0.01" />
+      </div>
+
+      <div class="weight-slider-wrap">
+        <div class="weight-slider-labels">
+          <span>0 KG</span>
+          <span id="sliderMaxLabel">Max</span>
+        </div>
+        <input type="range" id="prodWeightSlider" class="weight-slider" />
+      </div>
+
+      <div class="prod-remaining-preview">
+        <div class="prod-preview-box to-prod">
+          <div class="prod-preview-val" id="prevToProd">0 KG</div>
+          <div class="prod-preview-label"><i class="fas fa-industry"></i> To Production</div>
+        </div>
+        <div class="prod-preview-box stays">
+          <div class="prod-preview-val" id="prevStays">0 KG</div>
+          <div class="prod-preview-label"><i class="fas fa-warehouse"></i> Stays in Warehouse</div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:14px;">
+        <label class="form-label">Description / Notes</label>
+        <input type="text" id="prodDescription" class="form-control"
+          placeholder="e.g. Chromite batch 1" maxlength="200" autocomplete="off" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sendToProductionModal')"><i class="fas fa-times"></i> Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSendToProduction()">
+        <i class="fas fa-industry"></i> Confirm &amp; Send to Production
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
+<script src="js/warehouse.js"></script>
 </body>
 </html>
