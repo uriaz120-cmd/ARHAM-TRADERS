@@ -1,0 +1,174 @@
+/* =============================================
+   ARHAM TRADERS — LOGIN PAGE
+   css/login.css  |  Phase 10
+   ============================================= */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0d1117 0%, #181c2a 50%, #1a2e38 100%);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background mineral pattern */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(42,157,143,.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(224,123,57,.06) 0%, transparent 50%),
+    radial-gradient(circle at 60% 10%, rgba(38,70,83,.1) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* ---- Login card ---- */
+.login-card {
+  background: rgba(30,35,50,.95);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  width: 100%; max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5), 0 0 0 1px rgba(42,157,143,.1);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  position: relative; z-index: 1;
+}
+
+/* ---- Card header ---- */
+.login-header {
+  background: linear-gradient(135deg, #264653 0%, #1a3545 100%);
+  padding: 32px 36px 28px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.login-brand-icon {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, rgba(42,157,143,.3), rgba(42,157,143,.1));
+  border: 1.5px solid rgba(42,157,143,.4);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+  font-size: 26px; color: #2a9d8f;
+}
+.login-brand-name {
+  font-size: 22px; font-weight: 900;
+  color: #fff; letter-spacing: -.3px;
+}
+.login-brand-sub {
+  font-size: 12.5px; color: rgba(255,255,255,.5);
+  margin-top: 4px;
+}
+
+/* ---- Card body ---- */
+.login-body {
+  padding: 32px 36px;
+}
+.login-body h2 {
+  font-size: 17px; font-weight: 800; color: #fff;
+  margin-bottom: 6px;
+}
+.login-body p {
+  font-size: 13px; color: rgba(255,255,255,.45);
+  margin-bottom: 24px;
+}
+
+/* ---- Form ---- */
+.login-form-group {
+  margin-bottom: 16px;
+}
+.login-label {
+  display: block; font-size: 12.5px; font-weight: 600;
+  color: rgba(255,255,255,.6); margin-bottom: 7px; letter-spacing: .02em;
+}
+.login-input-wrap {
+  position: relative;
+}
+.login-input-wrap i {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: rgba(255,255,255,.3); font-size: 14px;
+}
+.login-input {
+  width: 100%; padding: 11px 12px 11px 38px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; font-size: 14px; color: #fff;
+  outline: none; transition: border-color .2s, background .2s;
+}
+.login-input:focus {
+  border-color: #2a9d8f;
+  background: rgba(42,157,143,.08);
+}
+.login-input::placeholder { color: rgba(255,255,255,.25); }
+
+/* ---- Error message ---- */
+.login-error {
+  display: none;
+  background: rgba(230,57,70,.15);
+  border: 1px solid rgba(230,57,70,.35);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 13px; color: #ff6b7a;
+  margin-bottom: 16px;
+  align-items: center; gap: 8px;
+}
+.login-error.visible { display: flex; }
+
+/* ---- Login button ---- */
+.login-btn {
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, #2a9d8f, #21867a);
+  color: #fff; font-size: 14.5px; font-weight: 700;
+  border: none; border-radius: 10px; cursor: pointer;
+  transition: all .2s; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.login-btn:hover {
+  background: linear-gradient(135deg, #35b5a5, #2a9d8f);
+  box-shadow: 0 4px 18px rgba(42,157,143,.4);
+  transform: translateY(-1px);
+}
+.login-btn:active { transform: translateY(0); }
+
+/* ---- Demo hint ---- */
+.login-demo {
+  margin-top: 20px;
+  padding: 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+}
+.login-demo-title {
+  font-size: 11.5px; font-weight: 700;
+  color: rgba(255,255,255,.4); text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: 8px;
+}
+.login-demo-row {
+  display: flex; justify-content: space-between;
+  font-size: 12.5px; color: rgba(255,255,255,.55);
+  padding: 4px 0;
+}
+.login-demo-row span:last-child { font-weight: 700; color: #2a9d8f; }
+.demo-load-btn {
+  display: block; width: 100%; margin-top: 10px;
+  padding: 7px; background: none;
+  border: 1px dashed rgba(42,157,143,.35);
+  border-radius: 7px; color: rgba(42,157,143,.7);
+  font-size: 12px; cursor: pointer; transition: all .15s;
+  text-align: center;
+}
+.demo-load-btn:hover {
+  background: rgba(42,157,143,.08); border-color: #2a9d8f; color: #2a9d8f;
+}
+
+/* ---- Footer ---- */
+.login-footer {
+  text-align: center; margin-top: 22px;
+  font-size: 11.5px; color: rgba(255,255,255,.25);
+}
+
+@media (max-width: 460px) {
+  .login-card { border-radius: 14px; }
+  .login-header, .login-body { padding-left: 22px; padding-right: 22px; }
+}

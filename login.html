@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Arham Traders</title>
+  <link rel="stylesheet" href="css/login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <div class="login-card">
+
+    <!-- Brand header -->
+    <div class="login-header">
+      <div class="login-brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="login-brand-name">Arham Traders</div>
+      <div class="login-brand-sub">Mineral Processing Management System</div>
+    </div>
+
+    <!-- Login form -->
+    <div class="login-body">
+      <h2>Welcome Back</h2>
+      <p>Sign in to access your dashboard</p>
+
+      <div class="login-error" id="loginError">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="loginErrorMsg">Invalid username or password.</span>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+
+        <div class="login-form-group">
+          <label class="login-label" for="loginUsername">Username</label>
+          <div class="login-input-wrap">
+            <i class="fas fa-user"></i>
+            <input type="text" id="loginUsername" class="login-input"
+              placeholder="Enter username" autocomplete="username" required />
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label class="login-label" for="loginPassword">Password</label>
+          <div class="login-input-wrap">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="loginPassword" class="login-input"
+              placeholder="Enter password" autocomplete="current-password" required />
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+
+      </form>
+
+      <!-- Demo credentials -->
+      <div class="login-demo">
+        <div class="login-demo-title"><i class="fas fa-info-circle"></i> &nbsp;Demo Credentials</div>
+        <div class="login-demo-row">
+          <span><i class="fas fa-user-shield"></i> Admin</span>
+          <span>admin / admin123</span>
+        </div>
+        <div class="login-demo-row">
+          <span><i class="fas fa-user"></i> Staff</span>
+          <span>staff / staff123</span>
+        </div>
+        <button class="demo-load-btn" onclick="loadDemoData()">
+          <i class="fas fa-database"></i> Load Sample Data (first time only)
+        </button>
+      </div>
+
+    </div>
+
+    <div class="login-footer">
+      &copy; 2026 Arham Traders &mdash; v1.0
+    </div>
+
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    function handleLogin(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const errorEl  = document.getElementById('loginError');
+      const errorMsg = document.getElementById('loginErrorMsg');
+      const btn      = document.getElementById('loginBtn');
+
+      /* Hide previous error */
+      errorEl.classList.remove('visible');
+
+      /* Animate button */
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+      btn.disabled  = true;
+
+      setTimeout(() => {
+        const result = doLogin(username, password);
+        if (result.ok) {
+          btn.innerHTML = '<i class="fas fa-check"></i> Success!';
+          /* redirect handled inside doLogin → window.location.replace */
+        } else {
+          errorMsg.textContent = result.msg;
+          errorEl.classList.add('visible');
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+          btn.disabled  = false;
+          document.getElementById('loginPassword').value = '';
+          document.getElementById('loginPassword').focus();
+        }
+      }, 400);
+    }
+
+    function loadDemoData() {
+      const loaded = seedDemoData();
+      if (loaded) {
+        const btn = document.querySelector('.demo-load-btn');
+        btn.innerHTML = '<i class="fas fa-check"></i> Sample data loaded!';
+        btn.style.color = '#2a9d8f';
+        btn.style.borderColor = '#2a9d8f';
+        btn.disabled = true;
+      } else {
+        const btn = document.querySelector('.demo-load-btn');
+        btn.innerHTML = '<i class="fas fa-info-circle"></i> Data already exists — skipped';
+        btn.disabled = true;
+      }
+    }
+  </script>
+
+</body>
+</html>

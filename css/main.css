@@ -618,6 +618,57 @@ select.form-control   { cursor: pointer; appearance: none; background-image: url
 .w-100       { width: 100%; }
 
 /* =============================================
+   AUTH — ROLE-BASED RESTRICTIONS
+   ============================================= */
+
+/* Staff users cannot see delete buttons */
+.role-staff .btn-danger { display: none !important; }
+
+/* Logout button in sidebar footer */
+.logout-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: calc(100% - 24px); margin: 0 12px 12px;
+  padding: 8px 14px;
+  background: rgba(230,57,70,.12);
+  border: 1px solid rgba(230,57,70,.25);
+  border-radius: 8px;
+  color: #ff6b7a; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; transition: all .18s;
+}
+.logout-btn:hover {
+  background: rgba(230,57,70,.22);
+  border-color: rgba(230,57,70,.5);
+  color: #ff4455;
+}
+
+/* Page header layout helper */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.page-header-left h2 { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 3px; }
+.page-header-left p  { font-size: 12.5px; color: var(--text-muted); }
+.page-header-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+/* Topbar refresh/action button */
+.topbar-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 16px; padding: 6px 8px;
+  border-radius: 8px; transition: all .15s;
+}
+.topbar-btn:hover { color: var(--teal); background: var(--color-surface-2); }
+
+/* Card utility */
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
+.card-body { padding: 20px; }
+
+/* Status button group */
+.status-btn-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* Table wrapper for horizontal scroll */
+.table-wrapper { overflow-x: auto; }
+
+/* =============================================
    SCROLLBAR
    ============================================= */
 ::-webkit-scrollbar         { width: 6px; height: 6px; }
