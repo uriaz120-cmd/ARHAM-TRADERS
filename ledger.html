@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Supplier Ledger — Arham Traders</title>
   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/ledger.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
@@ -63,30 +64,53 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
     </div>
   </header>
+
   <div class="page-content">
-    <div class="coming-soon-wrapper">
-      <div class="coming-soon-card">
-        <div class="coming-soon-icon" style="background:var(--mineral-blue-light);color:var(--mineral-blue);">
-          <i class="fas fa-book"></i>
-        </div>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
         <h2>Supplier Ledger</h2>
-        <p>Complete account history for every supplier — total received, in production, finished, scrap, delivered, and remaining balance.</p>
-        <div class="coming-soon-features">
-          <div class="feature-item"><i class="fas fa-arrow-down"></i> Total received material</div>
-          <div class="feature-item"><i class="fas fa-industry"></i> Sent to production</div>
-          <div class="feature-item"><i class="fas fa-check"></i> Finished goods & scrap</div>
-          <div class="feature-item"><i class="fas fa-truck"></i> Delivered quantity</div>
-          <div class="feature-item"><i class="fas fa-balance-scale"></i> Remaining balance</div>
-        </div>
-        <span class="badge badge-blue" style="font-size:12px;padding:6px 14px;">Phase 8 — Coming Soon</span>
+        <p>Full material flow per supplier — from booking to delivery. Select a supplier to view their account.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="suppliers.html" class="btn btn-secondary"><i class="fas fa-users"></i> Suppliers</a>
       </div>
     </div>
+
+    <!-- TWO-PANEL LAYOUT -->
+    <div class="ledger-layout">
+
+      <!-- LEFT: Supplier list -->
+      <div class="supplier-list-panel">
+        <div class="slp-header">
+          <h4><i class="fas fa-users" style="margin-right:6px;color:var(--teal);"></i>Suppliers</h4>
+          <div class="slp-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="supplierSearch" placeholder="Search suppliers..." autocomplete="off" />
+          </div>
+        </div>
+        <div class="slp-list" id="supplierListItems"></div>
+      </div>
+
+      <!-- RIGHT: Ledger detail -->
+      <div class="ledger-detail-panel" id="ledgerDetailPanel">
+        <div class="ledger-empty">
+          <i class="fas fa-book-open"></i>
+          <p>Select a supplier from the list to view their ledger.</p>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </main>
 
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
+<script src="js/ledger.js"></script>
 </body>
 </html>

@@ -1,0 +1,246 @@
+/* =============================================
+   ARHAM TRADERS — SUPPLIER LEDGER
+   css/ledger.css  |  Phase 8
+   ============================================= */
+
+/* ---- Two-panel layout ---- */
+.ledger-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ---- Supplier list panel ---- */
+.supplier-list-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+.slp-header {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.slp-header h4 {
+  font-size: 13px; font-weight: 700; margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.slp-search {
+  position: relative;
+}
+.slp-search input {
+  width: 100%; padding: 7px 10px 7px 32px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 7px; font-size: 12.5px; color: var(--text-primary);
+  outline: none;
+  transition: border-color .15s;
+}
+.slp-search input:focus { border-color: var(--teal); }
+.slp-search i {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 12px; color: var(--text-muted);
+}
+.slp-list {
+  overflow-y: auto;
+  flex: 1;
+}
+.slp-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border);
+  transition: background .15s;
+}
+.slp-item:hover  { background: var(--color-surface-2); }
+.slp-item.active { background: rgba(42,157,143,.1); border-left: 3px solid var(--teal); }
+.slp-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.slp-info { min-width: 0; }
+.slp-name {
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.slp-city { font-size: 11px; color: var(--text-muted); }
+.slp-bal {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 11px; font-weight: 700;
+  padding: 2px 7px; border-radius: 5px;
+}
+.slp-bal.has-bal  { background: rgba(42,157,143,.12); color: var(--teal); }
+.slp-bal.zero-bal { background: var(--color-surface-2); color: var(--text-muted); }
+
+/* ---- Ledger detail panel ---- */
+.ledger-detail-panel {
+  min-width: 0;
+}
+
+/* ---- Empty / select state ---- */
+.ledger-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 20px; text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+.ledger-empty i { font-size: 48px; color: var(--text-muted); margin-bottom: 16px; }
+.ledger-empty p { color: var(--text-muted); font-size: 14px; }
+
+/* ---- Supplier info header in detail ---- */
+.ledger-sup-header {
+  background: linear-gradient(135deg, var(--mineral-blue) 0%, #1a3545 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 18px;
+}
+.lsh-avatar {
+  width: 54px; height: 54px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900; background: rgba(255,255,255,.15);
+  flex-shrink: 0;
+}
+.lsh-info h3 { font-size: 17px; font-weight: 800; }
+.lsh-info p  { font-size: 12px; opacity: .75; margin: 3px 0 0; }
+.lsh-actions { margin-left: auto; display: flex; gap: 8px; }
+.lsh-btn {
+  padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+  background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.25);
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .15s;
+  text-decoration: none;
+}
+.lsh-btn:hover { background: rgba(255,255,255,.25); }
+
+/* ---- Summary flow cards ---- */
+.ledger-flow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.lf-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px; padding: 14px 12px;
+  text-align: center;
+  position: relative;
+}
+.lf-card::after {
+  content: '→';
+  position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 14px; z-index: 1;
+}
+.lf-card:last-child::after { display: none; }
+.lf-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; margin: 0 auto 8px;
+}
+.lf-card.lf-received    .lf-icon { background: rgba(42,157,143,.12); color: var(--teal); }
+.lf-card.lf-warehouse   .lf-icon { background: rgba(38,70,83,.12);   color: var(--mineral-blue); }
+.lf-card.lf-production  .lf-icon { background: rgba(232,196,50,.12); color: #b8960a; }
+.lf-card.lf-finished    .lf-icon { background: rgba(56,176,0,.12);   color: var(--emerald); }
+.lf-card.lf-scrap       .lf-icon { background: rgba(108,117,117,.12);color: var(--stone); }
+.lf-card.lf-delivered   .lf-icon { background: rgba(224,123,57,.15); color: var(--copper); }
+.lf-value { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+.lf-label { font-size: 10.5px; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
+
+/* ---- Balance box ---- */
+.ledger-balance-box {
+  background: linear-gradient(135deg, rgba(42,157,143,.1) 0%, rgba(38,70,83,.08) 100%);
+  border: 1.5px solid rgba(42,157,143,.3);
+  border-radius: 12px; padding: 18px 22px;
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.lbb-item { text-align: center; min-width: 110px; }
+.lbb-value { font-size: 20px; font-weight: 900; }
+.lbb-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
+.lbb-divider { width: 1px; height: 50px; background: var(--color-border); }
+
+/* ---- Transaction timeline ---- */
+.timeline-section h4 {
+  font-size: 13px; font-weight: 700;
+  margin-bottom: 14px; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.timeline {
+  position: relative;
+  padding-left: 26px;
+}
+.timeline::before {
+  content: '';
+  position: absolute; left: 8px; top: 0; bottom: 0;
+  width: 2px; background: var(--color-border);
+}
+.tl-item {
+  position: relative; margin-bottom: 16px;
+}
+.tl-dot {
+  position: absolute; left: -22px; top: 6px;
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid var(--color-surface);
+  flex-shrink: 0;
+}
+.tl-booking    .tl-dot { background: var(--teal); }
+.tl-production .tl-dot { background: #b8960a; }
+.tl-finished   .tl-dot { background: var(--emerald); }
+.tl-delivery   .tl-dot { background: var(--copper); }
+
+.tl-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px; padding: 11px 14px;
+  transition: box-shadow .15s;
+}
+.tl-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.1); }
+.tl-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px;
+}
+.tl-type {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  padding: 2px 8px; border-radius: 5px;
+}
+.tl-booking    .tl-type { background: rgba(42,157,143,.12);  color: var(--teal); }
+.tl-production .tl-type { background: rgba(232,196,50,.12);  color: #b8960a; }
+.tl-finished   .tl-type { background: rgba(56,176,0,.12);    color: var(--emerald); }
+.tl-delivery   .tl-type { background: rgba(224,123,57,.15);  color: var(--copper); }
+
+.tl-date  { font-size: 11px; color: var(--text-muted); }
+.tl-body  { font-size: 13px; color: var(--text-secondary); }
+.tl-weight { font-weight: 800; color: var(--text-primary); font-size: 13.5px; }
+
+.tl-empty {
+  text-align: center; padding: 30px;
+  color: var(--text-muted); font-size: 13px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .ledger-flow { grid-template-columns: repeat(3, 1fr); }
+  .ledger-flow .lf-card::after { display: none; }
+}
+@media (max-width: 860px) {
+  .ledger-layout { grid-template-columns: 1fr; }
+  .supplier-list-panel { position: static; max-height: 260px; }
+}
+@media (max-width: 600px) {
+  .ledger-flow { grid-template-columns: repeat(2, 1fr); }
+  .lsh-actions { display: none; }
+  .ledger-balance-box { gap: 12px; }
+}
