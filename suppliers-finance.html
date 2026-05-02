@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suppliers Finance — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/suppliers-finance.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Operations</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="suppliers-finance.html" class="nav-item active nav-child"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span><span class="nav-badge" id="todayBookingBadge">0</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Stock</span>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Accounts</span>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Suppliers Finance</h1>
+        <span class="breadcrumb">Booking payments &amp; balance tracking</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Refresh" onclick="renderSFDashboard()"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div id="sfRoot">
+
+      <!-- ==================== LIST VIEW ==================== -->
+      <div id="sfListView">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Suppliers Finance</h2>
+            <p>All supplier bookings auto-loaded. Track received payments and outstanding balances.</p>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="sf-summary-row">
+          <div class="sf-sum-card ssc-suppliers">
+            <div class="sf-sum-icon"><i class="fas fa-users"></i></div>
+            <div><div class="sf-sum-value" id="sfSumSuppliers">0</div><div class="sf-sum-label">Active Suppliers</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+          <div class="sf-sum-card ssc-bookings">
+            <div class="sf-sum-icon"><i class="fas fa-clipboard-list"></i></div>
+            <div><div class="sf-sum-value" id="sfSumBookings">PKR 0</div><div class="sf-sum-label">Total Booking Amt</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+          <div class="sf-sum-card ssc-received">
+            <div class="sf-sum-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+            <div><div class="sf-sum-value" id="sfSumReceived">PKR 0</div><div class="sf-sum-label">Total Received</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+          <div class="sf-sum-card ssc-balance" id="sfSumBalCard">
+            <div class="sf-sum-icon"><i class="fas fa-scale-balanced"></i></div>
+            <div><div class="sf-sum-value" id="sfSumBalance">PKR 0</div><div class="sf-sum-label">Balance Due</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="sf-controls">
+          <div class="sf-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="sfListSearch" placeholder="Search suppliers by name or phone..." autocomplete="off" />
+          </div>
+          <select class="sf-month-filter" id="sfListMonthFilter">
+            <option value="">All Time</option>
+          </select>
+        </div>
+
+        <!-- Supplier Cards -->
+        <div class="sf-suppliers-grid" id="sfSupplierCards"></div>
+
+      </div>
+      <!-- END LIST VIEW -->
+
+
+      <!-- ==================== DETAIL VIEW ==================== -->
+      <div id="sfDetailView">
+
+        <!-- Back + supplier info -->
+        <div class="sf-detail-back">
+          <button class="sf-back-btn" onclick="sfGoBack()">
+            <i class="fas fa-arrow-left"></i> Back to Suppliers
+          </button>
+          <div class="sf-det-sup-info">
+            <h3 id="sfDetSupName">Supplier</h3>
+            <div class="sf-det-sup-meta" id="sfDetSupMeta"></div>
+          </div>
+        </div>
+
+        <!-- Balance Cards -->
+        <div class="sf-det-bal-row">
+          <div class="sf-dbal-card dbc-booking">
+            <div class="sf-dbal-icon"><i class="fas fa-clipboard-list"></i></div>
+            <div><div class="sf-dbal-value" id="sfDetTotalBk">PKR 0</div><div class="sf-dbal-label">Total Booking Amount</div></div>
+            <div class="sf-dbal-glow"></div>
+          </div>
+          <div class="sf-dbal-card dbc-received">
+            <div class="sf-dbal-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+            <div><div class="sf-dbal-value" id="sfDetTotalRcv">PKR 0</div><div class="sf-dbal-label">Amount Received</div></div>
+            <div class="sf-dbal-glow"></div>
+          </div>
+          <div class="sf-dbal-card dbc-balance" id="sfDetBalCard">
+            <div class="sf-dbal-icon"><i class="fas fa-scale-balanced"></i></div>
+            <div><div class="sf-dbal-value" id="sfDetBalance">PKR 0</div><div class="sf-dbal-label">Balance Due</div></div>
+            <div class="sf-dbal-glow"></div>
+          </div>
+        </div>
+
+        <!-- Detail Controls -->
+        <div class="sf-det-controls">
+          <div class="sf-det-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="sfDetSearch" placeholder="Search booking no, description, date..." autocomplete="off" />
+          </div>
+          <select class="sf-det-month-filter" id="sfDetMonthFilter">
+            <option value="">All Time</option>
+          </select>
+        </div>
+
+        <!-- Mobile Tabs -->
+        <div class="sf-mobile-tabs">
+          <button class="sf-mob-tab mob-bk" id="sfMobBkTab" onclick="sfSwitchMobTab('bookings')">
+            <i class="fas fa-clipboard-list"></i> Bookings
+          </button>
+          <button class="sf-mob-tab" id="sfMobRcvTab" onclick="sfSwitchMobTab('received')">
+            <i class="fas fa-hand-holding-dollar"></i> Received
+          </button>
+        </div>
+
+        <!-- Two Panels -->
+        <div class="sf-det-panels">
+
+          <!-- BOOKINGS PANEL (auto-populated) -->
+          <div class="sf-det-panel" id="sfBkPanel">
+            <div class="sf-det-panel-header">
+              <div class="sf-det-panel-title sf-bk-panel-title">
+                <i class="fas fa-clipboard-list"></i> Bookings (Auto-Loaded)
+              </div>
+              <span class="sf-panel-total sf-bk-total-badge" id="sfBkPanelTotal">PKR 0</span>
+            </div>
+            <div class="sf-bk-table-wrap" id="sfBkTableWrap">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- AMOUNT RECEIVED PANEL -->
+          <div class="sf-det-panel" id="sfRcvPanel">
+            <div class="sf-det-panel-header">
+              <div class="sf-det-panel-title sf-rcv-panel-title">
+                <i class="fas fa-hand-holding-dollar"></i> Amount Received
+              </div>
+              <span class="sf-panel-total sf-rcv-total-badge" id="sfRcvPanelTotal">PKR 0</span>
+            </div>
+
+            <!-- Add payment form -->
+            <div class="sf-rcv-form">
+              <form id="sfRcvForm" novalidate>
+                <div class="sf-rcv-form-row">
+                  <input type="date"   id="sfPayDate"   class="sf-rcv-input" required />
+                  <input type="text"   id="sfPayDesc"   class="sf-rcv-input" placeholder="Description *" maxlength="200" autocomplete="off" required />
+                </div>
+                <div class="sf-rcv-form-row">
+                  <select id="sfPayBankCash" class="sf-rcv-input">
+                    <option value="">Bank / Cash</option>
+                    <option value="bank">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                  </select>
+                  <input type="text" id="sfPayRef" class="sf-rcv-input" placeholder="Reference No (optional)" maxlength="100" autocomplete="off" />
+                </div>
+                <div class="sf-rcv-form-row three-col">
+                  <input type="number" id="sfPayAmount" class="sf-rcv-input" placeholder="Amount (PKR) *" min="0.01" step="0.01" required style="grid-column:1/3;" />
+                  <button type="submit" class="sf-rcv-add-btn">
+                    <i class="fas fa-plus"></i> Add
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Received entries list -->
+            <div class="sf-rcv-list" id="sfRcvList">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Balance Summary Bar -->
+        <div class="sf-balance-bar" id="sfBalanceBar"></div>
+
+      </div>
+      <!-- END DETAIL VIEW -->
+
+    </div>
+  </div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/suppliers-finance.js"></script>
+</body>
+</html>
