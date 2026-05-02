@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Production — Arham Traders</title>
   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/production.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
@@ -63,29 +64,157 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
     </div>
   </header>
+
   <div class="page-content">
-    <div class="coming-soon-wrapper">
-      <div class="coming-soon-card">
-        <div class="coming-soon-icon" style="background:var(--sand-light);color:#b8960a;">
-          <i class="fas fa-industry"></i>
-        </div>
-        <h2>Production Module</h2>
-        <p>Select raw material from warehouse and send to production. Partial quantities supported. Track status from Pending → In Process → Completed.</p>
-        <div class="coming-soon-features">
-          <div class="feature-item"><i class="fas fa-boxes-stacked"></i> Select from warehouse (partial qty)</div>
-          <div class="feature-item"><i class="fas fa-tasks"></i> Status: Pending / In Process / Completed</div>
-          <div class="feature-item"><i class="fas fa-balance-scale"></i> Auto deduct from warehouse stock</div>
-          <div class="feature-item"><i class="fas fa-arrow-right"></i> Feeds into Finished Goods</div>
-        </div>
-        <span class="badge badge-sand" style="font-size:12px;padding:6px 14px;">Phase 5 — Coming Soon</span>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Production</h2>
+        <p>Track mineral processing from Pending to Completed. Send output to Finished Goods.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="warehouse.html" class="btn btn-secondary"><i class="fas fa-warehouse"></i> Warehouse</a>
+        <a href="finished-goods.html" class="btn btn-secondary"><i class="fas fa-layer-group"></i> Finished Goods</a>
       </div>
     </div>
+
+    <!-- PIPELINE CARDS -->
+    <div class="pipeline-row">
+      <div class="pipeline-card pipe-pending">
+        <div class="pipeline-icon"><i class="fas fa-clock"></i></div>
+        <div class="pipeline-info">
+          <div class="pipeline-count" id="pipePendingCount">0</div>
+          <div class="pipeline-label">Pending</div>
+          <div class="pipeline-weight"><i class="fas fa-weight-hanging"></i> <span id="pipePendingKg">0 KG</span></div>
+        </div>
+      </div>
+      <div class="pipeline-card pipe-inprocess">
+        <div class="pipeline-icon"><i class="fas fa-spinner fa-spin"></i></div>
+        <div class="pipeline-info">
+          <div class="pipeline-count" id="pipeInProcessCount">0</div>
+          <div class="pipeline-label">In Process</div>
+          <div class="pipeline-weight"><i class="fas fa-weight-hanging"></i> <span id="pipeInProcessKg">0 KG</span></div>
+        </div>
+      </div>
+      <div class="pipeline-card pipe-completed">
+        <div class="pipeline-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="pipeline-info">
+          <div class="pipeline-count" id="pipeCompletedCount">0</div>
+          <div class="pipeline-label">Completed</div>
+          <div class="pipeline-weight"><i class="fas fa-weight-hanging"></i> <span id="pipeCompletedKg">0 KG</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar" style="margin-bottom:14px;">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search booking no, supplier, description..." autocomplete="off" />
+      </div>
+      <select id="filterSupplier" class="form-control" style="height:38px;width:auto;min-width:160px;">
+        <option value="">All Suppliers</option>
+      </select>
+      <select id="filterStatus" class="form-control" style="height:38px;width:auto;min-width:140px;">
+        <option value="">All Status</option>
+        <option value="pending">Pending</option>
+        <option value="in_process">In Process</option>
+        <option value="completed">Completed</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" id="clearFilters"><i class="fas fa-times"></i> Clear</button>
+      <span class="text-muted" id="productionCount" style="font-size:12.5px;white-space:nowrap;"></span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Booking No</th>
+              <th>Supplier</th>
+              <th>Weight (KG)</th>
+              <th>Description</th>
+              <th>Sent On</th>
+              <th>Status</th>
+              <th>Completed On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productionTableBody"></tbody>
+          <tfoot id="productionTfoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
 
+<!-- COMPLETE PRODUCTION MODAL -->
+<div class="modal-overlay" id="completeProductionModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fas fa-check-circle" style="color:var(--emerald);margin-right:8px;"></i>Complete Production
+      </h3>
+      <button class="modal-close" onclick="closeModal('completeProductionModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Header Info -->
+      <div class="complete-prod-header">
+        <h4><i class="fas fa-clipboard-list" style="margin-right:6px;"></i> <span id="cpBookingNo"></span></h4>
+        <p>Supplier: <strong id="cpSupplier"></strong> &nbsp;·&nbsp; Input: <strong id="cpInputWeight"></strong></p>
+      </div>
+
+      <!-- Output Split -->
+      <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px;">
+        <i class="fas fa-info-circle" style="color:var(--teal);"></i>
+        &nbsp;Enter Finished Goods weight. Scrap is auto-calculated. Both must add up to Input weight.
+      </p>
+
+      <div class="output-split">
+        <div class="output-box output-box-finished">
+          <div class="output-box-icon"><i class="fas fa-layer-group"></i></div>
+          <div class="output-box-label">Finished Goods (KG)</div>
+          <input type="number" id="cpFinished" class="form-control" min="0" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="output-box output-box-scrap">
+          <div class="output-box-icon"><i class="fas fa-recycle"></i></div>
+          <div class="output-box-label">Scrap (KG)</div>
+          <input type="number" id="cpScrap" class="form-control" min="0" step="0.01" placeholder="0.00" />
+        </div>
+      </div>
+
+      <!-- Validation row -->
+      <div class="output-validation" id="outputValidation">
+        <span class="output-validation-label">Input Weight</span>
+        <span class="output-validation-value">—</span>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group">
+        <label class="form-label">Notes (Optional)</label>
+        <input type="text" id="cpNotes" class="form-control"
+          placeholder="e.g. Batch quality good, minor loss in dust" maxlength="300" autocomplete="off" />
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('completeProductionModal')"><i class="fas fa-times"></i> Cancel</button>
+      <button class="btn btn-primary" onclick="confirmCompleteProduction()">
+        <i class="fas fa-check-circle"></i> Save &amp; Move to Finished Goods
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
+<script src="js/production.js"></script>
 </body>
 </html>
