@@ -1,0 +1,163 @@
+/* =============================================
+   ARHAM TRADERS — BOOKING CSS
+   css/booking.css
+   ============================================= */
+
+/* ===== BOOKING FORM CARD ===== */
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 18px;
+  align-items: start;
+}
+
+/* ===== FORM SECTION TITLES ===== */
+.form-section-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; gap: 7px;
+}
+.form-section-title i { color: var(--teal); font-size: 12px; }
+
+/* ===== TOTAL DISPLAY ===== */
+.total-display {
+  background: linear-gradient(135deg, var(--mineral-blue), #1a3442);
+  border-radius: var(--radius-lg); padding: 20px 22px;
+  color: white; margin-top: 4px; position: relative; overflow: hidden;
+}
+.total-display::before {
+  content: ''; position: absolute; right: -20px; top: -20px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.total-display-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.8px; opacity: 0.65; margin-bottom: 6px;
+}
+.total-display-amount {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.5px;
+  display: flex; align-items: baseline; gap: 6px;
+}
+.total-display-amount span { font-size: 14px; font-weight: 500; opacity: 0.65; }
+.total-display-meta {
+  margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap;
+}
+.total-meta-item {
+  font-size: 11.5px; opacity: 0.75;
+  display: flex; align-items: center; gap: 5px;
+}
+.total-meta-item i { font-size: 10px; }
+
+/* ===== BOOKING NUMBER INPUT ===== */
+.booking-no-wrap { position: relative; }
+.booking-no-wrap .form-control {
+  font-weight: 700; letter-spacing: 0.5px;
+  color: var(--teal); font-size: 13px;
+}
+.regen-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: var(--teal-light); color: var(--teal);
+  border: none; padding: 4px 8px; border-radius: var(--radius-sm);
+  font-size: 11px; cursor: pointer; transition: var(--transition);
+  display: flex; align-items: center; gap: 4px; font-weight: 600;
+}
+.regen-btn:hover { background: var(--teal); color: white; }
+
+/* ===== QUICK SUMMARY SIDEBAR ===== */
+.booking-summary-card {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: var(--shadow-sm); position: sticky; top: 80px;
+}
+.bs-header {
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.bs-header i { color: var(--teal); }
+.bs-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+.bs-row:last-of-type { border-bottom: none; }
+.bs-row-label { color: var(--text-muted); font-size: 12px; }
+.bs-row-value { font-weight: 700; color: var(--text-primary); }
+.bs-total-row {
+  background: var(--teal-light); border-radius: var(--radius-md);
+  padding: 11px 12px; display: flex; justify-content: space-between;
+  align-items: center; margin-top: 10px;
+}
+.bs-total-row .bs-row-label { color: var(--teal); font-weight: 700; font-size: 12.5px; }
+.bs-total-row .bs-row-value { color: var(--teal); font-size: 16px; font-weight: 800; }
+
+/* ===== BOOKING TABLE SECTION ===== */
+.bookings-section { margin-top: 22px; }
+.bookings-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.bookings-section-header h3 {
+  font-size: 15px; font-weight: 800; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.bookings-section-header h3 i { color: var(--teal); }
+
+/* ===== RECEIPT MODAL ===== */
+.receipt-actions {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+}
+.receipt-paper {
+  background: #fff; border-radius: var(--radius-md);
+  border: 1px dashed #c8c0b4; padding: 28px 30px;
+  font-size: 12.5px; color: #1e2333; max-width: 420px; margin: 0 auto;
+}
+.receipt-header { text-align: center; margin-bottom: 18px; }
+.receipt-company { font-size: 20px; font-weight: 900; color: var(--mineral-blue); letter-spacing: 0.3px; }
+.receipt-subtitle { font-size: 11px; color: #888; margin-top: 3px; }
+.receipt-title {
+  display: inline-block; background: var(--mineral-blue); color: white;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-top: 10px;
+}
+.receipt-divider { border: none; border-top: 1.5px dashed #d0c8be; margin: 14px 0; }
+.receipt-grid { display: flex; flex-direction: column; gap: 7px; }
+.receipt-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.receipt-row-label { color: #777; font-size: 12px; white-space: nowrap; }
+.receipt-row-value { font-weight: 600; font-size: 12.5px; text-align: right; }
+.receipt-total-box {
+  background: var(--mineral-blue); color: white;
+  padding: 12px 16px; border-radius: var(--radius-md);
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 14px; font-weight: 800;
+}
+.receipt-total-box .label { font-size: 12px; opacity: 0.8; }
+.receipt-total-box .amount { font-size: 18px; }
+.receipt-footer-note {
+  text-align: center; margin-top: 16px;
+  font-size: 10.5px; color: #aaa; line-height: 1.6;
+}
+.receipt-stamp {
+  display: inline-block; border: 2px solid #d0c8be;
+  padding: 4px 12px; border-radius: var(--radius-sm);
+  font-size: 10px; color: #bbb; letter-spacing: 0.5px;
+  text-transform: uppercase; margin-top: 8px;
+}
+
+/* ===== STATUS BADGE in table ===== */
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  display: inline-block; margin-right: 5px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) {
+  .booking-layout { grid-template-columns: 1fr; }
+  .booking-summary-card { position: static; }
+}
+@media (max-width: 768px) {
+  .bookings-section-header { flex-direction: column; align-items: flex-start; }
+  .receipt-paper { padding: 20px 16px; }
+  .total-display-amount { font-size: 22px; }
+}
