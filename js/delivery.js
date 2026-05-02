@@ -278,21 +278,58 @@ function printCurrentReceipt() {
 function downloadDeliveryPdf(id) {
   const d = DB.findById('deliveries', id);
   if (!d) { showToast('Delivery not found.', 'error'); return; }
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = buildReceiptHtml(d);
-  wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;background:#fff;';
-  document.body.appendChild(wrapper);
-  const opt = {
-    margin: 8,
-    filename: `Delivery-${escapeHtml(d.deliveryNo)}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a5', orientation: 'portrait' });
+  const w = doc.internal.pageSize.getWidth();
+
+  /* Header bar */
+  doc.setFillColor(24, 28, 42);
+  doc.rect(0, 0, w, 32, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(17); doc.setFont('helvetica', 'bold');
+  doc.text('ARHAM TRADERS', w / 2, 13, { align: 'center' });
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.text('Mineral Processing & Supply', w / 2, 20, { align: 'center' });
+  doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.text('DELIVERY RECEIPT', w / 2, 28, { align: 'center' });
+
+  /* Detail rows */
+  let y = 44;
+  const row = (label, value) => {
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120);
+    doc.text(label, 14, y);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 30);
+    doc.text(String(value || '—'), w - 14, y, { align: 'right' });
+    y += 9;
   };
-  html2pdf().set(opt).from(wrapper.firstElementChild).save().then(() => {
-    document.body.removeChild(wrapper);
-    showToast('PDF downloaded.', 'success');
-  });
+
+  row('Delivery No', d.deliveryNo);
+  row('Date', formatDate(d.date));
+  row('Supplier', d.supplierName);
+  if (d.refNo) row('Ref No', d.refNo);
+  if (d.description) row('Description', d.description);
+
+  /* Divider */
+  y += 2;
+  doc.setDrawColor(220, 220, 220); doc.line(14, y, w - 14, y); y += 9;
+
+  /* Weight box */
+  doc.setFillColor(224, 123, 57);
+  doc.roundedRect(14, y, w - 28, 22, 3, 3, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.text('TOTAL DELIVERED WEIGHT', w / 2, y + 8, { align: 'center' });
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  doc.text(formatKG(d.weight) + ' KG', w / 2, y + 17, { align: 'center' });
+
+  /* Footer */
+  y += 32;
+  doc.setTextColor(160, 160, 160); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('Thank you for your business', w / 2, y, { align: 'center' });
+  doc.text('Arham Traders Management System', w / 2, y + 6, { align: 'center' });
+
+  doc.save('Delivery-' + d.deliveryNo + '.pdf');
+  showToast('PDF downloaded.', 'success');
 }
 
 function whatsappDeliveryReceipt() {

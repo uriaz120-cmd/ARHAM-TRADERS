@@ -155,43 +155,67 @@ function deleteEntry(type, id, desc) {
 function downloadEntryPdf(type, id) {
   const entry = DB.findById(type === 'income' ? 'income' : 'expenses', id);
   if (!entry) { showToast('Entry not found.', 'error'); return; }
-  const label  = type === 'income' ? 'INCOME' : 'EXPENSE';
-  const color  = type === 'income' ? '#2a9d8f' : '#e07b39';
-  const slipHtml = `
-    <div style="font-family:Arial,sans-serif;padding:20px;max-width:320px;border:1px solid #ddd;border-radius:8px;">
-      <div style="text-align:center;margin-bottom:12px;">
-        <div style="font-size:18px;font-weight:700;color:#181c2a;">ARHAM TRADERS</div>
-        <div style="font-size:11px;color:#888;">Mineral Processing &amp; Trading</div>
-        <div style="display:inline-block;margin-top:6px;padding:3px 14px;background:${color};color:#fff;border-radius:20px;font-size:12px;font-weight:700;">${label} SLIP</div>
-      </div>
-      <hr style="border:none;border-top:1px solid #eee;margin:10px 0;"/>
-      <table style="width:100%;font-size:13px;border-collapse:collapse;">
-        <tr><td style="color:#888;padding:4px 0;">Date</td><td style="font-weight:600;text-align:right;">${formatDate(entry.date)}</td></tr>
-        <tr><td style="color:#888;padding:4px 0;">Description</td><td style="font-weight:600;text-align:right;">${escapeHtml(entry.description)}</td></tr>
-        ${entry.reference ? `<tr><td style="color:#888;padding:4px 0;">Reference</td><td style="font-weight:600;text-align:right;">${escapeHtml(entry.reference)}</td></tr>` : ''}
-        <tr><td style="color:#888;padding:4px 0;">Month</td><td style="font-weight:600;text-align:right;">${_monthLabel(entry.month || _ieMonth)}</td></tr>
-      </table>
-      <div style="margin-top:12px;padding:12px;background:${color}18;border-radius:6px;text-align:center;">
-        <div style="font-size:11px;color:#888;margin-bottom:2px;">AMOUNT</div>
-        <div style="font-size:22px;font-weight:800;color:${color};">PKR ${formatCurrency(entry.amount)}</div>
-      </div>
-      <div style="text-align:center;margin-top:12px;font-size:10px;color:#aaa;">Arham Traders Management System</div>
-    </div>`;
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = slipHtml;
-  wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;background:#fff;';
-  document.body.appendChild(wrapper);
-  const opt = {
-    margin: 6,
-    filename: `${label}-${escapeHtml(entry.id)}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a6', orientation: 'portrait' });
+  const w = doc.internal.pageSize.getWidth();
+  const isIncome = type === 'income';
+  const accentR = isIncome ? 42  : 224;
+  const accentG = isIncome ? 157 : 123;
+  const accentB = isIncome ? 143 : 57;
+  const label   = isIncome ? 'INCOME SLIP' : 'EXPENSE SLIP';
+
+  /* Header */
+  doc.setFillColor(24, 28, 42);
+  doc.rect(0, 0, w, 28, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+  doc.text('ARHAM TRADERS', w / 2, 11, { align: 'center' });
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('Mineral Processing & Trading', w / 2, 17, { align: 'center' });
+
+  /* Badge */
+  doc.setFillColor(accentR, accentG, accentB);
+  doc.roundedRect(w / 2 - 22, 21, 44, 8, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.text(label, w / 2, 26.5, { align: 'center' });
+
+  /* Rows */
+  let y = 40;
+  const row = (lbl, val) => {
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120);
+    doc.text(lbl, 10, y);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 30);
+    doc.text(String(val || '—'), w - 10, y, { align: 'right' });
+    y += 8;
   };
-  html2pdf().set(opt).from(wrapper.firstElementChild).save().then(() => {
-    document.body.removeChild(wrapper);
-    showToast('PDF downloaded.', 'success');
-  });
+
+  row('Date', formatDate(entry.date));
+  row('Description', entry.description);
+  if (entry.reference) row('Reference', entry.reference);
+  row('Month', _monthLabel(entry.month || _ieMonth));
+
+  /* Amount box */
+  y += 3;
+  doc.setFillColor(accentR, accentG, accentB, 0.12);
+  doc.setFillColor(245, 245, 245);
+  doc.roundedRect(10, y, w - 20, 20, 3, 3, 'F');
+  doc.setDrawColor(accentR, accentG, accentB);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(10, y, w - 20, 20, 3, 3, 'S');
+  doc.setTextColor(120, 120, 120); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+  doc.text('AMOUNT', w / 2, y + 7, { align: 'center' });
+  doc.setTextColor(accentR, accentG, accentB);
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  doc.text('PKR ' + formatCurrency(entry.amount), w / 2, y + 15, { align: 'center' });
+
+  /* Footer */
+  y += 28;
+  doc.setTextColor(160, 160, 160); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+  doc.text('Arham Traders Management System', w / 2, y, { align: 'center' });
+
+  doc.save(label.replace(' ', '-') + '-' + entry.id + '.pdf');
+  showToast('PDF downloaded.', 'success');
 }
 
 

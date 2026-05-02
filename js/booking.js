@@ -300,21 +300,61 @@ function printCurrentReceipt() {
 function downloadBookingPdf(id) {
   const b = DB.findById('bookings', id);
   if (!b) { showToast('Booking not found.', 'error'); return; }
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = buildReceiptHtml(b);
-  wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;background:#fff;';
-  document.body.appendChild(wrapper);
-  const opt = {
-    margin: 8,
-    filename: `Booking-${escapeHtml(b.bookingNo)}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a5', orientation: 'portrait' });
+  const w = doc.internal.pageSize.getWidth();
+
+  /* Header bar */
+  doc.setFillColor(24, 28, 42);
+  doc.rect(0, 0, w, 32, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(17); doc.setFont('helvetica', 'bold');
+  doc.text('ARHAM TRADERS', w / 2, 13, { align: 'center' });
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.text('Mineral Processing & Trading', w / 2, 20, { align: 'center' });
+  doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.text('BOOKING RECEIPT', w / 2, 28, { align: 'center' });
+
+  /* Detail rows */
+  let y = 44;
+  const row = (label, value) => {
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120);
+    doc.text(label, 14, y);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 30);
+    doc.text(String(value || '—'), w - 14, y, { align: 'right' });
+    y += 9;
   };
-  html2pdf().set(opt).from(wrapper.firstElementChild).save().then(() => {
-    document.body.removeChild(wrapper);
-    showToast('PDF downloaded.', 'success');
-  });
+
+  row('Booking No', b.bookingNo);
+  row('Date & Time', formatDateTime(b.date));
+  row('Supplier', b.supplierName);
+  if (b.description) row('Description', b.description);
+
+  /* Divider */
+  y += 2;
+  doc.setDrawColor(220, 220, 220); doc.line(14, y, w - 14, y); y += 9;
+
+  row('Weight Received', formatKG(b.weight) + ' KG');
+  row('Rate per KG', 'PKR ' + formatCurrency(b.rate));
+
+  /* Total box */
+  y += 4;
+  doc.setFillColor(42, 157, 143);
+  doc.roundedRect(14, y, w - 28, 22, 3, 3, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+  doc.text('TOTAL AMOUNT', w / 2, y + 8, { align: 'center' });
+  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+  doc.text('PKR ' + formatCurrency(b.total), w / 2, y + 17, { align: 'center' });
+
+  /* Footer */
+  y += 30;
+  doc.setTextColor(160, 160, 160); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('Material received in warehouse and recorded.', w / 2, y, { align: 'center' });
+  doc.text('Arham Traders — Official Receipt', w / 2, y + 6, { align: 'center' });
+
+  doc.save('Booking-' + b.bookingNo + '.pdf');
+  showToast('PDF downloaded.', 'success');
 }
 
 function whatsappReceipt() {
