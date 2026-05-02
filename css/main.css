@@ -191,12 +191,18 @@ body::before {
 .nav-item span:not(.nav-badge) { flex: 1; }
 /* Child nav item (indented, smaller) */
 .nav-item.nav-child {
-  padding-left: 28px; font-size: 12.5px;
-  color: var(--sidebar-text); opacity: .85;
+  padding: 7px 12px 7px 22px;
+  font-size: 12px;
+  color: var(--sidebar-text);
+  opacity: .8;
+  margin-left: 8px;
+  margin-right: 4px;
+  border-left: 2px solid rgba(42,157,143,.35);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
-.nav-item.nav-child i { font-size: 12px; color: var(--teal); opacity: .8; }
-.nav-item.nav-child:hover { opacity: 1; }
-.nav-item.nav-child.active { opacity: 1; }
+.nav-item.nav-child i { font-size: 11px; color: var(--teal); opacity: .85; width: 14px; }
+.nav-item.nav-child:hover { opacity: 1; border-left-color: var(--teal); }
+.nav-item.nav-child.active { opacity: 1; border-left-color: var(--teal); }
 .nav-badge {
   background: var(--teal); color: white;
   font-size: 10px; font-weight: 700;
