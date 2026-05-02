@@ -1,0 +1,99 @@
+/* =============================================
+   ARHAM TRADERS — SUPPLIERS CSS
+   css/suppliers.css
+   ============================================= */
+
+/* ===== MINI STATS ROW ===== */
+.sup-mini-stats {
+  display: flex; gap: 12px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.mini-stat {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: 14px 18px;
+  flex: 1; min-width: 160px; box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.mini-stat:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.mini-stat-icon {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.mini-stat-value {
+  font-size: 22px; font-weight: 800; color: var(--text-primary); line-height: 1.1;
+}
+.mini-stat-label {
+  font-size: 11px; color: var(--text-muted); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+/* ===== AVATAR ===== */
+.sup-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 12px; font-weight: 800;
+  flex-shrink: 0; letter-spacing: 0.5px;
+}
+
+/* ===== TABLE CARD ===== */
+.sup-table-card { margin-bottom: 0; }
+.sup-table-card .data-table td { vertical-align: middle; }
+
+/* ===== RESPONSIVE SHOW/HIDE ===== */
+.desktop-view { display: block; }
+.mobile-view  { display: none; }
+
+/* ===== SUPPLIER CARDS (Mobile) ===== */
+.supplier-card {
+  background: var(--color-surface); border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border); padding: 16px 18px;
+  box-shadow: var(--shadow-sm); margin-bottom: 10px;
+  transition: var(--transition);
+}
+.supplier-card:hover { box-shadow: var(--shadow-md); border-color: var(--teal); }
+
+.sc-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.sc-name-block { flex: 1; min-width: 0; }
+.sc-name {
+  font-size: 15px; font-weight: 700; color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-city {
+  font-size: 11.5px; color: var(--text-muted); margin-top: 2px;
+}
+.sc-city i { margin-right: 3px; color: var(--copper); }
+
+.sc-details {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 14px;
+}
+.sc-detail-item {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; color: var(--text-secondary);
+  padding: 6px 9px; background: var(--color-surface-2);
+  border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+}
+.sc-detail-item i {
+  color: var(--teal); font-size: 11px; flex-shrink: 0;
+}
+
+.sc-actions {
+  display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .desktop-view     { display: none !important; }
+  .mobile-view      { display: block !important; }
+  .sup-mini-stats   { gap: 8px; }
+  .mini-stat        { padding: 12px 14px; min-width: 130px; }
+  .mini-stat-value  { font-size: 19px; }
+}
+@media (max-width: 480px) {
+  .sc-details { grid-template-columns: 1fr; }
+  .sup-mini-stats { flex-direction: column; }
+  .mini-stat { flex: unset; }
+}
