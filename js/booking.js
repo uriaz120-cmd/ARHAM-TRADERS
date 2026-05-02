@@ -295,8 +295,28 @@ function printCurrentReceipt() {
 }
 
 /* =============================================
-   WHATSAPP SHARE
+   PDF DOWNLOAD
    ============================================= */
+function downloadBookingPdf(id) {
+  const b = DB.findById('bookings', id);
+  if (!b) { showToast('Booking not found.', 'error'); return; }
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = buildReceiptHtml(b);
+  wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;background:#fff;';
+  document.body.appendChild(wrapper);
+  const opt = {
+    margin: 8,
+    filename: `Booking-${escapeHtml(b.bookingNo)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(wrapper.firstElementChild).save().then(() => {
+    document.body.removeChild(wrapper);
+    showToast('PDF downloaded.', 'success');
+  });
+}
+
 function whatsappReceipt() {
   const b = DB.findById('bookings', _currentReceiptId);
   if (!b) return;
@@ -429,6 +449,10 @@ function renderBookingsTable() {
           <button class="btn btn-secondary btn-sm btn-icon" title="Print"
             onclick="viewReceipt('${escapeHtml(b.id)}');setTimeout(printCurrentReceipt,400);">
             <i class="fas fa-print"></i>
+          </button>
+          <button class="btn btn-secondary btn-sm btn-icon" title="Download PDF"
+            onclick="downloadBookingPdf('${escapeHtml(b.id)}')">
+            <i class="fas fa-file-pdf"></i>
           </button>
           <button class="btn btn-danger btn-sm btn-icon" title="Delete"
             onclick="deleteBooking('${escapeHtml(b.id)}','${escapeHtml(b.bookingNo)}')">

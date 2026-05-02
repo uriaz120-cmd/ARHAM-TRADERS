@@ -150,8 +150,51 @@ function deleteEntry(type, id, desc) {
 }
 
 /* =============================================
-   MAIN RENDER
+   PDF DOWNLOAD — ENTRY SLIP
    ============================================= */
+function downloadEntryPdf(type, id) {
+  const entry = DB.findById(type === 'income' ? 'income' : 'expenses', id);
+  if (!entry) { showToast('Entry not found.', 'error'); return; }
+  const label  = type === 'income' ? 'INCOME' : 'EXPENSE';
+  const color  = type === 'income' ? '#2a9d8f' : '#e07b39';
+  const slipHtml = `
+    <div style="font-family:Arial,sans-serif;padding:20px;max-width:320px;border:1px solid #ddd;border-radius:8px;">
+      <div style="text-align:center;margin-bottom:12px;">
+        <div style="font-size:18px;font-weight:700;color:#181c2a;">ARHAM TRADERS</div>
+        <div style="font-size:11px;color:#888;">Mineral Processing &amp; Trading</div>
+        <div style="display:inline-block;margin-top:6px;padding:3px 14px;background:${color};color:#fff;border-radius:20px;font-size:12px;font-weight:700;">${label} SLIP</div>
+      </div>
+      <hr style="border:none;border-top:1px solid #eee;margin:10px 0;"/>
+      <table style="width:100%;font-size:13px;border-collapse:collapse;">
+        <tr><td style="color:#888;padding:4px 0;">Date</td><td style="font-weight:600;text-align:right;">${formatDate(entry.date)}</td></tr>
+        <tr><td style="color:#888;padding:4px 0;">Description</td><td style="font-weight:600;text-align:right;">${escapeHtml(entry.description)}</td></tr>
+        ${entry.reference ? `<tr><td style="color:#888;padding:4px 0;">Reference</td><td style="font-weight:600;text-align:right;">${escapeHtml(entry.reference)}</td></tr>` : ''}
+        <tr><td style="color:#888;padding:4px 0;">Month</td><td style="font-weight:600;text-align:right;">${_monthLabel(entry.month || _ieMonth)}</td></tr>
+      </table>
+      <div style="margin-top:12px;padding:12px;background:${color}18;border-radius:6px;text-align:center;">
+        <div style="font-size:11px;color:#888;margin-bottom:2px;">AMOUNT</div>
+        <div style="font-size:22px;font-weight:800;color:${color};">PKR ${formatCurrency(entry.amount)}</div>
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:10px;color:#aaa;">Arham Traders Management System</div>
+    </div>`;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = slipHtml;
+  wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;background:#fff;';
+  document.body.appendChild(wrapper);
+  const opt = {
+    margin: 6,
+    filename: `${label}-${escapeHtml(entry.id)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(wrapper.firstElementChild).save().then(() => {
+    document.body.removeChild(wrapper);
+    showToast('PDF downloaded.', 'success');
+  });
+}
+
+
 function renderIE() {
   const isClosed      = _isMonthClosed(_ieMonth);
   const openingBal    = _getOpeningBalance(_ieMonth);
@@ -249,6 +292,10 @@ function _renderEntryList(containerId, entries, type) {
         </div>
       </div>
       <div class="ie-entry-amount ${type}-amount">PKR ${formatCurrency(e.amount)}</div>
+      <button class="ie-entry-del" title="Download PDF" style="background:var(--mineral-blue);"
+        onclick="downloadEntryPdf('${type}','${escapeHtml(e.id)}')">
+        <i class="fas fa-file-pdf"></i>
+      </button>
       ${!_isMonthClosed(_ieMonth)
         ? `<button class="ie-entry-del" title="Delete"
              onclick="deleteEntry('${type}','${escapeHtml(e.id)}','${escapeHtml(e.description)}')">

@@ -272,6 +272,29 @@ function printCurrentReceipt() {
   printElement('receiptPaper');
 }
 
+/* =============================================
+   PDF DOWNLOAD
+   ============================================= */
+function downloadDeliveryPdf(id) {
+  const d = DB.findById('deliveries', id);
+  if (!d) { showToast('Delivery not found.', 'error'); return; }
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = buildReceiptHtml(d);
+  wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;background:#fff;';
+  document.body.appendChild(wrapper);
+  const opt = {
+    margin: 8,
+    filename: `Delivery-${escapeHtml(d.deliveryNo)}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(wrapper.firstElementChild).save().then(() => {
+    document.body.removeChild(wrapper);
+    showToast('PDF downloaded.', 'success');
+  });
+}
+
 function whatsappDeliveryReceipt() {
   const d = _currentReceiptId ? DB.findById('deliveries', _currentReceiptId) : null;
   if (!d) return;
@@ -377,6 +400,10 @@ function renderDeliveryTable() {
           <button class="btn btn-secondary btn-sm btn-icon" title="View Receipt"
             onclick="viewReceipt('${escapeHtml(d.id)}')">
             <i class="fas fa-receipt"></i>
+          </button>
+          <button class="btn btn-secondary btn-sm btn-icon" title="Download PDF"
+            onclick="downloadDeliveryPdf('${escapeHtml(d.id)}')">
+            <i class="fas fa-file-pdf"></i>
           </button>
           <button class="btn btn-danger btn-sm btn-icon" title="Delete"
             onclick="deleteDelivery('${escapeHtml(d.id)}','${escapeHtml(d.deliveryNo)}')">
