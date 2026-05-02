@@ -1,0 +1,191 @@
+/* =============================================
+   ARHAM TRADERS — DELIVERY MODULE
+   css/delivery.css  |  Phase 7
+   ============================================= */
+
+/* ---- Page layout (form left + summary right) ---- */
+.delivery-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 28px;
+}
+
+/* ---- Mini stats row ---- */
+.del-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.del-stat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.del-stat-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.del-stat.ds-total     .del-stat-icon { background: rgba(42,157,143,.15); color: var(--teal); }
+.del-stat.ds-today     .del-stat-icon { background: rgba(56,176,0,.12);   color: var(--emerald); }
+.del-stat.ds-weight    .del-stat-icon { background: rgba(224,123,57,.15); color: var(--copper); }
+.del-stat.ds-available .del-stat-icon { background: rgba(38,70,83,.12);   color: var(--mineral-blue); }
+
+.del-stat-value { font-size: 18px; font-weight: 800; color: var(--text-primary); line-height: 1.2; }
+.del-stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+
+/* ---- Form section header ---- */
+.form-section-title {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-muted);
+  margin: 18px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+.form-section-title:first-child { margin-top: 0; }
+
+/* ---- Delivery no wrap ---- */
+.delivery-no-wrap {
+  position: relative;
+}
+.delivery-no-wrap input {
+  padding-right: 38px;
+}
+.regen-btn {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 14px; padding: 4px;
+  transition: color .15s;
+}
+.regen-btn:hover { color: var(--teal); }
+
+/* ---- Available stock info ---- */
+.avail-stock-info {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px;
+  transition: border-color .2s;
+}
+.avail-stock-info.has-stock  { border-color: var(--teal); }
+.avail-stock-info.no-stock   { border-color: var(--copper); }
+.avail-stock-info.empty-state-inline { border-color: var(--color-border); }
+.avail-stock-icon { font-size: 18px; }
+.avail-stock-info.has-stock  .avail-stock-icon { color: var(--teal); }
+.avail-stock-info.no-stock   .avail-stock-icon { color: var(--copper); }
+.avail-stock-info.empty-state-inline .avail-stock-icon { color: var(--text-muted); }
+.avail-stock-text strong { font-size: 15px; }
+
+/* ---- Weight input with max tag ---- */
+.weight-input-wrap {
+  position: relative;
+}
+.weight-max-tag {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 11px; font-weight: 700;
+  background: var(--teal); color: #fff;
+  border-radius: 5px; padding: 2px 7px;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s;
+}
+.weight-max-tag:hover { background: var(--mineral-blue); }
+.weight-input-wrap input { padding-right: 80px; }
+
+/* ---- Summary sidebar ---- */
+.delivery-summary-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  position: sticky; top: 20px;
+}
+.ds-header {
+  background: linear-gradient(135deg, var(--mineral-blue) 0%, var(--teal) 100%);
+  color: #fff;
+  padding: 18px 20px;
+}
+.ds-header h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.ds-header p  { font-size: 12px; opacity: .75; margin: 0; }
+.ds-body { padding: 16px 20px; }
+.ds-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 13px;
+}
+.ds-row:last-child { border-bottom: none; }
+.ds-row-label { color: var(--text-muted); }
+.ds-row-value { font-weight: 700; color: var(--text-primary); }
+.ds-total-row {
+  background: linear-gradient(135deg, rgba(42,157,143,.08), rgba(38,70,83,.08));
+  border-radius: 8px; padding: 14px 16px;
+  margin-top: 12px;
+  text-align: center;
+}
+.ds-total-label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+.ds-total-value { font-size: 26px; font-weight: 900; color: var(--teal); margin-top: 4px; }
+.ds-total-unit  { font-size: 13px; color: var(--text-muted); }
+
+/* ---- Receipt styles ---- */
+.receipt-paper {
+  background: #fff; color: #1a1a1a;
+  border-radius: 8px;
+  padding: 28px 24px;
+  font-family: 'Courier New', monospace;
+  max-width: 380px; margin: 0 auto;
+}
+.receipt-company {
+  text-align: center; margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px dashed #ccc;
+}
+.receipt-company h3 { font-size: 18px; font-weight: 900; color: var(--teal); margin-bottom: 2px; }
+.receipt-company p  { font-size: 11px; color: #666; margin: 2px 0; }
+.receipt-company .receipt-type {
+  display: inline-block;
+  margin-top: 8px; padding: 3px 14px;
+  background: var(--teal); color: #fff;
+  border-radius: 20px; font-size: 11px; font-weight: 700;
+  font-family: sans-serif;
+}
+.receipt-row {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; font-size: 12.5px;
+  border-bottom: 1px dotted #e0e0e0;
+}
+.receipt-row:last-child { border-bottom: none; }
+.receipt-row .rr-label { color: #555; }
+.receipt-row .rr-value { font-weight: 700; color: #1a1a1a; }
+.receipt-total-box {
+  background: var(--teal); color: #fff;
+  border-radius: 8px; padding: 12px 16px;
+  text-align: center; margin-top: 14px;
+}
+.receipt-total-box .rt-label { font-size: 11px; opacity: .85; }
+.receipt-total-box .rt-value { font-size: 22px; font-weight: 900; margin-top: 2px; }
+.receipt-footer {
+  text-align: center; margin-top: 16px;
+  padding-top: 12px; border-top: 2px dashed #ccc;
+  font-size: 11px; color: #888;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .delivery-layout { grid-template-columns: 1fr; }
+  .delivery-summary-card { position: static; }
+}
+@media (max-width: 700px) {
+  .del-stats { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .del-stats { grid-template-columns: 1fr; }
+}

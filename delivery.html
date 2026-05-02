@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Delivery — Arham Traders</title>
   <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/delivery.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
@@ -63,29 +64,208 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
     </div>
   </header>
+
   <div class="page-content">
-    <div class="coming-soon-wrapper">
-      <div class="coming-soon-card">
-        <div class="coming-soon-icon" style="background:var(--teal-light);color:var(--teal);">
-          <i class="fas fa-truck"></i>
-        </div>
-        <h2>Delivery Management</h2>
-        <p>Deliver finished goods back to suppliers. Automatically deduct from finished goods stock and generate delivery receipts.</p>
-        <div class="coming-soon-features">
-          <div class="feature-item"><i class="fas fa-minus-circle"></i> Deduct from finished goods</div>
-          <div class="feature-item"><i class="fas fa-file-alt"></i> Auto delivery reference no</div>
-          <div class="feature-item"><i class="fas fa-print"></i> Print delivery receipt</div>
-          <div class="feature-item"><i class="fab fa-whatsapp"></i> WhatsApp receipt share</div>
-        </div>
-        <span class="badge badge-teal" style="font-size:12px;padding:6px 14px;">Phase 7 — Coming Soon</span>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Deliveries</h2>
+        <p>Record finished goods delivered back to suppliers. Stock auto-deducts from Finished Goods.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="finished-goods.html" class="btn btn-secondary"><i class="fas fa-layer-group"></i> Finished Goods</a>
       </div>
     </div>
+
+    <!-- MINI STATS -->
+    <div class="del-stats">
+      <div class="del-stat ds-total">
+        <div class="del-stat-icon"><i class="fas fa-truck"></i></div>
+        <div><div class="del-stat-value" id="delStatTotal">0</div><div class="del-stat-label">Total Deliveries</div></div>
+      </div>
+      <div class="del-stat ds-today">
+        <div class="del-stat-icon"><i class="fas fa-calendar-day"></i></div>
+        <div><div class="del-stat-value" id="delStatToday">0</div><div class="del-stat-label">Today's Deliveries</div></div>
+      </div>
+      <div class="del-stat ds-weight">
+        <div class="del-stat-icon"><i class="fas fa-weight-hanging"></i></div>
+        <div><div class="del-stat-value" id="delStatWeight">0 KG</div><div class="del-stat-label">Total Weight Delivered</div></div>
+      </div>
+      <div class="del-stat ds-available">
+        <div class="del-stat-icon"><i class="fas fa-boxes-stacked"></i></div>
+        <div><div class="del-stat-value" id="delStatAvailable">0 KG</div><div class="del-stat-label">Available Stock</div></div>
+      </div>
+    </div>
+
+    <!-- DELIVERY FORM + SUMMARY -->
+    <div class="delivery-layout">
+
+      <!-- LEFT: Form -->
+      <div class="card">
+        <div class="card-body" style="padding:20px 22px;">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:18px;"><i class="fas fa-plus-circle" style="color:var(--teal);margin-right:8px;"></i>New Delivery</h3>
+
+          <form id="deliveryForm" novalidate>
+
+            <div class="form-section-title">Delivery Information</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Delivery No <span class="required">*</span></label>
+                <div class="delivery-no-wrap">
+                  <input type="text" id="fDeliveryNo" class="form-control" readonly />
+                  <button type="button" id="regenDelNo" class="regen-btn" title="Regenerate"><i class="fas fa-sync-alt"></i></button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date <span class="required">*</span></label>
+                <input type="date" id="fDeliveryDate" class="form-control" required />
+              </div>
+            </div>
+
+            <div class="form-section-title">Supplier &amp; Stock</div>
+
+            <div class="form-group">
+              <label class="form-label">Supplier <span class="required">*</span></label>
+              <select id="fSupplier" class="form-control" required>
+                <option value="">— Select Supplier —</option>
+              </select>
+            </div>
+
+            <!-- Available stock indicator -->
+            <div class="avail-stock-info empty-state-inline" id="availStockBox">
+              <span class="avail-stock-icon fas fa-boxes-stacked"></span>
+              <span class="avail-stock-text" id="availStockText">Select a supplier to see available stock.</span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Weight (KG) <span class="required">*</span></label>
+              <div class="weight-input-wrap">
+                <input type="number" id="fWeight" class="form-control" min="0.01" step="0.01" placeholder="0.00" required />
+                <span class="weight-max-tag" id="setMaxWeight" style="display:none;">MAX</span>
+              </div>
+            </div>
+
+            <div class="form-section-title">Additional Details</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Reference No <small style="color:var(--text-muted);">(optional)</small></label>
+                <input type="text" id="fRefNo" class="form-control" placeholder="e.g. Truck no, bill no" maxlength="100" autocomplete="off" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description <small style="color:var(--text-muted);">(optional)</small></label>
+                <input type="text" id="fDescription" class="form-control" placeholder="e.g. Mineral type, grade" maxlength="200" autocomplete="off" />
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:6px;">
+              <button type="submit" class="btn btn-primary" style="flex:1;">
+                <i class="fas fa-truck"></i> Record Delivery
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="resetDeliveryForm()">
+                <i class="fas fa-times"></i> Reset
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- RIGHT: Summary sidebar -->
+      <div class="delivery-summary-card">
+        <div class="ds-header">
+          <h3><i class="fas fa-receipt" style="margin-right:8px;"></i>Delivery Preview</h3>
+          <p>Live summary before saving</p>
+        </div>
+        <div class="ds-body">
+          <div class="ds-row"><span class="ds-row-label">Delivery No</span><span class="ds-row-value" id="sbDelNo">—</span></div>
+          <div class="ds-row"><span class="ds-row-label">Supplier</span><span class="ds-row-value" id="sbDelSupplier">—</span></div>
+          <div class="ds-row"><span class="ds-row-label">Date</span><span class="ds-row-value" id="sbDelDate">—</span></div>
+          <div class="ds-row"><span class="ds-row-label">Available Stock</span><span class="ds-row-value" id="sbDelAvail">—</span></div>
+          <div class="ds-total-row">
+            <div class="ds-total-label">Weight to Deliver</div>
+            <div class="ds-total-value" id="sbDelWeight">— KG</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DELIVERIES TABLE -->
+    <div class="page-header" style="margin-bottom:12px;">
+      <div class="page-header-left">
+        <h3 style="font-size:15px;font-weight:700;">Delivery History</h3>
+      </div>
+    </div>
+
+    <!-- Table Filters -->
+    <div class="filter-bar" style="margin-bottom:14px;">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="delSearchInput" placeholder="Search delivery no, supplier, ref no..." autocomplete="off" />
+      </div>
+      <select id="filterDelSupplier" class="form-control" style="height:38px;width:auto;min-width:160px;">
+        <option value="">All Suppliers</option>
+      </select>
+      <input type="date" id="filterDelDateFrom" class="form-control" style="height:38px;width:auto;" title="From date" />
+      <input type="date" id="filterDelDateTo"   class="form-control" style="height:38px;width:auto;" title="To date" />
+      <button class="btn btn-secondary btn-sm" id="clearDelFilters"><i class="fas fa-times"></i> Clear</button>
+      <span class="text-muted" id="deliveryCount" style="font-size:12.5px;white-space:nowrap;"></span>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Delivery No</th>
+              <th>Supplier</th>
+              <th>Weight (KG)</th>
+              <th>Ref No</th>
+              <th>Description</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="deliveryTableBody"></tbody>
+          <tfoot id="deliveryTfoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
   </div>
 </main>
 
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-receipt" style="color:var(--teal);margin-right:8px;"></i>Delivery Receipt</h3>
+      <button class="modal-close" onclick="closeModal('receiptModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="receiptContainer"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('receiptModal')"><i class="fas fa-times"></i> Close</button>
+      <button class="btn btn-secondary" onclick="whatsappDeliveryReceipt()">
+        <i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp
+      </button>
+      <button class="btn btn-primary" onclick="printCurrentReceipt()">
+        <i class="fas fa-print"></i> Print
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
+<script src="js/delivery.js"></script>
 </body>
 </html>
