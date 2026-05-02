@@ -3,6 +3,88 @@
    css/booking.css
    ============================================= */
 
+/* ===== STAT CARDS ROW ===== */
+.bk-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.bk-stat-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 20px 18px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.bk-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+}
+.bk-stat-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  position: relative; z-index: 1;
+}
+.bk-stat-info {
+  min-width: 0;
+  position: relative; z-index: 1;
+}
+.bk-stat-value {
+  font-size: 22px; font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bk-stat-label {
+  font-size: 11.5px; font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .045em;
+  margin-top: 3px;
+}
+/* Decorative accent circle */
+.bk-stat-accent {
+  position: absolute;
+  right: -18px; top: -18px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  opacity: .07;
+}
+
+/* Color variants */
+.bk-stat-teal   .bk-stat-icon   { background: rgba(42,157,143,.15); color: var(--teal); }
+.bk-stat-teal   .bk-stat-accent { background: var(--teal); }
+.bk-stat-teal   { border-top: 3px solid var(--teal); }
+
+.bk-stat-emerald .bk-stat-icon  { background: rgba(56,176,0,.12);   color: var(--emerald); }
+.bk-stat-emerald .bk-stat-accent{ background: var(--emerald); }
+.bk-stat-emerald { border-top: 3px solid var(--emerald); }
+
+.bk-stat-copper .bk-stat-icon   { background: rgba(224,123,57,.15); color: var(--copper); }
+.bk-stat-copper .bk-stat-accent { background: var(--copper); }
+.bk-stat-copper { border-top: 3px solid var(--copper); }
+
+.bk-stat-blue   .bk-stat-icon   { background: rgba(38,70,83,.12);   color: var(--mineral-blue); }
+.bk-stat-blue   .bk-stat-accent { background: var(--mineral-blue); }
+.bk-stat-blue   { border-top: 3px solid var(--mineral-blue); }
+
+@media (max-width: 900px) {
+  .bk-stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .bk-stats-row { grid-template-columns: 1fr; }
+}
+
 /* ===== BOOKING FORM CARD ===== */
 .booking-layout {
   display: grid;
