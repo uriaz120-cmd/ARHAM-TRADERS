@@ -36,65 +36,6 @@
     console.warn('[Supabase] Init failed:', e);
   }
 
-  /* ===========================================
-     LOADING OVERLAY
-     =========================================== */
-  function _showOverlay() {
-    if (document.getElementById('_atSbOv')) return;
-    const ov = document.createElement('div');
-    ov.id = '_atSbOv';
-    ov.innerHTML = `
-      <style>
-        #_atSbOv {
-          position: fixed; inset: 0;
-          background: #181c2a;
-          z-index: 999999;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center; gap: 16px;
-          font-family: 'Segoe UI', sans-serif;
-        }
-        #_atSbOv .at-sp {
-          width: 48px; height: 48px; border-radius: 50%;
-          border: 4px solid rgba(42,157,143,.2);
-          border-top-color: #2a9d8f;
-          animation: _atSpin .75s linear infinite;
-        }
-        @keyframes _atSpin { to { transform: rotate(360deg); } }
-        #_atSbOv .at-ov-title { color: #fff; font-size: 15px; font-weight: 700; margin: 0; }
-        #_atSbOv .at-ov-sub   { color: rgba(255,255,255,.4); font-size: 12px; margin: 0; }
-        #_atSbOv .at-brand    {
-          display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-        }
-        #_atSbOv .at-brand-icon {
-          width: 44px; height: 44px; border-radius: 12px;
-          background: linear-gradient(135deg, #2a9d8f, #264653);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 20px; color: #fff;
-        }
-        #_atSbOv .at-brand-name { color: #fff; font-size: 16px; font-weight: 800; }
-        #_atSbOv .at-brand-sub  { color: rgba(255,255,255,.5); font-size: 11px; }
-      </style>
-      <div class="at-brand">
-        <div class="at-brand-icon">&#128142;</div>
-        <div>
-          <div class="at-brand-name">Arham Traders</div>
-          <div class="at-brand-sub">Management System</div>
-        </div>
-      </div>
-      <div class="at-sp"></div>
-      <p class="at-ov-title" id="_atSbMsg">Connecting to database...</p>
-      <p class="at-ov-sub">Please wait</p>`;
-    document.body.appendChild(ov);
-  }
-
-  function _hideOverlay() {
-    document.getElementById('_atSbOv')?.remove();
-  }
-
-  function _setMsg(msg) {
-    const el = document.getElementById('_atSbMsg');
-    if (el) el.textContent = msg;
-  }
 
   /* ===========================================
      SYNC: Supabase → localStorage
@@ -102,7 +43,6 @@
   async function _syncFromSupabase() {
     if (!_supa) return;
     try {
-      _setMsg('Syncing data...');
       const results = await Promise.all(
         _ALL_KEYS.map(key =>
           _supa
@@ -122,7 +62,6 @@
           localStorage.setItem('at_' + key, JSON.stringify(items));
         }
       });
-      _setMsg('Data ready!');
     } catch (e) {
       console.warn('[Supabase] Sync failed (offline? using local data):', e);
     }
@@ -192,25 +131,16 @@
 
   /* Register OUR real DOMContentLoaded using the original method */
   _origProto.call(document, 'DOMContentLoaded', async function () {
-    /* 1. Show overlay immediately */
-    _showOverlay();
-
-    /* 2. Sync from Supabase */
+    /* 1. Sync from Supabase (silent, no overlay) */
     await _syncFromSupabase();
 
-    /* 3. Patch DB writes */
+    /* 2. Patch DB writes */
     _patchDB();
 
-    /* 4. Restore original addEventListener */
+    /* 3. Restore original addEventListener */
     EventTarget.prototype.addEventListener = _origProto;
 
-    /* 5. Small delay so "Data ready!" message shows briefly */
-    await new Promise(r => setTimeout(r, 180));
-
-    /* 6. Hide overlay */
-    _hideOverlay();
-
-    /* 7. Run all queued module DOMContentLoaded handlers */
+    /* 4. Run all queued module DOMContentLoaded handlers */
     const evt = new Event('DOMContentLoaded');
     _dclQueue.forEach(handler => {
       try { handler(evt); } catch (e) { console.error('[Module init error]', e); }
