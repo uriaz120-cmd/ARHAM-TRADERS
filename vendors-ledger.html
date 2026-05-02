@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendors Ledger — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/vendors-ledger.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Operations</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span><span class="nav-badge" id="todayBookingBadge">0</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Stock</span>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Accounts</span>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="vendors-ledger.html" class="nav-item active"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Vendors Ledger</h1>
+        <span class="breadcrumb">Manage vendor accounts &amp; monthly balances</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Add Vendor" onclick="openAddVendorModal()"><i class="fas fa-plus"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Root div for view switching -->
+    <div id="vlRoot">
+
+      <!-- ==================== LIST / DASHBOARD VIEW ==================== -->
+      <div id="vlVendorList">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Vendors Ledger</h2>
+            <p>Track expenses and payments for each vendor. Auto balance, monthly closing with carry-forward.</p>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="vl-summary-row">
+          <div class="vl-sum-card sc-vendors">
+            <div class="vl-sum-icon"><i class="fas fa-store"></i></div>
+            <div class="vl-sum-info"><div class="vl-sum-value" id="vlSumVendors">0</div><div class="vl-sum-label">Total Vendors</div></div>
+            <div class="vl-sum-glow"></div>
+          </div>
+          <div class="vl-sum-card sc-expense">
+            <div class="vl-sum-icon"><i class="fas fa-arrow-trend-up"></i></div>
+            <div class="vl-sum-info"><div class="vl-sum-value" id="vlSumExpense">PKR 0</div><div class="vl-sum-label">Monthly Expenses</div></div>
+            <div class="vl-sum-glow"></div>
+          </div>
+          <div class="vl-sum-card sc-payment">
+            <div class="vl-sum-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="vl-sum-info"><div class="vl-sum-value" id="vlSumPayment">PKR 0</div><div class="vl-sum-label">Monthly Payments</div></div>
+            <div class="vl-sum-glow"></div>
+          </div>
+          <div class="vl-sum-card sc-balance">
+            <div class="vl-sum-icon"><i class="fas fa-scale-balanced"></i></div>
+            <div class="vl-sum-info"><div class="vl-sum-value" id="vlSumBalance">PKR 0</div><div class="vl-sum-label">Total Balance Owed</div></div>
+            <div class="vl-sum-glow"></div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="vl-controls">
+          <div class="vl-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="vlDashSearch" placeholder="Search vendors by name, phone, CNIC..." autocomplete="off" />
+          </div>
+          <button class="vl-add-vendor-btn" onclick="openAddVendorModal()">
+            <i class="fas fa-plus"></i> Add Vendor
+          </button>
+        </div>
+
+        <!-- Monthly table with month nav -->
+        <div class="vl-monthly-table-wrap">
+          <div class="vl-monthly-table-header">
+            <h4><i class="fas fa-table" style="color:var(--teal);"></i> Monthly Summary</h4>
+            <div class="vl-month-nav-row" style="margin:0;">
+              <div class="vl-month-nav">
+                <button id="vlDashPrev" title="Previous month"><i class="fas fa-chevron-left"></i></button>
+                <span class="vl-month-label" id="vlDashMonthLabel">May 2026</span>
+                <button id="vlDashNext" title="Next month"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="vl-mtable">
+              <thead>
+                <tr>
+                  <th>Vendor</th>
+                  <th>Phone</th>
+                  <th>Expenses</th>
+                  <th>Payments</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="vlMonthlyTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vendor Cards Grid -->
+        <div class="vl-vendors-grid" id="vlVendorCards"></div>
+
+      </div>
+      <!-- END LIST VIEW -->
+
+
+      <!-- ==================== DETAIL VIEW ==================== -->
+      <div id="vlVendorDetail">
+
+        <!-- Back + Vendor info -->
+        <div class="vl-detail-back">
+          <button class="vl-back-btn" onclick="vlGoBack()">
+            <i class="fas fa-arrow-left"></i> Back to Vendors
+          </button>
+          <div class="vl-vendor-detail-info">
+            <h3 id="vlDetVendorName">Vendor Name</h3>
+            <div class="vl-vendor-detail-meta" id="vlDetVendorMeta"></div>
+          </div>
+          <div class="vl-vendor-action-btns">
+            <button class="vl-edit-vendor-btn" onclick="openEditVendorModal()">
+              <i class="fas fa-pen"></i> Edit
+            </button>
+            <button class="vl-del-vendor-btn" onclick="vlDeleteVendor()">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+
+        <!-- Balance Cards -->
+        <div class="vl-detail-bal-row">
+          <div class="vl-dbal-card dbc-open">
+            <div class="vl-dbal-icon"><i class="fas fa-door-open"></i></div>
+            <div><div class="vl-dbal-value" id="vlDetOpeningBal">PKR 0</div><div class="vl-dbal-label">Opening Balance</div></div>
+            <div class="vl-dbal-glow"></div>
+          </div>
+          <div class="vl-dbal-card dbc-expense">
+            <div class="vl-dbal-icon"><i class="fas fa-arrow-trend-up"></i></div>
+            <div><div class="vl-dbal-value" id="vlDetTotalExp">PKR 0</div><div class="vl-dbal-label">Total Expenses</div></div>
+            <div class="vl-dbal-glow"></div>
+          </div>
+          <div class="vl-dbal-card dbc-payment">
+            <div class="vl-dbal-icon"><i class="fas fa-money-bill-wave"></i></div>
+            <div><div class="vl-dbal-value" id="vlDetTotalPay">PKR 0</div><div class="vl-dbal-label">Total Payments</div></div>
+            <div class="vl-dbal-glow"></div>
+          </div>
+          <div class="vl-dbal-card dbc-net" id="vlDetNetCard">
+            <div class="vl-dbal-icon"><i class="fas fa-scale-balanced"></i></div>
+            <div><div class="vl-dbal-value" id="vlDetNetBal">PKR 0</div><div class="vl-dbal-label">Net Balance Owed</div></div>
+            <div class="vl-dbal-glow"></div>
+          </div>
+        </div>
+
+        <!-- Detail Controls -->
+        <div class="vl-detail-controls">
+          <div class="vl-det-month-nav">
+            <button id="vlDetPrev" title="Previous month"><i class="fas fa-chevron-left"></i></button>
+            <span class="vl-det-month-label" id="vlDetMonthLabel">May 2026</span>
+            <button id="vlDetNext" title="Next month"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <span class="vl-month-badge vmb-open" id="vlDetMonthBadge">
+            <i class="fas fa-lock-open"></i> Open
+          </span>
+          <div class="vl-det-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="vlDetSearch" placeholder="Search description, reference, date..." autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Mobile Tabs -->
+        <div class="vl-mobile-tabs">
+          <button class="vl-mob-tab mob-expense" id="vlMobExpTab" onclick="vlSwitchMobTab('expense')">
+            <i class="fas fa-arrow-trend-up"></i> Expenses
+          </button>
+          <button class="vl-mob-tab" id="vlMobPayTab" onclick="vlSwitchMobTab('payment')">
+            <i class="fas fa-money-bill-wave"></i> Payments
+          </button>
+        </div>
+
+        <!-- Two Panels -->
+        <div class="vl-det-panels">
+
+          <!-- EXPENSE PANEL -->
+          <div class="vl-det-panel" id="vlExpPanel">
+            <div class="vl-det-panel-header">
+              <div class="vl-det-panel-title exp-title">
+                <i class="fas fa-arrow-trend-up"></i> Expenses
+              </div>
+              <span class="vl-det-panel-total exp-total-badge" id="vlExpPanelTotal">PKR 0</span>
+            </div>
+            <div class="vl-det-form">
+              <form id="vlExpForm" novalidate>
+                <div class="vl-det-form-row">
+                  <input type="date"   id="vlExpDate"   class="vl-det-input" required />
+                  <input type="text"   id="vlExpDesc"   class="vl-det-input" placeholder="Description *" maxlength="200" autocomplete="off" required />
+                </div>
+                <div class="vl-det-form-row three-col">
+                  <input type="text"   id="vlExpRef"    class="vl-det-input" placeholder="Reference (optional)" maxlength="100" autocomplete="off" />
+                  <input type="number" id="vlExpAmount" class="vl-det-input" placeholder="Amount (PKR) *" min="0.01" step="0.01" required />
+                  <button type="submit" class="vl-det-add-btn vl-exp-add-btn">
+                    <i class="fas fa-plus"></i> Add
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div class="vl-entry-list" id="vlExpList"></div>
+          </div>
+
+          <!-- PAYMENT PANEL -->
+          <div class="vl-det-panel" id="vlPayPanel">
+            <div class="vl-det-panel-header">
+              <div class="vl-det-panel-title pay-title">
+                <i class="fas fa-money-bill-wave"></i> Payments
+              </div>
+              <span class="vl-det-panel-total pay-total-badge" id="vlPayPanelTotal">PKR 0</span>
+            </div>
+            <div class="vl-det-form">
+              <form id="vlPayForm" novalidate>
+                <div class="vl-det-form-row">
+                  <input type="date"   id="vlPayDate"   class="vl-det-input" required />
+                  <input type="text"   id="vlPayDesc"   class="vl-det-input" placeholder="Description *" maxlength="200" autocomplete="off" required />
+                </div>
+                <div class="vl-det-form-row three-col">
+                  <input type="text"   id="vlPayRef"    class="vl-det-input" placeholder="Reference (optional)" maxlength="100" autocomplete="off" />
+                  <input type="number" id="vlPayAmount" class="vl-det-input" placeholder="Amount (PKR) *" min="0.01" step="0.01" required />
+                  <button type="submit" class="vl-det-add-btn vl-pay-add-btn">
+                    <i class="fas fa-plus"></i> Add
+                  </button>
+                </div>
+              </form>
+            </div>
+            <div class="vl-entry-list" id="vlPayList"></div>
+          </div>
+
+        </div>
+
+        <!-- Monthly Closing Section -->
+        <div class="vl-closing-section" id="vlClosingSection"></div>
+
+      </div>
+      <!-- END DETAIL VIEW -->
+
+    </div><!-- end #vlRoot -->
+
+  </div>
+</main>
+
+<!-- ==================== ADD / EDIT VENDOR MODAL ==================== -->
+<div class="modal-overlay" id="vlVendorModal" style="display:none;">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 id="vlVendorModalTitle">Add Vendor</h3>
+      <button class="modal-close" onclick="closeModal('vlVendorModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="vl-modal-body">
+      <input type="hidden" id="vlVendorIdField" />
+      <div class="vl-form-grid">
+        <div class="vl-form-group full-col">
+          <label>Vendor Name *</label>
+          <input type="text" id="vlVendorName" placeholder="Enter vendor name" maxlength="150" autocomplete="off" />
+        </div>
+        <div class="vl-form-group">
+          <label>CNIC</label>
+          <input type="text" id="vlVendorCnic" placeholder="e.g. 35201-1234567-1" maxlength="20" autocomplete="off" />
+        </div>
+        <div class="vl-form-group">
+          <label>Phone Number</label>
+          <input type="text" id="vlVendorPhone" placeholder="e.g. 0300-1234567" maxlength="20" autocomplete="off" />
+        </div>
+        <div class="vl-form-group full-col">
+          <label>Address</label>
+          <textarea id="vlVendorAddress" placeholder="Enter full address (optional)" maxlength="300"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="vl-modal-footer">
+      <button class="vl-cancel-btn" onclick="closeModal('vlVendorModal')">Cancel</button>
+      <button class="vl-save-btn" onclick="vlSaveVendor()"><i class="fas fa-save"></i> Save Vendor</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/vendors-ledger.js"></script>
+</body>
+</html>

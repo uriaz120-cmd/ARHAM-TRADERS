@@ -1,0 +1,478 @@
+/* =============================================
+   ARHAM TRADERS — VENDORS LEDGER MODULE
+   css/vendors-ledger.css
+   ============================================= */
+
+/* ---- View switching ---- */
+#vlVendorList  { display: block; }
+#vlVendorDetail { display: none; }
+.vl-show-detail #vlVendorList  { display: none; }
+.vl-show-detail #vlVendorDetail { display: block; }
+
+/* =============================================
+   DASHBOARD / LIST VIEW
+   ============================================= */
+
+/* Summary stats row */
+.vl-summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.vl-sum-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex; align-items: center; gap: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  transition: transform .2s, box-shadow .2s;
+}
+.vl-sum-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.13); }
+.vl-sum-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.vl-sum-info .vl-sum-value {
+  font-size: 19px; font-weight: 900; color: var(--text-primary); line-height: 1.15;
+}
+.vl-sum-info .vl-sum-label {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .04em; margin-top: 3px;
+}
+.vl-sum-glow {
+  position: absolute; right: -18px; top: -18px;
+  width: 80px; height: 80px; border-radius: 50%; opacity: .07;
+}
+
+.vl-sum-card.sc-vendors  { border-top: 3px solid var(--mineral-blue); }
+.sc-vendors  .vl-sum-icon { background: rgba(38,70,83,.12); color: var(--mineral-blue); }
+.sc-vendors  .vl-sum-glow { background: var(--mineral-blue); }
+
+.vl-sum-card.sc-expense  { border-top: 3px solid var(--copper); }
+.sc-expense  .vl-sum-icon { background: rgba(224,123,57,.13); color: var(--copper); }
+.sc-expense  .vl-sum-glow { background: var(--copper); }
+
+.vl-sum-card.sc-payment  { border-top: 3px solid var(--emerald); }
+.sc-payment  .vl-sum-icon { background: rgba(56,176,0,.11); color: var(--emerald); }
+.sc-payment  .vl-sum-glow { background: var(--emerald); }
+
+.vl-sum-card.sc-balance  { border-top: 3px solid var(--teal); }
+.sc-balance  .vl-sum-icon { background: rgba(42,157,143,.13); color: var(--teal); }
+.sc-balance  .vl-sum-glow { background: var(--teal); }
+.sc-balance  .vl-sum-value { color: var(--teal); }
+
+/* ---- Controls bar ---- */
+.vl-controls {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap; margin-bottom: 20px;
+}
+.vl-search-wrap { flex: 1; min-width: 200px; position: relative; }
+.vl-search-wrap i {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 13px;
+}
+.vl-search-wrap input {
+  width: 100%; padding: 9px 12px 9px 34px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 9px; font-size: 13px; color: var(--text-primary); outline: none;
+  transition: border-color .15s;
+}
+.vl-search-wrap input:focus { border-color: var(--teal); }
+.vl-search-wrap input::placeholder { color: var(--text-muted); }
+
+.vl-add-vendor-btn {
+  padding: 9px 18px; border-radius: 9px;
+  background: var(--teal); color: #fff;
+  font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  transition: all .15s; white-space: nowrap;
+}
+.vl-add-vendor-btn:hover { background: #21867a; box-shadow: 0 3px 12px rgba(42,157,143,.35); }
+
+/* ---- Month nav for dashboard ---- */
+.vl-month-nav-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+}
+.vl-month-nav {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 10px; padding: 6px 10px;
+}
+.vl-month-nav button {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 14px; padding: 3px 7px;
+  border-radius: 6px; transition: all .15s;
+}
+.vl-month-nav button:hover { color: var(--teal); background: rgba(42,157,143,.1); }
+.vl-month-label {
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  min-width: 130px; text-align: center;
+}
+
+/* ---- Vendor cards grid ---- */
+.vl-vendors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.vl-vendor-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px; padding: 0; overflow: hidden;
+  cursor: pointer; transition: transform .18s, box-shadow .18s, border-color .18s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+}
+.vl-vendor-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0,0,0,.14);
+  border-color: var(--teal);
+}
+.vl-vendor-card-top {
+  background: linear-gradient(135deg, var(--mineral-blue), #1a3a47);
+  padding: 16px 18px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.vl-vendor-avatar {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff; flex-shrink: 0;
+}
+.vl-vendor-name { font-size: 15px; font-weight: 800; color: #fff; }
+.vl-vendor-phone { font-size: 11.5px; color: rgba(255,255,255,.7); margin-top: 2px; }
+.vl-vendor-card-body { padding: 14px 18px; }
+.vl-vendor-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+.vl-vendor-meta span { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+.vl-vendor-meta i { width: 13px; color: var(--teal); }
+.vl-vendor-bal-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 10px; border-top: 1px solid var(--color-border);
+}
+.vl-vendor-bal-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.vl-vendor-bal-value { font-size: 15px; font-weight: 900; color: var(--copper); }
+.vl-vendor-bal-value.paid-up { color: var(--emerald); }
+.vl-open-btn {
+  padding: 5px 12px; border-radius: 7px;
+  background: rgba(42,157,143,.1); color: var(--teal);
+  border: 1px solid rgba(42,157,143,.25); font-size: 12px; font-weight: 700;
+}
+.vl-empty-vendors {
+  grid-column: 1 / -1; padding: 60px 20px; text-align: center;
+  color: var(--text-muted); font-size: 14px;
+}
+.vl-empty-vendors i { font-size: 40px; display: block; margin-bottom: 10px; opacity: .3; }
+
+/* ---- Monthly vendors table ---- */
+.vl-monthly-table-wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px; overflow: hidden; margin-bottom: 24px;
+}
+.vl-monthly-table-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.vl-monthly-table-header h4 {
+  font-size: 13px; font-weight: 800; color: var(--text-primary);
+  display: flex; align-items: center; gap: 7px;
+}
+.vl-mtable {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.vl-mtable th {
+  background: var(--color-surface-2);
+  padding: 10px 16px; text-align: left;
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+}
+.vl-mtable td {
+  padding: 11px 16px; border-top: 1px solid var(--color-border);
+  color: var(--text-primary); vertical-align: middle;
+}
+.vl-mtable tr:hover td { background: var(--color-surface-2); }
+.vl-mtable .amount-col { font-weight: 700; }
+.vl-mtable .expense-col { color: var(--copper); }
+.vl-mtable .payment-col { color: var(--emerald); }
+.vl-mtable .balance-col { color: var(--teal); font-weight: 800; }
+.vl-mtable .balance-col.owed { color: var(--copper); }
+.vl-status-badge {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+}
+.vsb-open   { background: rgba(56,176,0,.1);   color: var(--emerald); }
+.vsb-closed { background: rgba(108,117,117,.1); color: var(--stone); }
+
+/* =============================================
+   DETAIL VIEW
+   ============================================= */
+
+/* Back button row */
+.vl-detail-back {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.vl-back-btn {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 9px; padding: 8px 16px; font-size: 13px; font-weight: 700;
+  color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 7px;
+  transition: all .15s;
+}
+.vl-back-btn:hover { border-color: var(--teal); color: var(--teal); }
+.vl-vendor-detail-info { flex: 1; min-width: 0; }
+.vl-vendor-detail-info h3 { font-size: 17px; font-weight: 900; color: var(--text-primary); margin: 0 0 4px; }
+.vl-vendor-detail-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.vl-vendor-detail-meta span { display: flex; align-items: center; gap: 5px; }
+.vl-vendor-action-btns { display: flex; gap: 8px; flex-shrink: 0; }
+.vl-edit-vendor-btn, .vl-del-vendor-btn {
+  padding: 8px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+  border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .15s;
+}
+.vl-edit-vendor-btn { background: rgba(42,157,143,.12); color: var(--teal); }
+.vl-edit-vendor-btn:hover { background: var(--teal); color: #fff; }
+.vl-del-vendor-btn  { background: rgba(230,57,70,.1); color: #e63946; }
+.vl-del-vendor-btn:hover  { background: #e63946; color: #fff; }
+
+/* Detail balance cards */
+.vl-detail-bal-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 20px;
+}
+.vl-dbal-card {
+  position: relative; background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: 13px;
+  padding: 16px 14px; display: flex; align-items: center; gap: 12px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  transition: transform .18s, box-shadow .18s;
+}
+.vl-dbal-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+.vl-dbal-icon {
+  width: 44px; height: 44px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;
+}
+.vl-dbal-value { font-size: 17px; font-weight: 900; color: var(--text-primary); line-height: 1.2; }
+.vl-dbal-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+.vl-dbal-glow {
+  position: absolute; right: -15px; top: -15px;
+  width: 70px; height: 70px; border-radius: 50%; opacity: .07;
+}
+
+.vl-dbal-card.dbc-open    { border-top: 3px solid var(--mineral-blue); }
+.dbc-open    .vl-dbal-icon { background: rgba(38,70,83,.12);    color: var(--mineral-blue); }
+.dbc-open    .vl-dbal-glow { background: var(--mineral-blue); }
+
+.vl-dbal-card.dbc-expense { border-top: 3px solid var(--copper); }
+.dbc-expense .vl-dbal-icon { background: rgba(224,123,57,.13); color: var(--copper); }
+.dbc-expense .vl-dbal-glow { background: var(--copper); }
+
+.vl-dbal-card.dbc-payment { border-top: 3px solid var(--emerald); }
+.dbc-payment .vl-dbal-icon { background: rgba(56,176,0,.11);   color: var(--emerald); }
+.dbc-payment .vl-dbal-glow { background: var(--emerald); }
+
+.vl-dbal-card.dbc-net     { border-top: 3px solid var(--teal); }
+.dbc-net     .vl-dbal-icon { background: rgba(42,157,143,.13); color: var(--teal); }
+.dbc-net     .vl-dbal-glow { background: var(--teal); }
+.dbc-net     .vl-dbal-value { color: var(--copper); }
+.dbc-net.clear-net .vl-dbal-value { color: var(--emerald); }
+
+/* Detail controls */
+.vl-detail-controls {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap; margin-bottom: 18px;
+}
+.vl-det-month-nav {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 10px; padding: 6px 10px;
+}
+.vl-det-month-nav button {
+  background: none; border: none; cursor: pointer; color: var(--text-muted);
+  font-size: 14px; padding: 3px 7px; border-radius: 6px; transition: all .15s;
+}
+.vl-det-month-nav button:hover { color: var(--teal); background: rgba(42,157,143,.1); }
+.vl-det-month-label {
+  font-size: 14px; font-weight: 700; color: var(--text-primary); min-width: 130px; text-align: center;
+}
+.vl-det-search-wrap { flex: 1; min-width: 180px; position: relative; }
+.vl-det-search-wrap i {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 12px;
+}
+.vl-det-search-wrap input {
+  width: 100%; padding: 8px 12px 8px 33px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 9px; font-size: 13px; color: var(--text-primary); outline: none;
+  transition: border-color .15s;
+}
+.vl-det-search-wrap input:focus { border-color: var(--teal); }
+.vl-det-search-wrap input::placeholder { color: var(--text-muted); font-size: 12px; }
+.vl-month-badge {
+  padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; gap: 6px;
+}
+.vmb-open   { background: rgba(56,176,0,.1);   color: var(--emerald); border: 1px solid rgba(56,176,0,.2); }
+.vmb-closed { background: rgba(108,117,117,.1); color: var(--stone);   border: 1px solid rgba(108,117,117,.2); }
+
+/* Detail two panels */
+.vl-det-panels {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; align-items: start;
+}
+.vl-det-panel {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 14px; overflow: hidden;
+}
+.vl-det-panel-header {
+  padding: 14px 18px; border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.vl-det-panel-title {
+  font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 7px;
+}
+.vl-det-panel-title.exp-title { color: var(--copper); }
+.vl-det-panel-title.pay-title { color: var(--emerald); }
+.vl-det-panel-total {
+  font-size: 12.5px; font-weight: 700; padding: 4px 11px; border-radius: 20px;
+}
+.exp-total-badge { background: rgba(224,123,57,.12); color: var(--copper); }
+.pay-total-badge { background: rgba(56,176,0,.1);   color: var(--emerald); }
+
+/* Detail quick add form */
+.vl-det-form {
+  padding: 12px 14px; border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+.vl-det-form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 7px;
+}
+.vl-det-form-row.three-col { grid-template-columns: 1fr 1fr auto; }
+.vl-det-input {
+  padding: 7px 10px; background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: 8px;
+  font-size: 12.5px; color: var(--text-primary); outline: none; width: 100%;
+  transition: border-color .15s;
+}
+.vl-det-input:focus { border-color: var(--teal); }
+.vl-det-input::placeholder { color: var(--text-muted); font-size: 12px; }
+.vl-det-add-btn {
+  padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px; transition: all .15s;
+}
+.vl-exp-add-btn  { background: var(--copper);  color: #fff; }
+.vl-exp-add-btn:hover  { background: #c96b2a; box-shadow: 0 3px 10px rgba(224,123,57,.35); }
+.vl-pay-add-btn  { background: var(--emerald); color: #fff; }
+.vl-pay-add-btn:hover  { background: #2db800; box-shadow: 0 3px 10px rgba(56,176,0,.3); }
+
+/* Entry list */
+.vl-entry-list { max-height: 400px; overflow-y: auto; }
+.vl-entry {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 10px 15px; border-bottom: 1px solid var(--color-border); transition: background .12s;
+}
+.vl-entry:last-child { border-bottom: none; }
+.vl-entry:hover { background: var(--color-surface-2); }
+.vl-entry-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.exp-dot { background: var(--copper); }
+.pay-dot { background: var(--emerald); }
+.vl-entry-info { flex: 1; min-width: 0; }
+.vl-entry-desc { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vl-entry-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.vl-entry-amount { font-size: 13.5px; font-weight: 800; flex-shrink: 0; }
+.vl-exp-amount { color: var(--copper); }
+.vl-pay-amount { color: var(--emerald); }
+.vl-entry-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 12px; padding: 2px 4px;
+  border-radius: 5px; transition: color .12s; flex-shrink: 0; margin-top: 2px;
+}
+.vl-entry-del:hover { color: #e63946; }
+.vl-empty-panel { padding: 32px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+.vl-empty-panel i { font-size: 26px; display: block; margin-bottom: 8px; opacity: .35; }
+
+/* Mobile tabs for detail view */
+.vl-mobile-tabs { display: none; gap: 6px; margin-bottom: 14px; }
+.vl-mob-tab {
+  flex: 1; padding: 9px; border-radius: 9px; font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--color-border); background: var(--color-surface);
+  color: var(--text-muted); cursor: pointer; text-align: center; transition: all .15s;
+}
+.vl-mob-tab.mob-expense { border-color: var(--copper);  color: var(--copper);  background: rgba(224,123,57,.1); }
+.vl-mob-tab.mob-payment { border-color: var(--emerald); color: var(--emerald); background: rgba(56,176,0,.1); }
+
+/* Closing section */
+.vl-closing-section {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 14px; padding: 18px 20px; margin-top: 18px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.vl-closing-info { flex: 1; min-width: 180px; }
+.vl-closing-info h4 { font-size: 13.5px; font-weight: 800; margin: 0 0 4px; }
+.vl-closing-info p  { font-size: 12px; color: var(--text-muted); margin: 0; }
+.vl-closing-summary { display: flex; gap: 18px; flex-wrap: wrap; }
+.vl-cs-item { text-align: center; }
+.vl-cs-value { font-size: 15px; font-weight: 800; }
+.vl-cs-label { font-size: 10.5px; color: var(--text-muted); font-weight: 500; }
+.vl-close-btn {
+  padding: 9px 20px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--mineral-blue));
+  color: #fff; font-size: 13px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 7px; transition: all .2s;
+}
+.vl-close-btn:hover { box-shadow: 0 4px 16px rgba(42,157,143,.35); transform: translateY(-1px); }
+.vl-close-btn:disabled { background: var(--color-surface-2); color: var(--text-muted); cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* ---- Add/Edit Vendor Modal ---- */
+.vl-modal-body { padding: 22px 24px; }
+.vl-form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px;
+}
+.vl-form-grid .full-col { grid-column: 1 / -1; }
+.vl-form-group { display: flex; flex-direction: column; gap: 5px; }
+.vl-form-group label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; }
+.vl-form-group input, .vl-form-group textarea {
+  padding: 9px 12px; background: var(--color-surface);
+  border: 1px solid var(--color-border); border-radius: 9px;
+  font-size: 13px; color: var(--text-primary); outline: none; transition: border-color .15s;
+  font-family: inherit;
+}
+.vl-form-group input:focus, .vl-form-group textarea:focus { border-color: var(--teal); }
+.vl-form-group textarea { resize: vertical; min-height: 70px; }
+.vl-modal-footer {
+  padding: 14px 24px; border-top: 1px solid var(--color-border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+.vl-cancel-btn {
+  padding: 9px 20px; border-radius: 9px; background: var(--color-surface-2);
+  color: var(--text-muted); font-size: 13px; font-weight: 700; border: 1px solid var(--color-border); cursor: pointer;
+}
+.vl-save-btn {
+  padding: 9px 22px; border-radius: 9px; background: var(--teal);
+  color: #fff; font-size: 13px; font-weight: 700; border: none; cursor: pointer; transition: all .15s;
+}
+.vl-save-btn:hover { background: #21867a; box-shadow: 0 3px 12px rgba(42,157,143,.3); }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 1000px) {
+  .vl-summary-row   { grid-template-columns: repeat(2, 1fr); }
+  .vl-detail-bal-row { grid-template-columns: repeat(2, 1fr); }
+  .vl-det-panels    { grid-template-columns: 1fr; }
+  .vl-mobile-tabs   { display: flex; }
+  .vl-det-panel.hidden-mob { display: none; }
+}
+@media (max-width: 600px) {
+  .vl-summary-row   { grid-template-columns: 1fr 1fr; }
+  .vl-detail-bal-row { grid-template-columns: 1fr 1fr; }
+  .vl-form-grid     { grid-template-columns: 1fr; }
+  .vl-form-grid .full-col { grid-column: 1; }
+  .vl-det-form-row.three-col { grid-template-columns: 1fr; }
+  .vl-vendors-grid  { grid-template-columns: 1fr; }
+}
+@media (max-width: 400px) {
+  .vl-summary-row   { grid-template-columns: 1fr; }
+  .vl-detail-bal-row { grid-template-columns: 1fr; }
+}
