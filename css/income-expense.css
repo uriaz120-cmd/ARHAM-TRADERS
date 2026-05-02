@@ -1,0 +1,278 @@
+/* =============================================
+   ARHAM TRADERS — INCOME & EXPENSE MODULE
+   css/income-expense.css
+   ============================================= */
+
+/* ---- Balance Overview Cards ---- */
+.ie-balance-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.ie-bal-card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 20px 18px;
+  display: flex; align-items: center; gap: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: transform .2s, box-shadow .2s;
+}
+.ie-bal-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.14); }
+.ie-bal-icon {
+  width: 50px; height: 50px; border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 21px; flex-shrink: 0; position: relative; z-index: 1;
+}
+.ie-bal-info { min-width: 0; position: relative; z-index: 1; }
+.ie-bal-value {
+  font-size: 20px; font-weight: 900; color: var(--text-primary);
+  line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ie-bal-label {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .045em; margin-top: 3px;
+}
+.ie-bal-glow {
+  position: absolute; right: -20px; top: -20px;
+  width: 90px; height: 90px; border-radius: 50%; opacity: .07;
+}
+
+.ie-bal-card.bc-opening  { border-top: 3px solid var(--mineral-blue); }
+.bc-opening  .ie-bal-icon { background: rgba(38,70,83,.12); color: var(--mineral-blue); }
+.bc-opening  .ie-bal-glow { background: var(--mineral-blue); }
+
+.ie-bal-card.bc-income   { border-top: 3px solid var(--emerald); }
+.bc-income   .ie-bal-icon { background: rgba(56,176,0,.12); color: var(--emerald); }
+.bc-income   .ie-bal-glow { background: var(--emerald); }
+
+.ie-bal-card.bc-expense  { border-top: 3px solid var(--copper); }
+.bc-expense  .ie-bal-icon { background: rgba(224,123,57,.15); color: var(--copper); }
+.bc-expense  .ie-bal-glow { background: var(--copper); }
+
+.ie-bal-card.bc-net      { border-top: 3px solid var(--teal); }
+.bc-net      .ie-bal-icon { background: rgba(42,157,143,.15); color: var(--teal); }
+.bc-net      .ie-bal-glow { background: var(--teal); }
+.bc-net      .ie-bal-value { color: var(--teal); }
+.bc-net.negative .ie-bal-value { color: var(--copper); }
+.bc-net.negative { border-top-color: var(--copper); }
+
+/* ---- Month selector + controls bar ---- */
+.ie-controls {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap; margin-bottom: 20px;
+}
+.ie-month-nav {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px; padding: 6px 10px;
+}
+.ie-month-nav button {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 15px; padding: 3px 6px;
+  border-radius: 6px; transition: all .15s;
+}
+.ie-month-nav button:hover { color: var(--teal); background: rgba(42,157,143,.1); }
+.ie-month-label {
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  min-width: 130px; text-align: center;
+}
+.ie-search-wrap {
+  flex: 1; min-width: 200px; position: relative;
+}
+.ie-search-wrap i {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  color: var(--text-muted); font-size: 13px;
+}
+.ie-search-wrap input {
+  width: 100%; padding: 8px 12px 8px 34px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: 9px; font-size: 13px; color: var(--text-primary); outline: none;
+  transition: border-color .15s;
+}
+.ie-search-wrap input:focus { border-color: var(--teal); }
+.ie-search-wrap input::placeholder { color: var(--text-muted); }
+
+/* ---- Month status badge ---- */
+.month-status-badge {
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+}
+.msb-open   { background: rgba(56,176,0,.12);   color: var(--emerald); border: 1px solid rgba(56,176,0,.2); }
+.msb-closed { background: rgba(108,117,117,.12); color: var(--stone);   border: 1px solid rgba(108,117,117,.2); }
+
+/* ---- Two-panel layout ---- */
+.ie-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+/* ---- Panel card ---- */
+.ie-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.ie-panel-header {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ie-panel-title {
+  font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px;
+}
+.ie-panel-title.income-title { color: var(--emerald); }
+.ie-panel-title.expense-title { color: var(--copper); }
+.ie-panel-total {
+  font-size: 13px; font-weight: 700; padding: 4px 12px;
+  border-radius: 20px;
+}
+.income-total  { background: rgba(56,176,0,.1);   color: var(--emerald); }
+.expense-total { background: rgba(224,123,57,.12); color: var(--copper); }
+
+/* ---- Quick add form inside panel ---- */
+.ie-add-form {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+}
+.ie-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.ie-form-row.four-col { grid-template-columns: 1fr 1fr 1fr auto; }
+.ie-form-input {
+  padding: 8px 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px; font-size: 12.5px; color: var(--text-primary);
+  outline: none; width: 100%; transition: border-color .15s;
+}
+.ie-form-input:focus { border-color: var(--teal); }
+.ie-form-input::placeholder { color: var(--text-muted); font-size: 12px; }
+.ie-add-btn {
+  padding: 8px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+  transition: all .15s;
+}
+.ie-add-btn.income-btn  { background: var(--emerald); color: #fff; }
+.ie-add-btn.income-btn:hover  { background: #2db800; box-shadow: 0 3px 10px rgba(56,176,0,.35); }
+.ie-add-btn.expense-btn { background: var(--copper);  color: #fff; }
+.ie-add-btn.expense-btn:hover { background: #c96b2a; box-shadow: 0 3px 10px rgba(224,123,57,.35); }
+
+/* ---- Entry list ---- */
+.ie-entry-list {
+  max-height: 420px; overflow-y: auto;
+}
+.ie-entry {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--color-border);
+  transition: background .12s;
+}
+.ie-entry:last-child { border-bottom: none; }
+.ie-entry:hover { background: var(--color-surface-2); }
+.ie-entry-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  margin-top: 5px; flex-shrink: 0;
+}
+.income-dot  { background: var(--emerald); }
+.expense-dot { background: var(--copper); }
+.ie-entry-info { flex: 1; min-width: 0; }
+.ie-entry-desc {
+  font-size: 13px; font-weight: 600; color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ie-entry-meta {
+  font-size: 11px; color: var(--text-muted); margin-top: 2px;
+}
+.ie-entry-amount {
+  font-size: 14px; font-weight: 800; flex-shrink: 0; text-align: right;
+}
+.income-amount  { color: var(--emerald); }
+.expense-amount { color: var(--copper); }
+.ie-entry-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 12px; padding: 2px 4px;
+  border-radius: 5px; transition: color .12s; flex-shrink: 0;
+  margin-top: 2px;
+}
+.ie-entry-del:hover { color: #e63946; }
+.ie-empty-panel {
+  padding: 36px 20px; text-align: center;
+  color: var(--text-muted); font-size: 13px;
+}
+.ie-empty-panel i { font-size: 28px; display: block; margin-bottom: 8px; opacity: .4; }
+
+/* ---- Monthly Closing section ---- */
+.ie-closing-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-top: 20px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.ie-closing-info { flex: 1; min-width: 200px; }
+.ie-closing-info h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.ie-closing-info p  { font-size: 12.5px; color: var(--text-muted); margin: 0; }
+.ie-closing-summary {
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.ics-item { text-align: center; }
+.ics-value { font-size: 16px; font-weight: 800; }
+.ics-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.ie-close-btn {
+  padding: 10px 22px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--mineral-blue));
+  color: #fff; font-size: 13px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+  transition: all .2s;
+}
+.ie-close-btn:hover { box-shadow: 0 4px 16px rgba(42,157,143,.35); transform: translateY(-1px); }
+.ie-close-btn:disabled {
+  background: var(--color-surface-2); color: var(--text-muted);
+  cursor: not-allowed; box-shadow: none; transform: none;
+}
+
+/* ---- Mobile tabs ---- */
+.ie-mobile-tabs {
+  display: none;
+  gap: 6px; margin-bottom: 14px;
+}
+.ie-mob-tab {
+  flex: 1; padding: 9px; border-radius: 9px;
+  font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--text-muted); cursor: pointer; text-align: center;
+  transition: all .15s;
+}
+.ie-mob-tab.active-income  { background: rgba(56,176,0,.1);   border-color: var(--emerald); color: var(--emerald); }
+.ie-mob-tab.active-expense { background: rgba(224,123,57,.12); border-color: var(--copper);  color: var(--copper); }
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) {
+  .ie-balance-row { grid-template-columns: repeat(2, 1fr); }
+  .ie-panels      { grid-template-columns: 1fr; }
+  .ie-mobile-tabs { display: flex; }
+  .ie-panel.hidden-mobile { display: none; }
+}
+@media (max-width: 580px) {
+  .ie-balance-row        { grid-template-columns: 1fr 1fr; }
+  .ie-form-row.four-col  { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 400px) {
+  .ie-balance-row { grid-template-columns: 1fr; }
+}

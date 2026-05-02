@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Income & Expense — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/income-expense.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Operations</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span><span class="nav-badge" id="todayBookingBadge">0</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Stock</span>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Accounts</span>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="income-expense.html" class="nav-item active"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Income &amp; Expense</h1>
+        <span class="breadcrumb">Track cash flow &amp; monthly closing</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button class="topbar-btn" title="Refresh" onclick="renderIE()"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Income &amp; Expense</h2>
+        <p>Record income and expenses month by month. Auto balance calculated. Monthly closing carries forward.</p>
+      </div>
+    </div>
+
+    <!-- BALANCE CARDS -->
+    <div class="ie-balance-row">
+      <div class="ie-bal-card bc-opening">
+        <div class="ie-bal-icon"><i class="fas fa-door-open"></i></div>
+        <div class="ie-bal-info">
+          <div class="ie-bal-value" id="ieOpeningBal">PKR 0</div>
+          <div class="ie-bal-label">Opening Balance</div>
+        </div>
+        <div class="ie-bal-glow"></div>
+      </div>
+      <div class="ie-bal-card bc-income">
+        <div class="ie-bal-icon"><i class="fas fa-arrow-trend-up"></i></div>
+        <div class="ie-bal-info">
+          <div class="ie-bal-value" id="ieTotalIncome">PKR 0</div>
+          <div class="ie-bal-label">Total Income</div>
+        </div>
+        <div class="ie-bal-glow"></div>
+      </div>
+      <div class="ie-bal-card bc-expense">
+        <div class="ie-bal-icon"><i class="fas fa-arrow-trend-down"></i></div>
+        <div class="ie-bal-info">
+          <div class="ie-bal-value" id="ieTotalExpense">PKR 0</div>
+          <div class="ie-bal-label">Total Expense</div>
+        </div>
+        <div class="ie-bal-glow"></div>
+      </div>
+      <div class="ie-bal-card bc-net" id="ieNetCard">
+        <div class="ie-bal-icon"><i class="fas fa-scale-balanced"></i></div>
+        <div class="ie-bal-info">
+          <div class="ie-bal-value" id="ieNetBalance">PKR 0</div>
+          <div class="ie-bal-label">Net Balance</div>
+        </div>
+        <div class="ie-bal-glow"></div>
+      </div>
+    </div>
+
+    <!-- CONTROLS: Month nav + search + status -->
+    <div class="ie-controls">
+      <div class="ie-month-nav">
+        <button id="iePrevMonth" title="Previous month"><i class="fas fa-chevron-left"></i></button>
+        <span class="ie-month-label" id="ieMonthLabel">May 2026</span>
+        <button id="ieNextMonth" title="Next month"><i class="fas fa-chevron-right"></i></button>
+      </div>
+      <span class="month-status-badge msb-open" id="ieMonthStatus">
+        <i class="fas fa-lock-open"></i> Open
+      </span>
+      <div class="ie-search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="ieSearch" placeholder="Search description, reference, date..." autocomplete="off" />
+      </div>
+    </div>
+
+    <!-- MOBILE TABS -->
+    <div class="ie-mobile-tabs">
+      <button class="ie-mob-tab active-income" id="mobTabIncome"  onclick="switchMobileTab('income')">
+        <i class="fas fa-arrow-trend-up"></i> Income
+      </button>
+      <button class="ie-mob-tab" id="mobTabExpense" onclick="switchMobileTab('expense')">
+        <i class="fas fa-arrow-trend-down"></i> Expense
+      </button>
+    </div>
+
+    <!-- TWO PANELS -->
+    <div class="ie-panels">
+
+      <!-- INCOME PANEL -->
+      <div class="ie-panel" id="incomePanel">
+        <div class="ie-panel-header">
+          <div class="ie-panel-title income-title">
+            <i class="fas fa-arrow-trend-up"></i> Income
+          </div>
+          <span class="ie-panel-total income-total" id="incomePanelTotal">PKR 0</span>
+        </div>
+
+        <!-- Quick Add Form -->
+        <div class="ie-add-form">
+          <form id="incomeForm" novalidate>
+            <div class="ie-form-row">
+              <input type="date"   id="incDate"   class="ie-form-input" required />
+              <input type="text"   id="incDesc"   class="ie-form-input" placeholder="Description *" maxlength="200" autocomplete="off" required />
+            </div>
+            <div class="ie-form-row four-col">
+              <input type="text"   id="incRef"    class="ie-form-input" placeholder="Reference (optional)" maxlength="100" autocomplete="off" />
+              <input type="number" id="incAmount" class="ie-form-input" placeholder="Amount (PKR) *" min="0.01" step="0.01" required />
+              <button type="submit" class="ie-add-btn income-btn" colspan="2">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Entry list -->
+        <div class="ie-entry-list" id="incomeList"></div>
+      </div>
+
+      <!-- EXPENSE PANEL -->
+      <div class="ie-panel" id="expensePanel">
+        <div class="ie-panel-header">
+          <div class="ie-panel-title expense-title">
+            <i class="fas fa-arrow-trend-down"></i> Expense
+          </div>
+          <span class="ie-panel-total expense-total" id="expensePanelTotal">PKR 0</span>
+        </div>
+
+        <!-- Quick Add Form -->
+        <div class="ie-add-form">
+          <form id="expenseForm" novalidate>
+            <div class="ie-form-row">
+              <input type="date"   id="expDate"   class="ie-form-input" required />
+              <input type="text"   id="expDesc"   class="ie-form-input" placeholder="Description *" maxlength="200" autocomplete="off" required />
+            </div>
+            <div class="ie-form-row four-col">
+              <input type="text"   id="expRef"    class="ie-form-input" placeholder="Reference (optional)" maxlength="100" autocomplete="off" />
+              <input type="number" id="expAmount" class="ie-form-input" placeholder="Amount (PKR) *" min="0.01" step="0.01" required />
+              <button type="submit" class="ie-add-btn expense-btn">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Entry list -->
+        <div class="ie-entry-list" id="expenseList"></div>
+      </div>
+
+    </div>
+
+    <!-- MONTHLY CLOSING SECTION -->
+    <div class="ie-closing-section" id="ieClosingSection"></div>
+
+  </div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/income-expense.js"></script>
+</body>
+</html>
