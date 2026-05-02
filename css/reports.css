@@ -1,0 +1,185 @@
+/* =============================================
+   ARHAM TRADERS — REPORTS MODULE
+   css/reports.css  |  Phase 9
+   ============================================= */
+
+/* ---- Report type selector ---- */
+.report-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.report-type-card {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  padding: 18px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+.report-type-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(42,157,143,.15);
+}
+.report-type-card.active {
+  border-color: var(--teal);
+  background: rgba(42,157,143,.07);
+  box-shadow: 0 4px 16px rgba(42,157,143,.18);
+}
+.rtc-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; margin: 0 auto 10px;
+  transition: background .2s;
+}
+.report-type-card.rt-daily   .rtc-icon { background: rgba(42,157,143,.12);  color: var(--teal); }
+.report-type-card.rt-supplier .rtc-icon { background: rgba(38,70,83,.12);    color: var(--mineral-blue); }
+.report-type-card.rt-production .rtc-icon { background: rgba(232,196,50,.12); color: #b8960a; }
+.report-type-card.rt-stock   .rtc-icon { background: rgba(56,176,0,.12);    color: var(--emerald); }
+.report-type-card.active .rtc-icon { background: var(--teal); color: #fff; }
+.rtc-label {
+  font-size: 13px; font-weight: 700; color: var(--text-primary);
+}
+.rtc-desc {
+  font-size: 11px; color: var(--text-muted); margin-top: 4px;
+}
+
+/* ---- Report controls bar ---- */
+.report-controls {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.report-controls label {
+  font-size: 12.5px; font-weight: 600; color: var(--text-muted);
+  white-space: nowrap;
+}
+.report-controls .form-control {
+  height: 36px; font-size: 13px;
+}
+.report-actions {
+  margin-left: auto;
+  display: flex; gap: 8px;
+}
+
+/* ---- Report output wrapper ---- */
+.report-output {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.report-output-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.report-output-title {
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.report-output-meta {
+  font-size: 11.5px; color: var(--text-muted);
+}
+.report-output-body {
+  padding: 20px;
+}
+
+/* ---- KPI row in report ---- */
+.report-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.report-kpi {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.rk-value {
+  font-size: 20px; font-weight: 900; color: var(--text-primary);
+}
+.rk-label {
+  font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 4px;
+}
+.rk-teal    { border-top: 3px solid var(--teal); }
+.rk-emerald { border-top: 3px solid var(--emerald); }
+.rk-copper  { border-top: 3px solid var(--copper); }
+.rk-sand    { border-top: 3px solid var(--sand); }
+.rk-blue    { border-top: 3px solid var(--mineral-blue); }
+.rk-stone   { border-top: 3px solid var(--stone); }
+
+/* ---- Report section heading ---- */
+.report-section-heading {
+  font-size: 12.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-muted);
+  margin: 22px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; gap: 7px;
+}
+
+/* ---- Supplier report cards ---- */
+.supplier-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.src-card {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: box-shadow .15s;
+}
+.src-card:hover { box-shadow: 0 3px 14px rgba(0,0,0,.1); }
+.src-name {
+  font-size: 14px; font-weight: 700; color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.src-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; padding: 4px 0;
+  border-bottom: 1px dotted var(--color-border);
+  color: var(--text-secondary);
+}
+.src-row:last-child { border-bottom: none; }
+.src-row-value { font-weight: 700; color: var(--text-primary); }
+.src-balance {
+  margin-top: 10px; padding: 8px;
+  background: rgba(42,157,143,.08); border-radius: 6px;
+  text-align: center; font-size: 12px; font-weight: 700; color: var(--teal);
+}
+
+/* ---- Print styles ---- */
+@media print {
+  .report-selector,
+  .report-controls,
+  .report-output-header .report-actions,
+  .sidebar, .topbar, .page-header { display: none !important; }
+  .report-output { border: none; box-shadow: none; }
+  .main-content  { margin-left: 0 !important; }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 860px) {
+  .report-selector { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .report-selector { grid-template-columns: 1fr 1fr; }
+  .report-actions  { width: 100%; }
+}
