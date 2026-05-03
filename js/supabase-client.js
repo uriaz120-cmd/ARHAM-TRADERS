@@ -38,7 +38,9 @@
 
 
   /* ===========================================
-     SYNC: Supabase → localStorage
+     SYNC: Bi-directional merge
+     - Local items missing from Supabase → push to Supabase
+     - Supabase items missing from local  → pull to localStorage
      =========================================== */
   async function _syncFromSupabase() {
     if (!_supa) return;
@@ -47,21 +49,57 @@
         _ALL_KEYS.map(key =>
           _supa
             .from('at_store')
-            .select('item_data')
+            .select('item_id, item_data')
             .eq('store_key', key)
-            .then(({ data, error }) => ({ key, data, error }))
+            .then(({ data, error }) => ({ key, data: data || [], error }))
         )
       );
-      results.forEach(({ key, data, error }) => {
+
+      for (const { key, data, error } of results) {
         if (error) {
           console.warn('[Supabase] Sync error for', key, ':', error.message);
-          return;
+          continue;
         }
-        if (data && data.length > 0) {
-          const items = data.map(row => row.item_data);
-          localStorage.setItem('at_' + key, JSON.stringify(items));
+
+        /* --- Build maps --- */
+        const localItems  = (() => {
+          try { return JSON.parse(localStorage.getItem('at_' + key)) || []; }
+          catch { return []; }
+        })();
+
+        const remoteMap = {};
+        data.forEach(row => { remoteMap[String(row.item_id)] = row.item_data; });
+
+        const localMap  = {};
+        localItems.forEach(item => { if (item && item.id) localMap[String(item.id)] = item; });
+
+        /* --- Push local-only items to Supabase --- */
+        const toUpsert = localItems.filter(item => item && item.id && !remoteMap[String(item.id)]);
+        if (toUpsert.length > 0) {
+          const rows = toUpsert.map(item => ({
+            store_key:  key,
+            item_id:    String(item.id),
+            item_data:  item,
+            updated_at: new Date().toISOString()
+          }));
+          const { error: upErr } = await _supa
+            .from('at_store')
+            .upsert(rows, { onConflict: 'store_key,item_id' });
+          if (upErr) console.warn('[SB push local→remote]', key, upErr.message);
         }
-      });
+
+        /* --- Merge remote-only items into localStorage --- */
+        const remoteOnly = data.filter(row => !localMap[String(row.item_id)]);
+        if (remoteOnly.length > 0) {
+          remoteOnly.forEach(row => {
+            if (row.item_data && row.item_data.id) {
+              localMap[String(row.item_data.id)] = row.item_data;
+            }
+          });
+          const merged = Object.values(localMap);
+          localStorage.setItem('at_' + key, JSON.stringify(merged));
+        }
+      }
     } catch (e) {
       console.warn('[Supabase] Sync failed (offline? using local data):', e);
     }
