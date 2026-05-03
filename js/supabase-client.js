@@ -1,15 +1,160 @@
 /* =============================================
    ARHAM TRADERS — SUPABASE CLIENT & SYNC LAYER
    js/supabase-client.js
-
-   HOW IT WORKS:
-   1. Intercepts ALL DOMContentLoaded registrations from module files
-   2. Shows loading overlay
-   3. Syncs data from Supabase → localStorage
-   4. Patches DB.add / DB.update / DB.remove to also write to Supabase
-   5. Runs all queued module init handlers
-   → No changes needed in any other JS file
    ============================================= */
+
+(function () {
+  'use strict';
+
+  const _SB_URL = 'https://eelpyqlpqcbopoalbbux.supabase.co';
+  const _SB_KEY = 'sb_publishable_trETxzapymLkrxEX0pSGyA_PM4I12HA';
+
+  const _ALL_KEYS = [
+    'suppliers', 'bookings', 'warehouse', 'production',
+    'finished_goods', 'deliveries',
+    'sf_payments',
+    'vendors', 'vendor_expenses', 'vendor_payments', 'vendor_monthly_closings',
+    'income', 'expenses', 'monthly_closings'
+  ];
+
+  /* ---- Init Supabase ---- */
+  let _supa = null;
+  try {
+    if (window.supabase && window.supabase.createClient) {
+      _supa = window.supabase.createClient(_SB_URL, _SB_KEY);
+    }
+  } catch (e) { console.warn('[Supabase] Init failed:', e); }
+
+  /* ===========================================
+     FULL BI-DIRECTIONAL SYNC
+     Step 1: Push ALL local items to Supabase
+     Step 2: Pull ALL Supabase items to local
+     Result: Both devices have identical data
+     =========================================== */
+  async function _fullSync() {
+    if (!_supa) return;
+    try {
+      for (const key of _ALL_KEYS) {
+        /* --- Read local --- */
+        let localItems = [];
+        try { localItems = JSON.parse(localStorage.getItem('at_' + key)) || []; } catch {}
+        localItems = localItems.filter(i => i && i.id);
+
+        /* --- Step 1: Push ALL local → Supabase (upsert in batches) --- */
+        if (localItems.length > 0) {
+          const rows = localItems.map(item => ({
+            store_key:  key,
+            item_id:    String(item.id),
+            item_data:  item,
+            updated_at: new Date().toISOString()
+          }));
+          for (let i = 0; i < rows.length; i += 50) {
+            const { error } = await _supa
+              .from('at_store')
+              .upsert(rows.slice(i, i + 50), { onConflict: 'store_key,item_id' });
+            if (error) console.warn('[SB push]', key, error.message);
+          }
+        }
+
+        /* --- Step 2: Pull ALL from Supabase → local --- */
+        const { data, error } = await _supa
+          .from('at_store')
+          .select('item_id, item_data')
+          .eq('store_key', key);
+        if (error) { console.warn('[SB pull]', key, error.message); continue; }
+        if (!data || data.length === 0) continue;
+
+        /* Merge: build a map from local, then overwrite with remote */
+        const merged = {};
+        localItems.forEach(item => { merged[String(item.id)] = item; });
+        data.forEach(row => {
+          if (row.item_data && row.item_data.id) {
+            merged[String(row.item_data.id)] = row.item_data;
+          }
+        });
+        localStorage.setItem('at_' + key, JSON.stringify(Object.values(merged)));
+      }
+    } catch (e) {
+      console.warn('[Supabase] Sync failed (offline?):', e);
+    }
+  }
+
+  /* ===========================================
+     MANUAL SYNC BUTTON handler
+     =========================================== */
+  window.syncNow = async function () {
+    const btn = document.getElementById('sbSyncBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+    await _fullSync();
+    if (window.showToast) showToast('Sync complete! Reloading...', 'success');
+    setTimeout(() => location.reload(), 900);
+  };
+
+  /* ===========================================
+     PATCH DB: every write also goes to Supabase
+     =========================================== */
+  function _patchDB() {
+    if (!_supa || !window.DB) return;
+
+    const _oAdd    = DB.add.bind(DB);
+    const _oUpdate = DB.update.bind(DB);
+    const _oRemove = DB.remove.bind(DB);
+
+    DB.add = function (key, item) {
+      const result = _oAdd(key, item);
+      _supa.from('at_store').upsert({
+        store_key: key, item_id: String(result.id), item_data: result,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'store_key,item_id' })
+      .then(({ error }) => { if (error) console.warn('[SB write]', error.message); });
+      return result;
+    };
+
+    DB.update = function (key, id, updates) {
+      const result = _oUpdate(key, id, updates);
+      if (result) {
+        _supa.from('at_store').upsert({
+          store_key: key, item_id: String(id), item_data: result,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'store_key,item_id' })
+        .then(({ error }) => { if (error) console.warn('[SB update]', error.message); });
+      }
+      return result;
+    };
+
+    DB.remove = function (key, id) {
+      _oRemove(key, id);
+      _supa.from('at_store').delete()
+        .eq('store_key', key).eq('item_id', String(id))
+        .then(({ error }) => { if (error) console.warn('[SB delete]', error.message); });
+    };
+  }
+
+  /* ===========================================
+     INTERCEPT DOMContentLoaded — run sync first
+     =========================================== */
+  const _dclQueue  = [];
+  const _origProto = EventTarget.prototype.addEventListener;
+
+  EventTarget.prototype.addEventListener = function (type, handler, opts) {
+    if (type === 'DOMContentLoaded' && this === document) {
+      _dclQueue.push(handler); return;
+    }
+    return _origProto.call(this, type, handler, opts);
+  };
+
+  _origProto.call(document, 'DOMContentLoaded', async function () {
+    await _fullSync();
+    _patchDB();
+    EventTarget.prototype.addEventListener = _origProto;
+    const evt = new Event('DOMContentLoaded');
+    _dclQueue.forEach(handler => {
+      try { handler(evt); } catch (e) { console.error('[Module init error]', e); }
+    });
+  });
+
+})();
+
 
 (function () {
   'use strict';
