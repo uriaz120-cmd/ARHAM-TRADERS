@@ -103,7 +103,7 @@
         const result = doLogin(username, password);
         if (result.ok) {
           btn.innerHTML = '<i class="fas fa-check"></i> Success!';
-          /* redirect handled inside doLogin → window.location.replace */
+          setTimeout(() => { window.location.replace('index.html'); }, 500);
         } else {
           errorMsg.textContent = result.msg;
           errorEl.classList.add('visible');
