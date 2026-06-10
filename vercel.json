@@ -1,6 +1,9 @@
 {
   "buildCommand": "echo 'Static site - no build needed'",
   "outputDirectory": "./",
+  "env": {
+    "NODE_ENV": "production"
+  },
   "headers": [
     {
       "source": "/(.*)",
