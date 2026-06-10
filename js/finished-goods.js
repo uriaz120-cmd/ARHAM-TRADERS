@@ -154,12 +154,12 @@ function renderFinishedPanel(filtered) {
           </span>
         </td>
         <td>${escapeHtml(item.supplierName || '—')}</td>
-        <td style="font-weight:700;">${formatKG(item.inputWeight)} <small style="color:var(--text-muted);">KG</small></td>
-        <td style="font-weight:700;color:var(--emerald);">${formatKG(finished)} <small style="color:var(--text-muted);">KG</small></td>
+        <td style="font-weight:700;">${formatTON(item.inputWeight)} <small style="color:var(--text-muted);">TON</small></td>
+        <td style="font-weight:700;color:var(--emerald);">${formatTON(finished)} <small style="color:var(--text-muted);">TON</small></td>
         <td>
           <div class="fg-remaining-cell">
-            <span style="font-weight:700;color:${pct <= 0 ? 'var(--stone)' : pct <= 30 ? 'var(--copper)' : 'var(--teal)'};">
-              ${formatKG(remaining)} KG
+            <span style="font-weight:700;color:${pct <= 0 ? 'var(--stone)' : pct <= 30 ? 'var(--copper)' : 'var(--teal)'}">
+              ${formatTON(remaining)} TON
             </span>
             <div class="fg-remaining-bar">
               <div class="fg-remaining-fill ${fillClass}" style="width:${pct}%"></div>
@@ -168,7 +168,7 @@ function renderFinishedPanel(filtered) {
           </div>
         </td>
         <td>${delivered > 0
-          ? `<span style="color:var(--copper);font-weight:700;">${formatKG(delivered)} KG</span>`
+          ? `<span style="color:var(--copper);font-weight:700;">${formatTON(delivered)} TON</span>`
           : '<span style="color:var(--text-muted);">—</span>'
         }</td>
         <td>${formatDateTime(item.date)}</td>
@@ -191,10 +191,10 @@ function renderFinishedPanel(filtered) {
     tfoot.innerHTML = `
       <tr style="background:var(--color-surface-2);">
         <td colspan="2" style="font-weight:700;font-size:12px;color:var(--text-muted);">TOTAL (${filtered.length})</td>
-        <td style="font-weight:800;">${formatKG(totalInput)} <small style="color:var(--text-muted);">KG</small></td>
-        <td style="font-weight:800;color:var(--emerald);">${formatKG(totalFinished)} <small style="color:var(--text-muted);">KG</small></td>
-        <td style="font-weight:800;color:var(--teal);">${formatKG(totalRemaining)} <small style="color:var(--text-muted);">KG</small></td>
-        <td style="font-weight:800;color:var(--copper);">${formatKG(totalDelivered)} <small style="color:var(--text-muted);">KG</small></td>
+        <td style="font-weight:800;">${formatTON(totalInput)} <small style="color:var(--text-muted);">TON</small></td>
+        <td style="font-weight:800;color:var(--emerald);">${formatTON(totalFinished)} <small style="color:var(--text-muted);">TON</small></td>
+        <td style="font-weight:800;color:var(--teal);">${formatTON(totalRemaining)} <small style="color:var(--text-muted);">TON</small></td>
+        <td style="font-weight:800;color:var(--copper);">${formatTON(totalDelivered)} <small style="color:var(--text-muted);">TON</small></td>
         <td colspan="2"></td>
       </tr>`;
   }
@@ -229,8 +229,8 @@ function renderScrapPanel(filtered) {
         </span>
       </td>
       <td>${escapeHtml(item.supplierName || '—')}</td>
-      <td style="font-weight:700;">${formatKG(item.inputWeight)} <small style="color:var(--text-muted);">KG</small></td>
-      <td style="font-weight:700;color:var(--stone);">${formatKG(item.scrapWeight)} <small style="color:var(--text-muted);">KG</small></td>
+      <td style="font-weight:700;">${formatTON(item.inputWeight)} <small style="color:var(--text-muted);">TON</small></td>
+      <td style="font-weight:700;color:var(--stone);">${formatTON(item.scrapWeight)} <small style="color:var(--text-muted);">TON</small></td>
       <td>${formatDateTime(item.date)}</td>
     </tr>`).join('');
 
@@ -239,7 +239,7 @@ function renderScrapPanel(filtered) {
     tfoot.innerHTML = `
       <tr style="background:var(--color-surface-2);">
         <td colspan="3" style="font-weight:700;font-size:12px;color:var(--text-muted);">TOTAL (${scrapItems.length})</td>
-        <td style="font-weight:800;color:var(--stone);">${formatKG(totalScrap)} <small style="color:var(--text-muted);">KG</small></td>
+        <td style="font-weight:800;color:var(--stone);">${formatTON(totalScrap)} <small style="color:var(--text-muted);">TON</small></td>
         <td></td>
       </tr>`;
   }
@@ -256,10 +256,10 @@ function updateFgStats() {
   const totalDelivered = totalFinished - totalRemaining;
 
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  s('fgStatTotal',     formatKG(totalFinished)  + ' KG');
-  s('fgStatAvail',     formatKG(totalRemaining) + ' KG');
-  s('fgStatDelivered', formatKG(totalDelivered) + ' KG');
-  s('fgStatScrap',     formatKG(totalScrap)     + ' KG');
+  s('fgStatTotal',     formatTON(totalFinished)  + ' TON');
+  s('fgStatAvail',     formatTON(totalRemaining) + ' TON');
+  s('fgStatDelivered', formatTON(totalDelivered) + ' TON');
+  s('fgStatScrap',     formatTON(totalScrap)     + ' TON');
 }
 
 /* =============================================
@@ -285,13 +285,13 @@ function viewFgDetail(id) {
   setEl('dNotes',       escapeHtml(item.notes        || '—'));
 
   /* Weight detail items */
-  setEl('dInputKg',     `${formatKG(input)} KG`);
-  setEl('dFinishedKg',  `${formatKG(finished)} KG`);
-  setEl('dScrapKg',     `${formatKG(scrap)} KG`);
-  setEl('dRemainingKg', `${formatKG(remaining)} KG`);
-  setEl('dDelivered',   `${formatKG(delivered)} KG`);
-  setEl('dRemaining',   `${formatKG(remaining)} KG`);
-  setEl('dScrap',       `${formatKG(scrap)} KG`);
+  setEl('dInputKg',     `${formatTON(input)} TON`);
+  setEl('dFinishedKg',  `${formatTON(finished)} TON`);
+  setEl('dScrapKg',     `${formatTON(scrap)} TON`);
+  setEl('dRemainingKg', `${formatTON(remaining)} TON`);
+  setEl('dDelivered',   `${formatTON(delivered)} TON`);
+  setEl('dRemaining',   `${formatTON(remaining)} TON`);
+  setEl('dScrap',       `${formatTON(scrap)} TON`);
 
   /* Breakdown bar (finished = delivered + remaining; scrap separate) */
   const total = input || 1;

@@ -58,7 +58,7 @@ function renderSupplierList() {
           <div class="slp-city">${escapeHtml(s.city || 'No city')}</div>
         </div>
         <span class="slp-bal ${balance > 0 ? 'has-bal' : 'zero-bal'}">
-          ${formatKG(balance)} KG
+          ${formatTON(balance)} TON
         </span>
       </div>`;
   }).join('');
@@ -127,32 +127,32 @@ function renderLedgerDetail(supplierId) {
     <div class="ledger-flow">
       <div class="lf-card lf-received">
         <div class="lf-icon"><i class="fas fa-arrow-down"></i></div>
-        <div class="lf-value">${formatKG(ledger.totalReceived)}</div>
+        <div class="lf-value">${formatTON(ledger.totalReceived)}</div>
         <div class="lf-label">Received (KG)</div>
       </div>
       <div class="lf-card lf-warehouse">
         <div class="lf-icon"><i class="fas fa-warehouse"></i></div>
-        <div class="lf-value">${formatKG(ledger.warehouseBalance)}</div>
+        <div class="lf-value">${formatTON(ledger.warehouseBalance)}</div>
         <div class="lf-label">In Warehouse</div>
       </div>
       <div class="lf-card lf-production">
         <div class="lf-icon"><i class="fas fa-industry"></i></div>
-        <div class="lf-value">${formatKG(ledger.sentProduction)}</div>
+        <div class="lf-value">${formatTON(ledger.sentProduction)}</div>
         <div class="lf-label">In Production</div>
       </div>
       <div class="lf-card lf-finished">
         <div class="lf-icon"><i class="fas fa-layer-group"></i></div>
-        <div class="lf-value">${formatKG(ledger.totalFinished)}</div>
+        <div class="lf-value">${formatTON(ledger.totalFinished)}</div>
         <div class="lf-label">Finished Goods</div>
       </div>
       <div class="lf-card lf-scrap">
         <div class="lf-icon"><i class="fas fa-recycle"></i></div>
-        <div class="lf-value">${formatKG(ledger.totalScrap)}</div>
+        <div class="lf-value">${formatTON(ledger.totalScrap)}</div>
         <div class="lf-label">Scrap</div>
       </div>
       <div class="lf-card lf-delivered">
         <div class="lf-icon"><i class="fas fa-truck"></i></div>
-        <div class="lf-value">${formatKG(ledger.totalDelivered)}</div>
+        <div class="lf-value">${formatTON(ledger.totalDelivered)}</div>
         <div class="lf-label">Delivered</div>
       </div>
     </div>
@@ -160,22 +160,22 @@ function renderLedgerDetail(supplierId) {
     <!-- Balance box -->
     <div class="ledger-balance-box">
       <div class="lbb-item">
-        <div class="lbb-value" style="color:var(--teal);">${formatKG(totalBalance)} KG</div>
+        <div class="lbb-value" style="color:var(--teal);">${formatTON(totalBalance)} TON</div>
         <div class="lbb-label">Total Outstanding Balance</div>
       </div>
       <div class="lbb-divider"></div>
       <div class="lbb-item">
-        <div class="lbb-value" style="color:var(--emerald);">${formatKG(ledger.remainingFinished)} KG</div>
+        <div class="lbb-value" style="color:var(--emerald);">${formatTON(ledger.remainingFinished)} TON</div>
         <div class="lbb-label">Ready for Delivery</div>
       </div>
       <div class="lbb-divider"></div>
       <div class="lbb-item">
-        <div class="lbb-value" style="color:var(--mineral-blue);">${formatKG(ledger.warehouseBalance)} KG</div>
+        <div class="lbb-value" style="color:var(--mineral-blue);">${formatTON(ledger.warehouseBalance)} TON</div>
         <div class="lbb-label">In Warehouse / Processing</div>
       </div>
       <div class="lbb-divider"></div>
       <div class="lbb-item">
-        <div class="lbb-value" style="color:var(--copper);">${formatKG(ledger.totalDelivered)} KG</div>
+        <div class="lbb-value" style="color:var(--copper);">${formatTON(ledger.totalDelivered)} TON</div>
         <div class="lbb-label">Already Delivered</div>
       </div>
     </div>
@@ -255,8 +255,8 @@ function buildTimeline(supplierId) {
           <span class="tl-date">${formatDateTime(e.date)}</span>
         </div>
         <div class="tl-body">
-          <span class="tl-weight">${formatKG(e.weight)} KG</span>
-          ${e.scrap ? ` &nbsp;·&nbsp; Scrap: ${formatKG(e.scrap)} KG` : ''}
+          <span class="tl-weight">${formatTON(e.weight)} TON</span>
+          ${e.scrap ? ` &nbsp;·&nbsp; Scrap: ${formatTON(e.scrap)} TON` : ''}
           ${e.ref   ? ` &nbsp;·&nbsp; <span style="color:var(--text-muted);">Ref: ${escapeHtml(e.ref)}</span>` : ''}
           ${e.desc  ? `<br><small style="color:var(--text-muted);">${escapeHtml(e.desc)}</small>` : ''}
         </div>
@@ -293,7 +293,7 @@ function exportLedgerCSV(supplierId) {
     ['City',    supplier.city  || ''],
     ['CNIC',    supplier.cnic  || ''],
     [],
-    ['Metric', 'Weight (KG)'],
+    ['Metric', 'Weight (TON)'],
     ['Total Received',      ledger.totalReceived],
     ['Sent to Production',  ledger.sentProduction],
     ['Finished Goods',      ledger.totalFinished],
@@ -304,7 +304,7 @@ function exportLedgerCSV(supplierId) {
     ['Total Balance',       ledger.remainingFinished + ledger.warehouseBalance],
     [],
     ['--- TRANSACTIONS ---'],
-    ['Type','Ref No','Weight (KG)','Date','Description']
+    ['Type','Ref No','Weight (TON)','Date','Description']
   ];
 
   /* Bookings */

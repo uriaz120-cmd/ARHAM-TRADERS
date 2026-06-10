@@ -138,7 +138,7 @@ function updateAvailStockUI(data) {
   } else {
     box.className = 'avail-stock-info has-stock';
     if (icon) icon.className = 'avail-stock-icon fas fa-check-circle';
-    if (text) text.innerHTML = `Available: <strong style="color:var(--teal);">${formatKG(data.stock)} KG</strong> ready for delivery.`;
+    if (text) text.innerHTML = `Available: <strong style="color:var(--teal);">${formatTON(data.stock)} TON</strong> ready for delivery.`;
     if (maxBtn) maxBtn.style.display = '';
   }
 }
@@ -155,8 +155,8 @@ function updateDeliverySummary() {
   s('sbDelNo',      delNo);
   s('sbDelSupplier', suppName);
   s('sbDelDate',    date);
-  s('sbDelWeight',  weight > 0 ? `${formatKG(weight)} KG` : '—');
-  s('sbDelAvail',   _availableStock > 0 ? `${formatKG(_availableStock)} KG` : '—');
+  s('sbDelWeight',  weight > 0 ? `${formatTON(weight)} TON` : '—');
+  s('sbDelAvail',   _availableStock > 0 ? `${formatTON(_availableStock)} TON` : '—');
 }
 
 /* =============================================
@@ -176,7 +176,7 @@ function saveDelivery() {
   if (!supplierId)   { showToast('Please select a supplier.',           'error'); return; }
   if (weight <= 0)   { showToast('Enter a valid delivery weight.',       'error'); return; }
   if (weight > _availableStock + 0.01) {
-    showToast(`Only ${formatKG(_availableStock)} KG available for this supplier.`, 'error');
+    showToast(`Only ${formatTON(_availableStock)} TON available for this supplier.`, 'error');
     return;
   }
   if (!deliveryNo)   { showToast('Delivery number is required.',         'error'); return; }
@@ -252,7 +252,7 @@ function buildReceiptHtml(d) {
       ${d.description ? `<div class="receipt-row"><span class="rr-label">Description:</span><span class="rr-value">${escapeHtml(d.description)}</span></div>` : ''}
       <div class="receipt-total-box">
         <div class="rt-label">Total Delivered Weight</div>
-        <div class="rt-value">${formatKG(d.weight)} KG</div>
+        <div class="rt-value">${formatTON(d.weight)} TON</div>
       </div>
       <div class="receipt-footer">
         <p>Thank you for your business</p>
@@ -320,7 +320,7 @@ function downloadDeliveryPdf(id) {
   doc.setFontSize(9); doc.setFont('helvetica', 'normal');
   doc.text('TOTAL DELIVERED WEIGHT', w / 2, y + 8, { align: 'center' });
   doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-  doc.text(formatKG(d.weight) + ' KG', w / 2, y + 17, { align: 'center' });
+  doc.text(formatTON(d.weight) + ' TON', w / 2, y + 17, { align: 'center' });
 
   /* Footer */
   y += 32;
@@ -342,7 +342,7 @@ function whatsappDeliveryReceipt() {
     `Supplier: ${d.supplierName}`,
     d.refNo       ? `Ref No: ${d.refNo}` : '',
     d.description ? `Description: ${d.description}` : '',
-    `*Weight Delivered: ${formatKG(d.weight)} KG*`,
+    `*Weight Delivered: ${formatTON(d.weight)} TON*`,
     '',
     'Arham Traders Management System'
   ].filter(Boolean).join('\n');
@@ -428,7 +428,7 @@ function renderDeliveryTable() {
     <tr>
       <td><span style="font-weight:700;color:var(--teal);font-size:12.5px;">${escapeHtml(d.deliveryNo)}</span></td>
       <td>${escapeHtml(d.supplierName || '—')}</td>
-      <td style="font-weight:800;color:var(--copper);">${formatKG(d.weight)} <small style="color:var(--text-muted);">KG</small></td>
+      <td style="font-weight:800;color:var(--copper);">${formatTON(d.weight)} <small style="color:var(--text-muted);">TON</small></td>
       <td>${escapeHtml(d.refNo || '—')}</td>
       <td>${escapeHtml(d.description || '—')}</td>
       <td>${formatDateTime(d.date)}</td>
@@ -457,7 +457,7 @@ function renderDeliveryTable() {
     tfoot.innerHTML = `
       <tr style="background:var(--color-surface-2);">
         <td colspan="2" style="font-weight:700;font-size:12px;color:var(--text-muted);">TOTAL (${filtered.length})</td>
-        <td style="font-weight:800;color:var(--copper);">${formatKG(totalWeight)} <small style="color:var(--text-muted);">KG</small></td>
+        <td style="font-weight:800;color:var(--copper);">${formatTON(totalWeight)} <small style="color:var(--text-muted);">TON</small></td>
         <td colspan="4"></td>
       </tr>`;
   }
@@ -525,6 +525,6 @@ function updateDeliveryStats() {
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   s('delStatTotal',     all.length);
   s('delStatToday',     todayDels.length);
-  s('delStatWeight',    formatKG(totalWeight) + ' KG');
-  s('delStatAvailable', formatKG(totalAvail)  + ' KG');
+  s('delStatWeight',    formatTON(totalWeight) + ' TON');
+  s('delStatAvailable', formatTON(totalAvail)  + ' TON');
 }

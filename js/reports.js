@@ -126,7 +126,7 @@ function renderDailyReport(output, titleEl) {
         <div class="rk-label">Bookings</div>
       </div>
       <div class="report-kpi rk-blue">
-        <div class="rk-value">${formatKG(totalBookWeight)} KG</div>
+        <div class="rk-value">${formatTON(totalBookWeight)} TON</div>
         <div class="rk-label">Material Received</div>
       </div>
       <div class="report-kpi rk-sand">
@@ -134,15 +134,15 @@ function renderDailyReport(output, titleEl) {
         <div class="rk-label">Production Batches</div>
       </div>
       <div class="report-kpi rk-emerald">
-        <div class="rk-value">${formatKG(totalFinished)} KG</div>
+        <div class="rk-value">${formatTON(totalFinished)} TON</div>
         <div class="rk-label">Finished Output</div>
       </div>
       <div class="report-kpi rk-stone">
-        <div class="rk-value">${formatKG(totalScrap)} KG</div>
+        <div class="rk-value">${formatTON(totalScrap)} TON</div>
         <div class="rk-label">Scrap</div>
       </div>
       <div class="report-kpi rk-copper">
-        <div class="rk-value">${formatKG(totalDelWeight)} KG</div>
+        <div class="rk-value">${formatTON(totalDelWeight)} TON</div>
         <div class="rk-label">Delivered</div>
       </div>
     </div>
@@ -150,11 +150,11 @@ function renderDailyReport(output, titleEl) {
     <!-- Bookings table -->
     <div class="report-section-heading"><i class="fas fa-clipboard-list"></i> Bookings (${bookings.length})</div>
     ${buildSimpleTable(
-      ['Booking No','Supplier','Weight (KG)','Rate','Total Amount','Date'],
+      ['Booking No','Supplier','Weight (TON)','Rate','Total Amount','Date'],
       bookings.map(b => [
         escapeHtml(b.bookingNo || '—'),
         escapeHtml(b.supplierName || '—'),
-        formatKG(b.weight) + ' KG',
+        formatTON(b.weight) + ' TON',
         b.rate ? `Rs. ${formatCurrency(b.rate)}` : '—',
         b.total ? `Rs. ${formatCurrency(b.total)}` : '—',
         formatDate(b.date)
@@ -165,11 +165,11 @@ function renderDailyReport(output, titleEl) {
     <!-- Deliveries table -->
     <div class="report-section-heading"><i class="fas fa-truck"></i> Deliveries (${deliveries.length})</div>
     ${buildSimpleTable(
-      ['Delivery No','Supplier','Weight (KG)','Ref No','Date'],
+      ['Delivery No','Supplier','Weight (TON)','Ref No','Date'],
       deliveries.map(d => [
         escapeHtml(d.deliveryNo || '—'),
         escapeHtml(d.supplierName || '—'),
-        formatKG(d.weight) + ' KG',
+        formatTON(d.weight) + ' TON',
         escapeHtml(d.refNo || '—'),
         formatDate(d.date)
       ]),
@@ -183,7 +183,7 @@ function renderDailyReport(output, titleEl) {
       productions.map(p => [
         escapeHtml(p.bookingNo || '—'),
         escapeHtml(p.supplierName || '—'),
-        formatKG(p.weight) + ' KG',
+        formatTON(p.weight) + ' TON',
         escapeHtml(p.status || '—'),
         formatDate(p.date)
       ]),
@@ -226,19 +226,19 @@ function renderSupplierReport(output, titleEl) {
         <div class="rk-label">Suppliers</div>
       </div>
       <div class="report-kpi rk-teal">
-        <div class="rk-value">${formatKG(totReceived)} KG</div>
+        <div class="rk-value">${formatTON(totReceived)} TON</div>
         <div class="rk-label">Total Received</div>
       </div>
       <div class="report-kpi rk-emerald">
-        <div class="rk-value">${formatKG(totFinished)} KG</div>
+        <div class="rk-value">${formatTON(totFinished)} TON</div>
         <div class="rk-label">Total Finished</div>
       </div>
       <div class="report-kpi rk-copper">
-        <div class="rk-value">${formatKG(totDelivered)} KG</div>
+        <div class="rk-value">${formatTON(totDelivered)} TON</div>
         <div class="rk-label">Total Delivered</div>
       </div>
       <div class="report-kpi rk-sand">
-        <div class="rk-value">${formatKG(totBalance)} KG</div>
+        <div class="rk-value">${formatTON(totBalance)} TON</div>
         <div class="rk-label">Outstanding Balance</div>
       </div>
     </div>
@@ -251,13 +251,13 @@ function renderSupplierReport(output, titleEl) {
             <span style="width:28px;height:28px;border-radius:50%;background:${r.color};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;">${escapeHtml(r.initials)}</span>
             ${escapeHtml(r.s.name)}
           </div>
-          <div class="src-row"><span>Received</span><span class="src-row-value">${formatKG(r.ledger.totalReceived)} KG</span></div>
-          <div class="src-row"><span>In Warehouse</span><span class="src-row-value">${formatKG(r.ledger.warehouseBalance)} KG</span></div>
-          <div class="src-row"><span>In Production</span><span class="src-row-value">${formatKG(r.ledger.sentProduction)} KG</span></div>
-          <div class="src-row"><span>Finished</span><span class="src-row-value">${formatKG(r.ledger.totalFinished)} KG</span></div>
-          <div class="src-row"><span>Scrap</span><span class="src-row-value">${formatKG(r.ledger.totalScrap)} KG</span></div>
-          <div class="src-row"><span>Delivered</span><span class="src-row-value">${formatKG(r.ledger.totalDelivered)} KG</span></div>
-          <div class="src-balance">Balance: ${formatKG(r.balance)} KG</div>
+          <div class="src-row"><span>Received</span><span class="src-row-value">${formatTON(r.ledger.totalReceived)} TON</span></div>
+          <div class="src-row"><span>In Warehouse</span><span class="src-row-value">${formatTON(r.ledger.warehouseBalance)} TON</span></div>
+          <div class="src-row"><span>In Production</span><span class="src-row-value">${formatTON(r.ledger.sentProduction)} TON</span></div>
+          <div class="src-row"><span>Finished</span><span class="src-row-value">${formatTON(r.ledger.totalFinished)} TON</span></div>
+          <div class="src-row"><span>Scrap</span><span class="src-row-value">${formatTON(r.ledger.totalScrap)} TON</span></div>
+          <div class="src-row"><span>Delivered</span><span class="src-row-value">${formatTON(r.ledger.totalDelivered)} TON</span></div>
+          <div class="src-balance">Balance: ${formatTON(r.balance)} TON</div>
         </div>`).join('')}
     </div>
 
@@ -265,13 +265,13 @@ function renderSupplierReport(output, titleEl) {
       ['Supplier','Received','Warehouse','Production','Finished','Scrap','Delivered','Balance'],
       rows.map(r => [
         escapeHtml(r.s.name),
-        formatKG(r.ledger.totalReceived)    + ' KG',
-        formatKG(r.ledger.warehouseBalance) + ' KG',
-        formatKG(r.ledger.sentProduction)   + ' KG',
-        formatKG(r.ledger.totalFinished)    + ' KG',
-        formatKG(r.ledger.totalScrap)       + ' KG',
-        formatKG(r.ledger.totalDelivered)   + ' KG',
-        formatKG(r.balance)                 + ' KG'
+        formatTON(r.ledger.totalReceived)    + ' TON',
+        formatTON(r.ledger.warehouseBalance) + ' TON',
+        formatTON(r.ledger.sentProduction)   + ' TON',
+        formatTON(r.ledger.totalFinished)    + ' TON',
+        formatTON(r.ledger.totalScrap)       + ' TON',
+        formatTON(r.ledger.totalDelivered)   + ' TON',
+        formatTON(r.balance)                 + ' TON'
       ]),
       ''
     )}`;
@@ -313,15 +313,15 @@ function renderProductionReport(output, titleEl) {
         <div class="rk-label">Completed</div>
       </div>
       <div class="report-kpi rk-teal">
-        <div class="rk-value">${formatKG(totalInput)} KG</div>
+        <div class="rk-value">${formatTON(totalInput)} TON</div>
         <div class="rk-label">Total Input</div>
       </div>
       <div class="report-kpi rk-emerald">
-        <div class="rk-value">${formatKG(totalFinished)} KG</div>
+        <div class="rk-value">${formatTON(totalFinished)} TON</div>
         <div class="rk-label">Finished Output</div>
       </div>
       <div class="report-kpi rk-stone">
-        <div class="rk-value">${formatKG(totalScrap)} KG</div>
+        <div class="rk-value">${formatTON(totalScrap)} TON</div>
         <div class="rk-label">Scrap</div>
       </div>
       <div class="report-kpi rk-copper">
@@ -332,7 +332,7 @@ function renderProductionReport(output, titleEl) {
 
     <div class="report-section-heading"><i class="fas fa-industry"></i> Production Records (${inRange_.length})</div>
     ${buildSimpleTable(
-      ['Booking No','Supplier','Input (KG)','Finished (KG)','Scrap (KG)','Yield %','Status','Date'],
+      ['Booking No','Supplier','Input (TON)','Finished (TON)','Scrap (TON)','Yield %','Status','Date'],
       inRange_.map(p => {
         const fin   = Number(p.finishedWeight) || 0;
         const scr   = Number(p.scrapWeight)    || 0;
@@ -341,9 +341,9 @@ function renderProductionReport(output, titleEl) {
         return [
           escapeHtml(p.bookingNo    || '—'),
           escapeHtml(p.supplierName || '—'),
-          formatKG(inp)  + ' KG',
-          p.status === 'completed' ? formatKG(fin) + ' KG' : '—',
-          p.status === 'completed' ? formatKG(scr) + ' KG' : '—',
+          formatTON(inp)  + ' TON',
+          p.status === 'completed' ? formatTON(fin) + ' TON' : '—',
+          p.status === 'completed' ? formatTON(scr) + ' TON' : '—',
           p.status === 'completed' ? yld : '—',
           escapeHtml(p.status || '—'),
           formatDate(p.date)
@@ -377,35 +377,35 @@ function renderStockReport(output, titleEl) {
 
     <div class="report-kpi-row">
       <div class="report-kpi rk-teal">
-        <div class="rk-value">${formatKG(grandTotal)} KG</div>
+        <div class="rk-value">${formatTON(grandTotal)} TON</div>
         <div class="rk-label">Total Stock</div>
       </div>
       <div class="report-kpi rk-blue">
-        <div class="rk-value">${formatKG(totalWarehouse)} KG</div>
+        <div class="rk-value">${formatTON(totalWarehouse)} TON</div>
         <div class="rk-label">In Warehouse</div>
       </div>
       <div class="report-kpi rk-sand">
-        <div class="rk-value">${formatKG(totalProduction)} KG</div>
+        <div class="rk-value">${formatTON(totalProduction)} TON</div>
         <div class="rk-label">In Production</div>
       </div>
       <div class="report-kpi rk-emerald">
-        <div class="rk-value">${formatKG(totalFinished)} KG</div>
+        <div class="rk-value">${formatTON(totalFinished)} TON</div>
         <div class="rk-label">Finished Goods</div>
       </div>
       <div class="report-kpi rk-stone">
-        <div class="rk-value">${formatKG(totalScrap)} KG</div>
+        <div class="rk-value">${formatTON(totalScrap)} TON</div>
         <div class="rk-label">Total Scrap</div>
       </div>
     </div>
 
     <div class="report-section-heading"><i class="fas fa-warehouse"></i> Warehouse Stock (${warehouseItems.length} entries)</div>
     ${buildSimpleTable(
-      ['Booking No','Supplier','Total (KG)','Remaining (KG)','Status'],
+      ['Booking No','Supplier','Total (TON)','Remaining (TON)','Status'],
       warehouseItems.filter(i => (Number(i.remainingWeight) || 0) > 0).map(i => [
         escapeHtml(i.bookingNo    || '—'),
         escapeHtml(i.supplierName || '—'),
-        formatKG(i.totalWeight)     + ' KG',
-        formatKG(i.remainingWeight) + ' KG',
+        formatTON(i.totalWeight)     + ' TON',
+        formatTON(i.remainingWeight) + ' TON',
         escapeHtml(i.status || '—')
       ]),
       'No warehouse stock remaining.'
@@ -413,13 +413,13 @@ function renderStockReport(output, titleEl) {
 
     <div class="report-section-heading"><i class="fas fa-layer-group"></i> Finished Goods Available (${fgItems.filter(f => (Number(f.remainingWeight)||0)>0).length} entries)</div>
     ${buildSimpleTable(
-      ['Booking No','Supplier','Finished (KG)','Remaining (KG)','Scrap (KG)'],
+      ['Booking No','Supplier','Finished (TON)','Remaining (TON)','Scrap (TON)'],
       fgItems.filter(f => (Number(f.remainingWeight)||0) > 0).map(f => [
         escapeHtml(f.bookingNo    || '—'),
         escapeHtml(f.supplierName || '—'),
-        formatKG(f.finishedWeight)  + ' KG',
-        formatKG(f.remainingWeight) + ' KG',
-        formatKG(f.scrapWeight)     + ' KG'
+        formatTON(f.finishedWeight)  + ' TON',
+        formatTON(f.remainingWeight) + ' TON',
+        formatTON(f.scrapWeight)     + ' TON'
       ]),
       'No finished goods available.'
     )}`;
@@ -464,11 +464,11 @@ function exportReportCSV() {
       const bookings   = DB.get('bookings')   .filter(b => inRange(b.date));
       const deliveries = DB.get('deliveries') .filter(d => inRange(d.date));
       rows.push(['--- BOOKINGS ---']);
-      rows.push(['Booking No','Supplier','Weight (KG)','Rate','Total','Date']);
+      rows.push(['Booking No','Supplier','Weight (TON)','Rate','Total','Date']);
       bookings.forEach(b => rows.push([b.bookingNo||'',b.supplierName||'',Number(b.weight)||0,Number(b.rate)||0,Number(b.total)||0,(b.date||'').slice(0,10)]));
       rows.push([]);
       rows.push(['--- DELIVERIES ---']);
-      rows.push(['Delivery No','Supplier','Weight (KG)','Ref No','Date']);
+      rows.push(['Delivery No','Supplier','Weight (TON)','Ref No','Date']);
       deliveries.forEach(d => rows.push([d.deliveryNo||'',d.supplierName||'',Number(d.weight)||0,d.refNo||'',(d.date||'').slice(0,10)]));
       break;
     }

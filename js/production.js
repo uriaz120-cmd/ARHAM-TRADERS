@@ -110,7 +110,7 @@ function renderProductionTable() {
         </td>
         <td>${escapeHtml(p.supplierName || '—')}</td>
         <td style="font-weight:700;">
-          ${formatKG(p.weight)} <small style="color:var(--text-muted);font-weight:400;">KG</small>
+          ${formatTON(p.weight)} <small style="color:var(--text-muted);font-weight:400;">TON</small>
         </td>
         <td>${escapeHtml(p.description || '—')}</td>
         <td>${formatDateTime(p.date)}</td>
@@ -141,7 +141,7 @@ function renderProductionTable() {
         <td colspan="2" style="font-weight:700;font-size:12px;color:var(--text-muted);">
           TOTAL (${filtered.length})
         </td>
-        <td style="font-weight:800;">${formatKG(totalKg)} <small style="color:var(--text-muted);">KG</small></td>
+        <td style="font-weight:800;">${formatTON(totalKg)} <small style="color:var(--text-muted);">TON</small></td>
         <td colspan="2"></td>
         <td style="font-size:11.5px;color:var(--text-muted);">
           <span style="color:#b8960a;">${pending} pending</span> &nbsp;·&nbsp;
@@ -227,7 +227,7 @@ function openCompleteModal(id) {
   const setEl = (eid, v) => { const el = document.getElementById(eid); if (el) el.textContent = v; };
   setEl('cpBookingNo',   p.bookingNo    || '—');
   setEl('cpSupplier',    p.supplierName || '—');
-  setEl('cpInputWeight', formatKG(weight) + ' KG');
+  setEl('cpInputWeight', formatTON(weight) + ' TON');
 
   /* Default: all finished, 0 scrap */
   const finInput  = document.getElementById('cpFinished');
@@ -287,7 +287,7 @@ function updateOutputValidation() {
       Input Weight
     </span>
     <span class="output-validation-value">
-      ${formatKG(outputSum)} / ${formatKG(totalInput)} KG
+      ${formatTON(outputSum)} / ${formatTON(totalInput)} TON
       ${isValid ? '<i class="fas fa-check" style="margin-left:6px;"></i>' : '— must match'}
     </span>`;
 }
@@ -303,7 +303,7 @@ function confirmCompleteProduction() {
   const diff           = Math.abs((finishedWeight + scrapWeight) - inputWeight);
 
   if (diff >= 0.01) {
-    showToast(`Finished (${formatKG(finishedWeight)}) + Scrap (${formatKG(scrapWeight)}) must equal Input (${formatKG(inputWeight)}) KG.`, 'error');
+    showToast(`Finished (${formatTON(finishedWeight)}) + Scrap (${formatTON(scrapWeight)}) must equal Input (${formatTON(inputWeight)}) TON.`, 'error');
     return;
   }
   if (finishedWeight < 0 || scrapWeight < 0) {
@@ -336,7 +336,7 @@ function confirmCompleteProduction() {
   });
 
   closeModal('completeProductionModal');
-  showToast(`Production complete! ${formatKG(finishedWeight)} KG Finished + ${formatKG(scrapWeight)} KG Scrap recorded.`, 'success');
+  showToast(`Production complete! ${formatTON(finishedWeight)} TON Finished + ${formatTON(scrapWeight)} TON Scrap recorded.`, 'success');
   renderProductionTable();
   updatePipelineStats();
 }
@@ -382,9 +382,9 @@ function updatePipelineStats() {
 
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   s('pipePendingCount',    pending.length);
-  s('pipePendingKg',       formatKG(sumKg(pending)) + ' KG');
+  s('pipePendingKg',       formatTON(sumKg(pending)) + ' TON');
   s('pipeInProcessCount',  inProcess.length);
-  s('pipeInProcessKg',     formatKG(sumKg(inProcess)) + ' KG');
+  s('pipeInProcessKg',     formatTON(sumKg(inProcess)) + ' TON');
   s('pipeCompletedCount',  completed.length);
-  s('pipeCompletedKg',     formatKG(sumKg(completed)) + ' KG');
+  s('pipeCompletedKg',     formatTON(sumKg(completed)) + ' TON');
 }

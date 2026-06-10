@@ -106,7 +106,7 @@
       <div class="bk-stat-card bk-stat-copper">
         <div class="bk-stat-icon"><i class="fas fa-weight-hanging"></i></div>
         <div class="bk-stat-info">
-          <div class="bk-stat-value" id="bsTotalWeight">0 KG</div>
+          <div class="bk-stat-value" id="bsTotalWeight">0 TON</div>
           <div class="bk-stat-label">Total Weight</div>
         </div>
         <div class="bk-stat-accent"></div>
@@ -164,11 +164,11 @@
             <div class="form-section-title" style="margin-top:6px;"><i class="fas fa-gem"></i> Material Details</div>
             <div class="form-row" style="margin-bottom:14px;">
               <div class="form-group">
-                <label class="form-label">Weight (KG) <span style="color:var(--crimson);">*</span></label>
-                <input type="number" id="fWeight" class="form-control" placeholder="e.g. 1000" min="0.01" step="0.01" required />
+                <label class="form-label">Weight (TON) <span style="color:var(--crimson);">*</span></label>
+                <input type="number" id="fWeight" class="form-control" placeholder="e.g. 1" min="0.001" step="0.001" required />
               </div>
               <div class="form-group">
-                <label class="form-label">Rate per KG (PKR)</label>
+                <label class="form-label">Rate per TON (PKR)</label>
                 <input type="number" id="fRate" class="form-control" placeholder="e.g. 45" min="0" step="0.01" />
               </div>
             </div>
@@ -178,8 +178,8 @@
               <div class="total-display-label"><i class="fas fa-calculator"></i>&nbsp; Calculated Total</div>
               <div class="total-display-amount" id="calcTotal">PKR 0</div>
               <div class="total-display-meta">
-                <span class="total-meta-item"><i class="fas fa-weight-hanging"></i> <span id="calcWeight">0 KG</span></span>
-                <span class="total-meta-item"><i class="fas fa-tag"></i> <span id="calcRate">PKR 0/KG</span></span>
+                <span class="total-meta-item"><i class="fas fa-weight-hanging"></i> <span id="calcWeight">0 TON</span></span>
+                <span class="total-meta-item"><i class="fas fa-tag"></i> <span id="calcRate">PKR 0/TON</span></span>
               </div>
             </div>
 
@@ -218,7 +218,7 @@
           <span class="bs-row-value" id="sbWeight">—</span>
         </div>
         <div class="bs-row">
-          <span class="bs-row-label">Rate / KG</span>
+          <span class="bs-row-label">Rate / TON</span>
           <span class="bs-row-value" id="sbRate">—</span>
         </div>
         <div class="bs-total-row">
@@ -268,7 +268,7 @@
                 <th>Supplier</th>
                 <th>Date &amp; Time</th>
                 <th>Weight</th>
-                <th>Rate/KG</th>
+                <th>Rate/TON</th>
                 <th>Total</th>
                 <th>Description</th>
                 <th style="text-align:center;">Actions</th>

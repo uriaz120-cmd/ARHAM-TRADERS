@@ -119,6 +119,13 @@ function formatKG(num) {
   return n.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
+function formatTON(num) {
+  if (num === null || num === undefined || num === '') return '0';
+  const n = Number(num) / 1000;
+  if (isNaN(n)) return '0';
+  return n.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+}
+
 function formatCurrency(num) {
   if (num === null || num === undefined || num === '') return '0';
   const n = Number(num);

@@ -302,7 +302,7 @@ function _renderBookingTable(bookings) {
       <td>${formatDate(b.date)}</td>
       <td>${escapeHtml(b.description || '—')}</td>
       <td class="sf-bk-no">${escapeHtml(b.bookingNo)}</td>
-      <td>${formatKG(b.weight)} KG</td>
+      <td>${formatTON(b.weight)} TON</td>
       <td>PKR ${formatCurrency(b.rate)}</td>
       <td class="sf-bk-total">PKR ${formatCurrency(b.total)}</td>
     </tr>`).join('');
@@ -316,7 +316,7 @@ function _renderBookingTable(bookings) {
           <th>Description</th>
           <th>Booking No</th>
           <th>Weight</th>
-          <th>Rate/KG</th>
+          <th>Rate/TON</th>
           <th>Total Amount</th>
         </tr>
       </thead>
