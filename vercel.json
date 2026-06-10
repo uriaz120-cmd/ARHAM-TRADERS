@@ -1,9 +1,5 @@
 {
-  "buildCommand": "echo 'Static site - no build needed'",
   "outputDirectory": "./",
-  "env": {
-    "NODE_ENV": "production"
-  },
   "headers": [
     {
       "source": "/(.*)",
@@ -11,5 +7,9 @@
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
     }
+  ],
+  "routes": [
+    { "src": "/", "dest": "/" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
