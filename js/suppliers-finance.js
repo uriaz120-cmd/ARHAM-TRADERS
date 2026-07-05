@@ -302,7 +302,7 @@ function _renderBookingTable(bookings) {
       <td>${formatDate(b.date)}</td>
       <td>${escapeHtml(b.description || '—')}</td>
       <td class="sf-bk-no">${escapeHtml(b.bookingNo)}</td>
-      <td>${formatTON(b.weight)} TON</td>
+      <td>${formatKG(b.weight)} TON</td>
       <td>PKR ${formatCurrency(b.rate)}</td>
       <td class="sf-bk-total">PKR ${formatCurrency(b.total)}</td>
     </tr>`).join('');
@@ -543,7 +543,7 @@ function sfDownloadSupplierPdf() {
       if (y > 275) { doc.addPage(); y = 14; }
       doc.text(formatDate(b.date), 14, y);
       doc.text(b.bookingNo || '—', 55, y);
-      doc.text(`${formatTON(b.weight)} TON`, 100, y);
+      doc.text(`${formatKG(b.weight)} TON`, 100, y);
       doc.text(`PKR ${formatCurrency(b.total)}`, 150, y);
       y += 6;
     });

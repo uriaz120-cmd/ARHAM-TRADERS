@@ -19,9 +19,9 @@ function updateStats() {
     if (el) el.innerHTML = html;
   };
   s('totalSuppliers', Stats.getTotalSuppliers());
-  s('warehouseStock', `${formatTON(Stats.getWarehouseStock())} <small>TON</small>`);
-  s('inProduction',   `${formatTON(Stats.getInProduction())} <small>TON</small>`);
-  s('finishedGoods',  `${formatTON(Stats.getFinishedGoods())} <small>TON</small>`);
+  s('warehouseStock', `${formatKG(Stats.getWarehouseStock())} <small>TON</small>`);
+  s('inProduction',   `${formatKG(Stats.getInProduction())} <small>TON</small>`);
+  s('finishedGoods',  `${formatKG(Stats.getFinishedGoods())} <small>TON</small>`);
   s('todayBookings',  Stats.getTodayBookings());
   s('todayDeliveries',Stats.getTodayDeliveries());
 }
@@ -71,7 +71,7 @@ function initStockChart() {
           padding: 12,
           cornerRadius: 8,
           callbacks: {
-            label: ctx => `  ${formatTON(ctx.parsed.y)} TON booked`
+            label: ctx => `  ${formatKG(ctx.parsed.y)} TON booked`
           }
         }
       },
@@ -87,7 +87,7 @@ function initStockChart() {
           ticks: {
             color: '#9aa0b0',
             font: { size: 11 },
-            callback: v => formatTON(v)
+            callback: v => formatKG(v)
           }
         }
       }
@@ -130,7 +130,7 @@ function initRatioChart() {
         tooltip: {
           backgroundColor: '#181c2a',
           callbacks: {
-            label: ctx => `  ${formatTON(ctx.parsed)} TON`
+            label: ctx => `  ${formatKG(ctx.parsed)} TON`
           }
         }
       }
@@ -157,7 +157,7 @@ function initRatioChart() {
       <div class="legend-item" style="margin-top:4px;border-top:1px solid var(--color-border);padding-top:8px;">
         <div class="legend-dot" style="background:var(--color-border);"></div>
         <span style="color:var(--text-muted);">Total</span>
-        <span>${formatTON(total)} TON</span>
+        <span>${formatKG(total)} TON</span>
       </div>`;
   }
 }
@@ -185,7 +185,7 @@ function renderRecentBookings() {
         <div class="activity-name">${escapeHtml(b.supplierName || 'Unknown')}</div>
         <div class="activity-meta">${escapeHtml(b.bookingNo || '')} &nbsp;·&nbsp; ${formatDate(b.date)}</div>
       </div>
-      <span class="activity-amount">${formatTON(b.weight)} TON</span>
+      <span class="activity-amount">${formatKG(b.weight)} TON</span>
     </div>`).join('');
 }
 
@@ -203,7 +203,7 @@ function renderRecentDeliveries() {
         <div class="activity-name">${escapeHtml(d.supplierName || 'Unknown')}</div>
         <div class="activity-meta">${escapeHtml(d.referenceNo || '')} &nbsp;·&nbsp; ${formatDate(d.date)}</div>
       </div>
-      <span class="activity-amount" style="color:var(--emerald);">${formatTON(d.weight)} TON</span>
+      <span class="activity-amount" style="color:var(--emerald);">${formatKG(d.weight)} TON</span>
     </div>`).join('');
 }
 
