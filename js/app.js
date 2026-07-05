@@ -181,8 +181,38 @@ function printElement(elementId) {
     <!DOCTYPE html><html><head>
       <title>Arham Traders</title>
       <style>
-        body { font-family: 'Inter', sans-serif; color: #1e2333; }
+        body {
+          font-family: 'Inter', sans-serif;
+          color: #1e2333;
+          margin: 0;
+          padding: 0;
+          background: #fff;
+        }
         * { box-sizing: border-box; }
+        .receipt-paper {
+          max-width: 280px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 16px 14px;
+          font-size: 11px;
+          border-radius: 8px;
+          border: 1px dashed #c8c0b4;
+        }
+        .receipt-company { font-size: 18px; }
+        .receipt-subtitle { font-size: 10px; }
+        .receipt-title { font-size: 10px; padding: 3px 10px; }
+        .receipt-row-label,
+        .receipt-row-value,
+        .receipt-total-box .label,
+        .receipt-total-box .amount,
+        .receipt-footer-note,
+        .receipt-stamp {
+          font-size: 10px;
+        }
+        .receipt-total-box { padding: 10px 12px; }
+        .receipt-total-box .amount { font-size: 14px; }
+        .receipt-divider { margin: 10px 0; }
+        @page { size: 80mm auto; margin: 0; }
       </style>
     </head><body>${el.outerHTML}</body></html>`);
   win.document.close();
