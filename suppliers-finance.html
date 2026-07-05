@@ -142,10 +142,9 @@
             <h3 id="sfDetSupName">Supplier</h3>
             <div class="sf-det-sup-meta" id="sfDetSupMeta"></div>
           </div>
-        </div>
-
-        <!-- Balance Cards -->
-        <div class="sf-det-bal-row">
+        <button class="sf-pdf-btn" onclick="sfDownloadSupplierPdf()">
+          <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
           <div class="sf-dbal-card dbc-booking">
             <div class="sf-dbal-icon"><i class="fas fa-clipboard-list"></i></div>
             <div><div class="sf-dbal-value" id="sfDetTotalBk">PKR 0</div><div class="sf-dbal-label">Total Booking Amount</div></div>
@@ -255,6 +254,7 @@
 <script src="js/data.js?v=2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/supabase-client.js?v=2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="js/app.js?v=2"></script>
 <script src="js/suppliers-finance.js?v=2"></script>
 </body>

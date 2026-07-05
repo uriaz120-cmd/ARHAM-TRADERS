@@ -461,3 +461,109 @@ function sfSwitchMobTab(tab) {
   if (bkPanel)  bkPanel.classList.toggle('hidden-mob',  tab !== 'bookings');
   if (rcvPanel) rcvPanel.classList.toggle('hidden-mob', tab !== 'received');
 }
+
+function sfDownloadSupplierPdf() {
+  const supId = _sfActiveSupId;
+  if (!supId) return;
+  const supplier = DB.findById('suppliers', supId);
+  if (!supplier) { showToast('Supplier record not found.', 'error'); return; }
+
+  const bookings = _sfGetBookings(supId, _sfDetMonth);
+  const payments = _sfGetPayments(supId, _sfDetMonth);
+  const totalBk  = bookings.reduce((sum, b) => sum + (Number(b.total) || 0), 0);
+  const totalRcv = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const balance  = totalBk - totalRcv;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const w = doc.internal.pageSize.getWidth();
+  let y = 14;
+
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Supplier Finance Record', 14, y);
+
+  y += 8;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Supplier: ${supplier.name}`, 14, y);
+  y += 6;
+  if (supplier.phone || supplier.contact) doc.text(`Phone: ${supplier.phone || supplier.contact}`, 14, y), y += 6;
+  if (supplier.address) doc.text(`Address: ${supplier.address}`, 14, y), y += 6;
+  y += 4;
+  doc.text(`Period: ${_sfMonthLabel(_sfDetMonth)}`, 14, y);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-PK')}`, w - 14, y, { align: 'right' });
+
+  y += 10;
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Summary', 14, y);
+  y += 7;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Total Booking Amount: PKR ${formatCurrency(totalBk)}`, 14, y);
+  y += 6;
+  doc.text(`Total Received: PKR ${formatCurrency(totalRcv)}`, 14, y);
+  y += 6;
+  doc.text(`Balance Due: PKR ${formatCurrency(balance)}`, 14, y);
+
+  y += 10;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Bookings', 14, y);
+  y += 7;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  if (!bookings.length) {
+    doc.text('No bookings found for this supplier.', 14, y);
+    y += 8;
+  } else {
+    doc.text('Date', 14, y);
+    doc.text('Booking No', 55, y);
+    doc.text('Weight', 100, y);
+    doc.text('Total', 150, y);
+    y += 5;
+    doc.setDrawColor(180);
+    doc.line(14, y, w - 14, y);
+    y += 6;
+    bookings.forEach(b => {
+      if (y > 275) { doc.addPage(); y = 14; }
+      doc.text(formatDate(b.date), 14, y);
+      doc.text(b.bookingNo || '—', 55, y);
+      doc.text(`${formatTON(b.weight)} TON`, 100, y);
+      doc.text(`PKR ${formatCurrency(b.total)}`, 150, y);
+      y += 6;
+    });
+  }
+
+  y += 10;
+  if (y > 250) { doc.addPage(); y = 14; }
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text('Payments', 14, y);
+  y += 7;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  if (!payments.length) {
+    doc.text('No payments recorded for this supplier.', 14, y);
+    y += 8;
+  } else {
+    doc.text('Date', 14, y);
+    doc.text('Description', 50, y);
+    doc.text('Amount', 150, y);
+    y += 5;
+    doc.setDrawColor(180);
+    doc.line(14, y, w - 14, y);
+    y += 6;
+    payments.forEach(p => {
+      if (y > 275) { doc.addPage(); y = 14; }
+      const desc = p.description || '—';
+      doc.text(formatDate(p.date), 14, y);
+      doc.text(desc.length > 30 ? desc.substring(0, 27) + '...' : desc, 50, y);
+      doc.text(`PKR ${formatCurrency(p.amount)}`, 150, y);
+      y += 6;
+    });
+  }
+
+  doc.save(`Supplier-${supplier.name.replace(/\W+/g, '_')}-${_sfMonthLabel(_sfDetMonth).replace(/\W+/g, '_')}.pdf`);
+  showToast('Supplier PDF downloaded.', 'success');
+}
