@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Normalize Weights — Arham Traders</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;margin:24px;color:#111}
+    .card{max-width:780px;padding:18px;border:1px solid #eee;border-radius:8px;background:#fff}
+    h1{margin:0 0 8px;font-size:20px}
+    p{margin:8px 0}
+    button{padding:10px 14px;border-radius:6px;border:0;cursor:pointer}
+    .danger{background:#d9534f;color:#fff}
+    .primary{background:#2a9d8f;color:#fff;margin-right:8px}
+    pre{background:#f7f7f7;padding:8px;border-radius:6px;overflow:auto}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Normalize Stored Weights (0.5 → 500)</h1>
+    <p>This tool will:</p>
+    <ul>
+      <li>Create a browser-localStorage backup of the app stores.</li>
+      <li>Multiply numeric weight fields by <strong>1000</strong> in these stores: <code>bookings</code>, <code>warehouse</code>, <code>production</code>, <code>finished_goods</code>, <code>deliveries</code>.</li>
+      <li>Leave other fields untouched.</li>
+    </ul>
+
+    <p><strong>Warning:</strong> This modifies data in your browser only. Open this page in the same browser/profile where you use the app.</p>
+
+    <p>If you're ready, click <strong>Convert (0.5 → 500)</strong>. A backup key will be created like <code>at_backup_&lt;timestamp&gt;</code>.</p>
+
+    <div style="margin-top:12px;">
+      <button id="runBtn" class="primary">Convert (0.5 → 500)</button>
+      <button id="infoBtn">Show counts / preview</button>
+      <button id="closeBtn" style="margin-left:8px;" onclick="window.close();">Close</button>
+    </div>
+
+    <div id="result" style="margin-top:14px;font-size:14px;color:#333"></div>
+    <pre id="preview" style="display:none;margin-top:12px;max-height:220px"></pre>
+  </div>
+
+  <script>
+    const keys = ['bookings','warehouse','production','finished_goods','deliveries'];
+
+    function getCounts() {
+      const out = {};
+      keys.forEach(k => {
+        try { out[k] = JSON.parse(localStorage.getItem('at_'+k) || '[]').length } catch(e){ out[k] = 'err' }
+      });
+      return out;
+    }
+
+    document.getElementById('infoBtn').addEventListener('click', ()=>{
+      const c = getCounts();
+      document.getElementById('preview').style.display = 'block';
+      document.getElementById('preview').textContent = JSON.stringify(c, null, 2);
+      document.getElementById('result').textContent = 'Preview counts shown below.';
+    });
+
+    document.getElementById('runBtn').addEventListener('click', ()=>{
+      if(!confirm('Create backup and multiply stored weights by 1000? This cannot be undone here.')) return;
+
+      // Backup
+      const backup = {};
+      keys.forEach(k => { backup[k] = localStorage.getItem('at_'+k); });
+      const bkKey = 'at_backup_' + Date.now();
+      localStorage.setItem(bkKey, JSON.stringify(backup));
+
+      // Fields to normalize
+      const fields = ['weight','totalWeight','remainingWeight','inputWeight','finishedWeight','scrapWeight'];
+
+      // Apply multiply
+      keys.forEach(k => {
+        try {
+          const raw = localStorage.getItem('at_'+k);
+          if(!raw) return;
+          const arr = JSON.parse(raw);
+          const out = arr.map(item => {
+            fields.forEach(f => {
+              if(item[f] !== undefined && item[f] !== null && item[f] !== '') {
+                const n = Number(item[f]);
+                if(!isNaN(n)) item[f] = n * 1000;
+              }
+            });
+            return item;
+          });
+          localStorage.setItem('at_'+k, JSON.stringify(out));
+        } catch(e) { console.error('skip',k,e); }
+      });
+
+      document.getElementById('result').textContent = 'Normalization complete — backup saved as ' + bkKey + '. Reload your app page to see changes.';
+      alert('Normalization complete. Please reload the Arham Traders app page.');
+    });
+  </script>
+</body>
+</html>
