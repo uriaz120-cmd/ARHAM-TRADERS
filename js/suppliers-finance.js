@@ -426,6 +426,20 @@ function sfAddPayment(supId) {
 
   DB.add('sf_payments', { supplierId: supId, date, description: desc, bankCash, reference: ref, amount });
 
+  const supplier = DB.findById('suppliers', supId);
+  const partyName = supplier ? supplier.name : 'Supplier';
+  const incomeDescription = desc
+    ? `${desc} (${partyName})`
+    : `Payment received from ${partyName}`;
+
+  DB.add('income', {
+    month: date.substring(0, 7),
+    date,
+    description: incomeDescription,
+    reference: ref || partyName,
+    amount
+  });
+
   /* Reset form fields */
   document.getElementById('sfPayDesc').value   = '';
   document.getElementById('sfPayRef').value    = '';
