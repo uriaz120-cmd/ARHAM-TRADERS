@@ -377,6 +377,18 @@ function _addVendorEntry(type, vendorId) {
   const key = type === 'expense' ? 'vendor_expenses' : 'vendor_payments';
   DB.add(key, { vendorId, month: _vlDetMonth, date, description: desc, reference: ref, amount });
 
+  if (type === 'payment') {
+    const vendor = DB.findById('vendors', vendorId);
+    const vendorName = vendor ? vendor.name : 'Vendor';
+    DB.add('expenses', {
+      month: date.substring(0, 7),
+      date,
+      description: `Payment to ${vendorName} — ${desc}`,
+      reference: ref || vendorName,
+      amount
+    });
+  }
+
   document.getElementById(`${prefix}Desc`).value   = '';
   document.getElementById(`${prefix}Ref`).value    = '';
   document.getElementById(`${prefix}Amount`).value = '';
