@@ -85,15 +85,15 @@ function bindFormCalculation() {
     const dispR    = document.getElementById('calcRate');
 
     if (totalEl)  totalEl.value    = total.toFixed(2);
-    if (displayEl) displayEl.textContent = 'PKR ' + formatCurrency(total);
-    if (dispW)    dispW.textContent    = formatTON(w) + ' TON';
-    if (dispR)    dispR.textContent    = 'PKR ' + formatCurrency(r) + '/TON';
+      if (displayEl) displayEl.textContent = 'PKR ' + formatCurrency(total);
+      if (dispW)    dispW.textContent    = formatKG(w) + ' TON';
+      if (dispR)    dispR.textContent    = 'PKR ' + formatCurrency(r) + '/TON';
 
     /* Update sidebar summary */
     const sbW     = document.getElementById('sbWeight');
     const sbR     = document.getElementById('sbRate');
     const sbTotal = document.getElementById('sbTotal');
-    if (sbW)     sbW.textContent     = w     ? formatTON(w) + ' TON'              : '—';
+    if (sbW)     sbW.textContent     = w     ? formatKG(w) + ' TON'              : '—';
     if (sbR)     sbR.textContent     = r     ? 'PKR ' + formatCurrency(r) + '/TON' : '—';
     if (sbTotal) sbTotal.textContent = total ? 'PKR ' + formatCurrency(total)    : '—';
   };
@@ -269,7 +269,7 @@ function buildReceiptHtml(b) {
       <div class="receipt-grid">
         <div class="receipt-row">
           <span class="receipt-row-label">Weight Received</span>
-          <span class="receipt-row-value">${formatTON(b.weight)} TON</span>
+          <span class="receipt-row-value">${formatKG(b.weight)} TON</span>
         </div>
         <div class="receipt-row">
           <span class="receipt-row-label">Rate per TON</span>
@@ -334,7 +334,7 @@ function downloadBookingPdf(id) {
   y += 2;
   doc.setDrawColor(220, 220, 220); doc.line(14, y, w - 14, y); y += 9;
 
-  row('Weight Received', formatTON(b.weight) + ' TON');
+  row('Weight Received', formatKG(b.weight) + ' TON');
   row('Rate per TON', 'PKR ' + formatCurrency(b.rate));
 
   /* Total box */
@@ -367,7 +367,7 @@ function whatsappReceipt() {
 📅 Date       : ${formatDateTime(b.date)}
 👤 Supplier   : ${b.supplierName}
 ${b.description ? `📝 Description: ${b.description}\n` : ''}━━━━━━━━━━━━━━━━━━━━
-⚖️  Weight     : ${formatTON(b.weight)} TON
+⚖️  Weight     : ${formatKG(b.weight)} TON
 💰 Rate       : PKR ${formatCurrency(b.rate)}/TON
 ━━━━━━━━━━━━━━━━━━━━
 💵 *TOTAL: PKR ${formatCurrency(b.total)}*
@@ -476,7 +476,7 @@ function renderBookingsTable() {
       </td>
       <td>${escapeHtml(b.supplierName || '—')}</td>
       <td>${formatDateTime(b.date)}</td>
-      <td style="font-weight:700;">${formatTON(b.weight)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
+      <td style="font-weight:700;">${formatKG(b.weight)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
       <td>PKR ${formatCurrency(b.rate)}</td>
       <td style="font-weight:700;color:var(--mineral-blue);">PKR ${formatCurrency(b.total)}</td>
       <td>${escapeHtml(b.description || '—')}</td>
@@ -513,7 +513,7 @@ function renderBookingsTable() {
           TOTAL (${filtered.length} entries)
         </td>
         <td style="font-weight:800;color:var(--text-primary);">
-          ${formatTON(totalKg)} <small style="color:var(--text-muted);font-weight:400;">TON</small>
+          ${formatKG(totalKg)} <small style="color:var(--text-muted);font-weight:400;">TON</small>
         </td>
         <td></td>
         <td style="font-weight:800;color:var(--mineral-blue);">PKR ${formatCurrency(totalAmt)}</td>
@@ -532,7 +532,7 @@ function updateBookingStats() {
   const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   s('bsTotalBookings', all.length);
   s('bsTodayBookings', todayBookings.length);
-  s('bsTotalWeight',   formatTON(all.reduce((t, b) => t + (Number(b.weight) || 0), 0)) + ' TON');
+  s('bsTotalWeight',   formatKG(all.reduce((t, b) => t + (Number(b.weight) || 0), 0)) + ' TON');
   s('bsTotalAmount',   'PKR ' + formatCurrency(all.reduce((t, b) => t + (Number(b.total) || 0), 0)));
 }
 
