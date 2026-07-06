@@ -116,21 +116,21 @@ function formatKG(num) {
   if (num === null || num === undefined || num === '') return '0';
   const n = Number(num);
   if (isNaN(n)) return '0';
-  return n.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 function formatTON(num) {
   if (num === null || num === undefined || num === '') return '0';
-  const n = Number(num) / 1000;
+  const n = Number(num);
   if (isNaN(n)) return '0';
-  return n.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
 }
 
 function formatCurrency(num) {
   if (num === null || num === undefined || num === '') return '0';
   const n = Number(num);
   if (isNaN(n)) return '0';
-  return n.toLocaleString('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 /* =============================================

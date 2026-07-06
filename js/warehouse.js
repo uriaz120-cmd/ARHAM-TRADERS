@@ -123,12 +123,12 @@ function renderWarehouseTable() {
         </td>
         <td>${escapeHtml(w.supplierName || '—')}</td>
         <td>${formatDate(w.date)}</td>
-        <td style="font-weight:700;">${formatTON(total)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
+        <td style="font-weight:700;">${formatKG(total)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
         <td>
-          <span style="font-weight:700;color:var(--emerald);">${formatTON(remain)}</span>
+          <span style="font-weight:700;color:var(--emerald);">${formatKG(remain)}</span>
           <small style="color:var(--text-muted);font-weight:400;"> TON</small>
         </td>
-        <td style="color:var(--copper);font-weight:600;">${formatTON(used)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
+        <td style="color:var(--copper);font-weight:600;">${formatKG(used)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
         <td>
           <div class="stock-progress-wrap">
             <div class="stock-progress-bar">
@@ -172,9 +172,9 @@ function renderWarehouseTable() {
         <td colspan="3" style="font-weight:700;font-size:12px;color:var(--text-muted);">
           TOTAL (${filtered.length} entries)
         </td>
-        <td style="font-weight:800;">${formatTON(totTotal)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
-        <td style="font-weight:800;color:var(--emerald);">${formatTON(totRemain)} <small style="color:var(--text-muted);">TON</small></td>
-        <td style="font-weight:700;color:var(--copper);">${formatTON(totUsed)} <small style="color:var(--text-muted);">TON</small></td>
+        <td style="font-weight:800;">${formatKG(totTotal)} <small style="color:var(--text-muted);font-weight:400;">TON</small></td>
+        <td style="font-weight:800;color:var(--emerald);">${formatKG(totRemain)} <small style="color:var(--text-muted);">TON</small></td>
+        <td style="font-weight:700;color:var(--copper);">${formatKG(totUsed)} <small style="color:var(--text-muted);">TON</small></td>
         <td colspan="3"></td>
       </tr>`;
   }
@@ -200,9 +200,9 @@ function updateWarehouseStats() {
   const entries  = items.length;
 
   const s = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
-  s('whTotalStock',     `${formatTON(total)} <small>TON</small>`);
-  s('whRemainingStock', `${formatTON(remaining)} <small>TON</small>`);
-  s('whUsedStock',      `${formatTON(used)} <small>TON</small>`);
+  s('whTotalStock',     `${formatKG(total)} <small>TON</small>`);
+  s('whRemainingStock', `${formatKG(remaining)} <small>TON</small>`);
+  s('whUsedStock',      `${formatKG(used)} <small>TON</small>`);
   s('whEntries',        entries);
 }
 
@@ -220,8 +220,8 @@ function openSendToProduction(warehouseId) {
   const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   setEl('prodBookingNo',   w.bookingNo    || '—');
   setEl('prodSupplier',    w.supplierName || '—');
-  setEl('prodTotalWeight', formatTON(w.totalWeight) + ' TON');
-  setEl('prodAvailable',   formatTON(remaining) + ' TON');
+  setEl('prodTotalWeight', formatKG(w.totalWeight) + ' TON');
+  setEl('prodAvailable',   formatKG(remaining) + ' TON');
 
   /* Slider */
   const slider = document.getElementById('prodWeightSlider');
@@ -272,8 +272,8 @@ function updateProductionPreview(toProd, total) {
   const stays = total - toProd;
   const el1   = document.getElementById('prevToProd');
   const el2   = document.getElementById('prevStays');
-  if (el1) el1.textContent = formatTON(Math.max(toProd, 0)) + ' TON';
-  if (el2) el2.textContent = formatTON(Math.max(stays,  0)) + ' TON';
+  if (el1) el1.textContent = formatKG(Math.max(toProd, 0)) + ' TON';
+  if (el2) el2.textContent = formatKG(Math.max(stays,  0)) + ' TON';
 }
 
 function confirmSendToProduction() {
@@ -285,7 +285,7 @@ function confirmSendToProduction() {
   const avail  = Number(w.remainingWeight) || 0;
 
   if (weight <= 0)       { showToast('Weight must be greater than 0.', 'error'); return; }
-  if (weight > avail)    { showToast(`Cannot exceed available: ${formatTON(avail)} TON`, 'error'); return; }
+  if (weight > avail)    { showToast(`Cannot exceed available: ${formatKG(avail)} TON`, 'error'); return; }
 
   const desc = sanitizeInput(document.getElementById('prodDescription')?.value || '');
 
@@ -310,7 +310,7 @@ function confirmSendToProduction() {
   });
 
   closeModal('sendToProductionModal');
-  showToast(`${formatTON(weight)} TON sent to Production for ${w.supplierName}!`, 'success');
+  showToast(`${formatKG(weight)} TON sent to Production for ${w.supplierName}!`, 'success');
   renderWarehouseTable();
   updateWarehouseStats();
 
