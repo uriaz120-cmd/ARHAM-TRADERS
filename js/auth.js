@@ -180,3 +180,23 @@ function seedDemoData() {
 
   return true;
 }
+
+function clearDemoData() {
+  if (!confirm('Delete all sample/practice data from this app? This cannot be undone.')) return;
+
+  const keys = ['at_suppliers','at_bookings','at_warehouse','at_production','at_finished_goods','at_deliveries'];
+  keys.forEach(k => localStorage.removeItem(k));
+
+  const btn = document.querySelector('.demo-clear-btn');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check"></i> Sample data deleted';
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+  }
+
+  const loadBtn = document.querySelector('.demo-load-btn');
+  if (loadBtn) {
+    loadBtn.innerHTML = '<i class="fas fa-database"></i> Load Sample Data (first time only)';
+    loadBtn.disabled = false;
+  }
+}
