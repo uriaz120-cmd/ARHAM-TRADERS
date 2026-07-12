@@ -200,3 +200,25 @@ function clearDemoData() {
     loadBtn.disabled = false;
   }
 }
+
+async function fullClearData() {
+  if (!confirm('Delete all local and synced sample data? This clears browser storage and remote Supabase store.')) return;
+
+  clearDemoData();
+
+  if (typeof window.supabaseClearRemoteData === 'function') {
+    const { error } = await window.supabaseClearRemoteData([
+      'suppliers','bookings','warehouse','production','finished_goods','deliveries'
+    ]);
+    if (error) {
+      console.warn('[Remote clear failed]', error.message || error);
+    }
+  }
+
+  const btn = document.querySelector('.demo-full-clear-btn');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check"></i> Full reset complete';
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+  }
+}

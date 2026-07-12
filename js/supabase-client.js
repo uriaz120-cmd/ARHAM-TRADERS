@@ -28,6 +28,21 @@
     console.warn('[Supabase] Init failed:', e);
   }
 
+  /* Expose helper for remote cleanup from other pages */
+  window.supabaseClearRemoteData = async function (keys) {
+    if (!_supa) return { error: { message: 'Supabase client not initialized' } };
+    try {
+      const targetKeys = Array.isArray(keys) ? keys : _ALL_KEYS;
+      const { error } = await _supa
+        .from('at_store')
+        .delete()
+        .in('store_key', targetKeys);
+      return { error };
+    } catch (e) {
+      return { error: { message: e.message || String(e) } };
+    }
+  };
+
 
   /* ===========================================
      SYNC: Bi-directional merge
