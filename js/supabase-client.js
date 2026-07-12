@@ -207,8 +207,8 @@
     return _origProto.call(this, type, handler, opts);
   };
 
-  /* Register OUR real DOMContentLoaded using the original method */
-  _origProto.call(document, 'DOMContentLoaded', async function () {
+  /* Register OUR real DOMContentLoaded handler */
+  async function _initApp() {
     /* 1. Load ALL data from Supabase cloud into memory */
     await _loadFromSupabase();
 
@@ -223,6 +223,13 @@
     _dclQueue.forEach(handler => {
       try { handler(evt); } catch (e) { console.error('[Module init error]', e); }
     });
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    _origProto.call(document, 'DOMContentLoaded', _initApp);
+  } else {
+    /* DOM is already ready, run immediately */
+    _initApp();
+  }
 
 })();
