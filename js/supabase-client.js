@@ -119,7 +119,7 @@
      Memory is updated instantly for fast UI response
      =========================================== */
   function _patchDB() {
-    if (!_supa || !window.DB) return;
+    if (!_supa || typeof DB === 'undefined') return;
 
     const _oAdd    = DB.add.bind(DB);
     const _oUpdate = DB.update.bind(DB);
