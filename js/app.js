@@ -235,3 +235,62 @@ function sanitizeInput(value) {
   if (typeof value !== 'string') return value;
   return value.trim().replace(/[<>]/g, '');
 }
+
+/* =============================================
+   DELETE ALL DATA (localStorage + Supabase)
+   ============================================= */
+function deleteAllDataConfirm() {
+  showConfirm(
+    '⚠️ WARNING: This will permanently delete ALL data (Suppliers, Bookings, Warehouse, Production, Finished Goods, Deliveries, Finance, Vendors, Income/Expense) from the cloud. This action CANNOT be undone!',
+    function () {
+      /* Second confirmation for safety */
+      showConfirm(
+        '🔴 LAST CHANCE: Are you ABSOLUTELY SURE? ALL data will be permanently deleted from the cloud. This cannot be recovered!',
+        async function () {
+          const btn = document.getElementById('deleteAllDataBtn');
+          if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span class="btn-label-desktop"> Deleting...</span>'; }
+
+          const ALL_KEYS = [
+            'suppliers', 'bookings', 'warehouse', 'production',
+            'finished_goods', 'deliveries',
+            'sf_payments',
+            'vendors', 'vendor_expenses', 'vendor_payments', 'vendor_monthly_closings',
+            'income', 'expenses', 'monthly_closings'
+          ];
+
+          /* Step 1: Clear in-memory store */
+          ALL_KEYS.forEach(k => { if (window._memStore) window._memStore[k] = []; });
+
+          /* Step 2: Clear Supabase cloud data */
+          let cloudError = null;
+          if (typeof window.supabaseClearRemoteData === 'function') {
+            const result = await window.supabaseClearRemoteData(ALL_KEYS);
+            if (result && result.error) {
+              cloudError = result.error.message || 'Unknown cloud error';
+            }
+          }
+
+          /* Step 3: Also clean up any old localStorage remnants */
+          ALL_KEYS.forEach(k => {
+            localStorage.removeItem('at_' + k);
+            localStorage.removeItem('at_deleted_' + k);
+          });
+
+          if (cloudError) {
+            showToast('⚠️ Cloud error: ' + cloudError + '. Try again.', 'warning', 5000);
+          } else {
+            showToast('✅ All data deleted permanently from cloud!', 'success', 4000);
+          }
+
+          /* Step 4: Reset the button */
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash-alt"></i><span class="btn-label-desktop"> Delete All Data</span>'; }
+
+          /* Step 5: Reload page after short delay */
+          setTimeout(() => location.reload(), 1500);
+        },
+        'Yes, Delete Everything'
+      );
+    },
+    'Continue to Delete'
+  );
+}

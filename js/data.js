@@ -1,58 +1,53 @@
 /* =============================================
-   ARHAM TRADERS — DATA LAYER (localStorage)
+   ARHAM TRADERS — DATA LAYER (Cloud-Only / In-Memory)
    js/data.js
    ============================================= */
 
+/* In-memory store — filled from Supabase on page load */
+/* Using var so it's accessible via window._memStore from other scripts */
+var _memStore = {};
+
 const DB = {
-  /* Read array from storage */
+  /* Read array from memory */
   get(key) {
-    try {
-      return JSON.parse(localStorage.getItem('at_' + key)) || [];
-    } catch {
-      return [];
-    }
+    return _memStore[key] ? [..._memStore[key]] : [];
   },
 
-  /* Write array to storage */
+  /* Write array to memory */
   set(key, data) {
-    try {
-      localStorage.setItem('at_' + key, JSON.stringify(data));
-    } catch (e) {
-      console.error('Storage error:', e);
-    }
+    _memStore[key] = Array.isArray(data) ? [...data] : [];
   },
 
   /* Add item — returns item with id */
   add(key, item) {
-    const data = this.get(key);
+    if (!_memStore[key]) _memStore[key] = [];
     item.id = item.id || generateId();
     item.createdAt = item.createdAt || new Date().toISOString();
-    data.push(item);
-    this.set(key, data);
+    _memStore[key].push(item);
     return item;
   },
 
   /* Update item by id */
   update(key, id, updates) {
-    const data = this.get(key);
-    const idx = data.findIndex(i => i.id === id);
+    if (!_memStore[key]) return null;
+    const idx = _memStore[key].findIndex(i => i.id === id);
     if (idx !== -1) {
-      data[idx] = { ...data[idx], ...updates, updatedAt: new Date().toISOString() };
-      this.set(key, data);
-      return data[idx];
+      _memStore[key][idx] = { ..._memStore[key][idx], ...updates, updatedAt: new Date().toISOString() };
+      return _memStore[key][idx];
     }
     return null;
   },
 
   /* Delete item by id */
   remove(key, id) {
-    const data = this.get(key).filter(i => i.id !== id);
-    this.set(key, data);
+    if (!_memStore[key]) return;
+    _memStore[key] = _memStore[key].filter(i => i.id !== id);
   },
 
   /* Find single item by id */
   findById(key, id) {
-    return this.get(key).find(i => i.id === id) || null;
+    if (!_memStore[key]) return null;
+    return _memStore[key].find(i => i.id === id) || null;
   },
 
   /* Find items matching predicate */
@@ -62,19 +57,17 @@ const DB = {
 
   /* Count items */
   count(key) {
-    return this.get(key).length;
+    return _memStore[key] ? _memStore[key].length : 0;
   },
 
   /* Clear a single store */
   clear(key) {
-    localStorage.removeItem('at_' + key);
+    _memStore[key] = [];
   },
 
   /* Clear ALL app data */
   clearAll() {
-    ['suppliers','bookings','warehouse','production','finished_goods','deliveries'].forEach(k => {
-      localStorage.removeItem('at_' + k);
-    });
+    Object.keys(_memStore).forEach(k => { _memStore[k] = []; });
   }
 };
 
