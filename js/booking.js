@@ -378,18 +378,28 @@ _Arham Traders — Mineral Processing_`;
 }
 
 /* =============================================
-   DELETE BOOKING
+   DELETE BOOKING (Cascading Deletion)
    ============================================= */
 function deleteBooking(id, bookingNo) {
   showConfirm(
-    `Delete booking "${bookingNo}"?\n\nThis will also remove it from warehouse inventory.`,
+    `Delete booking "${bookingNo}"?\n\nThis will permanently remove this booking, its warehouse inventory, any related production & finished goods records, and remove its amount from all supplier finance ledgers.`,
     () => {
+      /* 1. Remove from bookings store */
       DB.remove('bookings', id);
-      /* Remove matching warehouse entry */
-      const wItems = DB.filter('warehouse', w => w.bookingId === id);
+
+      /* 2. Remove matching warehouse entries */
+      const wItems = DB.filter('warehouse', w => w.bookingId === id || w.bookingNo === bookingNo);
       wItems.forEach(w => DB.remove('warehouse', w.id));
 
-      showToast(`Booking ${bookingNo} deleted.`, 'success');
+      /* 3. Remove matching production entries */
+      const prodItems = DB.filter('production', p => p.bookingNo === bookingNo || (p.warehouseId && wItems.some(w => w.id === p.warehouseId)));
+      prodItems.forEach(p => DB.remove('production', p.id));
+
+      /* 4. Remove matching finished goods entries */
+      const fgItems = DB.filter('finished_goods', fg => fg.bookingNo === bookingNo || (fg.productionId && prodItems.some(p => p.id === fg.productionId)));
+      fgItems.forEach(fg => DB.remove('finished_goods', fg.id));
+
+      showToast(`Booking ${bookingNo} & all linked records deleted successfully.`, 'success');
       renderBookingsTable();
       updateBookingStats();
       updateSidebarBadge();
