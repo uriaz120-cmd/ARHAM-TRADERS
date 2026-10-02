@@ -1,0 +1,294 @@
+/* =============================================
+   ARHAM TRADERS — EXPORT MODULE STYLES
+   css/export.css
+   ============================================= */
+
+/* Tab Navigation Bar */
+.export-tabs-wrapper {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+.export-tabs-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+.export-tabs-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+.export-tabs {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: max-content;
+}
+.export-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: var(--transition);
+  cursor: pointer;
+}
+.export-tab-btn i {
+  font-size: 14px;
+}
+.export-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--color-surface-2);
+}
+.export-tab-btn.active {
+  color: #ffffff;
+  background: var(--teal);
+  box-shadow: 0 2px 8px rgba(42, 157, 143, 0.3);
+}
+.export-tab-btn .badge-pill {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Tab Panels */
+.export-panel {
+  display: none;
+  animation: fadeIn 0.25s ease-out;
+}
+.export-panel.active {
+  display: block;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Status Badges */
+.badge-status-ready     { background: #e3ecf0; color: #264653; border: 1px solid #c5d7e0; }
+.badge-status-booked    { background: #fdf8ec; color: #b78a1e; border: 1px solid #ebd9a2; }
+.badge-status-stuffed   { background: #e0f5f3; color: #1e7a6e; border: 1px solid #b5e8e3; }
+.badge-status-shipped   { background: #ebf7f2; color: #2d8a5e; border: 1px solid #b6e4cf; }
+.badge-status-delivered { background: #d8f3dc; color: #1b4332; border: 1px solid #95d5b2; }
+.badge-status-cash      { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.badge-status-credit    { background: #fff3e0; color: #e65100; border: 1px solid #ffe082; }
+
+/* Container Status Stepper */
+.container-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  margin: 12px 0 18px 0;
+  gap: 8px;
+  overflow-x: auto;
+}
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.stepper-step.completed {
+  color: var(--teal);
+}
+.stepper-step.active {
+  color: var(--mineral-blue);
+  font-weight: 700;
+}
+.stepper-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  background: var(--color-border);
+  color: #ffffff;
+}
+.stepper-step.completed .stepper-circle {
+  background: var(--teal);
+}
+.stepper-step.active .stepper-circle {
+  background: var(--copper);
+  box-shadow: 0 0 0 3px rgba(224, 123, 57, 0.2);
+}
+.stepper-line {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  min-width: 16px;
+}
+.stepper-line.completed {
+  background: var(--teal);
+}
+
+/* Profit Summary Box */
+.profit-card-highlight {
+  background: linear-gradient(135deg, #181c2a 0%, #264653 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+}
+.profit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.profit-metric-item {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.profit-metric-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 4px;
+}
+.profit-metric-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+}
+.profit-metric-val.green {
+  color: #52b788;
+}
+.profit-metric-val.copper {
+  color: #e9c46a;
+}
+.profit-metric-val.crimson {
+  color: #ff6b6b;
+}
+
+/* Quick Filter Bar */
+.export-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+}
+.export-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.export-filter-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Card View Grids */
+.export-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.export-item-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.export-item-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--teal);
+}
+.export-item-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+.export-item-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.export-item-card-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.export-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  padding: 4px 0;
+}
+.export-item-row .lbl {
+  color: var(--text-secondary);
+}
+.export-item-row .val {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.export-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--color-border);
+}
+
+/* Currency Conversion Highlight */
+.currency-convert-box {
+  background: var(--sand-light);
+  border: 1px dashed var(--sand);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--mineral-blue);
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .export-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .export-filter-item {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .profit-metric-val {
+    font-size: 17px;
+  }
+}

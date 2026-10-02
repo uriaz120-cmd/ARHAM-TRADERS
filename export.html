@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Export Management — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css?v=2" />
+  <link rel="stylesheet" href="css/export.css?v=2" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ===== SIDEBAR OVERLAY ===== -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item">
+        <i class="fas fa-chart-pie"></i><span>Dashboard</span>
+      </a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">International Trade</span>
+      <a href="export.html" class="nav-item active">
+        <i class="fas fa-ship"></i><span>Export</span>
+      </a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Operations</span>
+      <a href="suppliers.html" class="nav-item">
+        <i class="fas fa-users"></i><span>Suppliers</span>
+      </a>
+      <a href="suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
+      <a href="booking.html" class="nav-item">
+        <i class="fas fa-clipboard-list"></i><span>Booking</span>
+        <span class="nav-badge" id="todayBookingBadge">0</span>
+      </a>
+      <a href="warehouse.html" class="nav-item">
+        <i class="fas fa-warehouse"></i><span>Warehouse</span>
+      </a>
+      <a href="production.html" class="nav-item">
+        <i class="fas fa-industry"></i><span>Production</span>
+      </a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Stock</span>
+      <a href="finished-goods.html" class="nav-item">
+        <i class="fas fa-layer-group"></i><span>Finished Goods</span>
+      </a>
+      <a href="delivery.html" class="nav-item">
+        <i class="fas fa-truck"></i><span>Delivery</span>
+      </a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Accounts</span>
+      <a href="ledger.html" class="nav-item">
+        <i class="fas fa-book"></i><span>Supplier Ledger</span>
+      </a>
+      <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item">
+        <i class="fas fa-chart-bar"></i><span>Reports</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details">
+        <span class="user-name">Admin</span>
+        <span class="user-role">Administrator</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content" id="mainContent">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Export Management</h1>
+        <span class="breadcrumb">International Mineral Trading &amp; Logistics Workflow</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date">
+        <i class="fas fa-calendar-alt"></i>
+        <span id="currentDate"></span>
+      </div>
+      <button id="deleteAllDataBtn" class="topbar-btn topbar-btn-danger" title="Delete All Data" onclick="deleteAllDataConfirm()">
+        <i class="fas fa-trash-alt"></i><span class="btn-label-desktop"> Delete All Data</span>
+      </button>
+      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </button>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <div class="page-content">
+
+    <!-- ===== EXPORT TAB NAVIGATION BAR ===== -->
+    <div class="export-tabs-wrapper">
+      <div class="export-tabs">
+        <button class="export-tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Export Dashboard</button>
+        <button class="export-tab-btn" data-tab="purchase"><i class="fas fa-clipboard-check"></i> Purchase Booking</button>
+        <button class="export-tab-btn" data-tab="receiving"><i class="fas fa-truck-ramp-box"></i> Warehouse Receiving</button>
+        <button class="export-tab-btn" data-tab="material-expenses"><i class="fas fa-money-bill-transfer"></i> Inward Expenses</button>
+        <button class="export-tab-btn" data-tab="production"><i class="fas fa-industry"></i> Production</button>
+        <button class="export-tab-btn" data-tab="ready-stock"><i class="fas fa-layer-group"></i> Ready Stock</button>
+        <button class="export-tab-btn" data-tab="customers"><i class="fas fa-globe-americas"></i> Buyers / Customers</button>
+        <button class="export-tab-btn" data-tab="sales"><i class="fas fa-file-contract"></i> Sales Booking</button>
+        <button class="export-tab-btn" data-tab="containers"><i class="fas fa-ship"></i> Containers</button>
+        <button class="export-tab-btn" data-tab="ship-expenses"><i class="fas fa-receipt"></i> Export Expenses</button>
+        <button class="export-tab-btn" data-tab="payments"><i class="fas fa-hand-holding-dollar"></i> Foreign Payments</button>
+        <button class="export-tab-btn" data-tab="profit"><i class="fas fa-chart-line"></i> Profit Engine</button>
+        <button class="export-tab-btn" data-tab="reports"><i class="fas fa-file-alt"></i> Export Reports</button>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 1: EXPORT DASHBOARD
+         ============================================= -->
+    <div class="export-panel active" id="tab-dashboard">
+      <!-- 12 KPI Cards Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e0f5f3;color:#2a9d8f;"><i class="fas fa-warehouse"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Raw Warehouse Stock</span>
+            <span class="stat-value" id="kpiRawStock">0 TON</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fdf0e8;color:#e07b39;"><i class="fas fa-industry"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">In Production / Process</span>
+            <span class="stat-value" id="kpiProductionStock">0 TON</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#ebf7f2;color:#52b788;"><i class="fas fa-cubes"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Ready Export Stock</span>
+            <span class="stat-value" id="kpiReadyStock">0 TON</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fdf8ec;color:#e9c46a;"><i class="fas fa-bookmark"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Reserved for Customers</span>
+            <span class="stat-value" id="kpiReservedStock">0 TON</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e3ecf0;color:#264653;"><i class="fas fa-dollar-sign"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Total Export Sales</span>
+            <span class="stat-value" id="kpiTotalSales">PKR 0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fde8ea;color:#e63946;"><i class="fas fa-file-invoice-dollar"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Total Export Expenses</span>
+            <span class="stat-value" id="kpiTotalExpenses">PKR 0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-user-minus"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Supplier Payables</span>
+            <span class="stat-value" id="kpiSupplierPayable">PKR 0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="fas fa-user-plus"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Customer Receivables</span>
+            <span class="stat-value" id="kpiCustomerReceivable">PKR 0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e0f5f3;color:#2a9d8f;"><i class="fas fa-money-bill-wave"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Payments Received</span>
+            <span class="stat-value" id="kpiPaymentsReceived">PKR 0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#d8f3dc;color:#1b4332;"><i class="fas fa-chart-line"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Export Net Profit</span>
+            <span class="stat-value" id="kpiExportProfit" style="color:var(--emerald);">PKR 0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#e3ecf0;color:#264653;"><i class="fas fa-boxes-packing"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Containers In Process</span>
+            <span class="stat-value" id="kpiContainersProcess">0</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#ebf7f2;color:#52b788;"><i class="fas fa-ship"></i></div>
+          <div class="stat-info">
+            <span class="stat-label">Containers Shipped</span>
+            <span class="stat-value" id="kpiContainersShipped">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-chart-bar" style="color:var(--teal);margin-right:8px;"></i>Export Revenue vs Costs vs Profit</h3>
+          </div>
+          <div class="chart-body" style="height:260px;">
+            <canvas id="chartExportFinancials"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-ship" style="color:var(--mineral-blue);margin-right:8px;"></i>Container Lifecycle Status</h3>
+          </div>
+          <div class="chart-body" style="height:260px;">
+            <canvas id="chartExportContainers"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Row -->
+      <div class="activity-row">
+        <div class="activity-card">
+          <div class="activity-header">
+            <h3><i class="fas fa-clipboard-list" style="color:var(--teal);margin-right:8px;"></i>Recent Export Orders</h3>
+            <button class="view-all" onclick="switchExportTab('sales')">View All <i class="fas fa-arrow-right"></i></button>
+          </div>
+          <div class="activity-list" id="dashRecentBookings"></div>
+        </div>
+        <div class="activity-card">
+          <div class="activity-header">
+            <h3><i class="fas fa-ship" style="color:var(--mineral-blue);margin-right:8px;"></i>Recent Containers</h3>
+            <button class="view-all" onclick="switchExportTab('containers')">View All <i class="fas fa-arrow-right"></i></button>
+          </div>
+          <div class="activity-list" id="dashRecentContainers"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 2: SUPPLIER PURCHASE BOOKING
+         ============================================= -->
+    <div class="export-panel" id="tab-purchase">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-plus-circle" style="color:var(--teal);margin-right:8px;"></i>New Mineral Purchase Booking</h3>
+        </div>
+        <div class="card-body">
+          <form id="expPurchaseBookingForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Booking No. *</label>
+                <input type="text" id="pbBookingNo" class="form-control" required readonly />
+              </div>
+              <div class="form-group">
+                <label>Receipt No.</label>
+                <input type="text" id="pbReceiptNo" class="form-control" placeholder="Optional supplier receipt #" />
+              </div>
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="pbDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Supplier (Existing Database) *</label>
+                <select id="pbSupplier" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label>Mineral Type *</label>
+                <input type="text" id="pbMineral" class="form-control" list="mineralList" placeholder="e.g. Talc, Chromite, Barite" required />
+                <datalist id="mineralList">
+                  <option value="Talc (Soapstone)"></option>
+                  <option value="Chromite"></option>
+                  <option value="Barite"></option>
+                  <option value="Quartz"></option>
+                  <option value="Calcium Carbonate"></option>
+                  <option value="Fluorite"></option>
+                  <option value="Iron Ore"></option>
+                </datalist>
+              </div>
+              <div class="form-group">
+                <label>Quantity *</label>
+                <input type="number" id="pbQuantity" class="form-control" step="0.001" min="0.001" placeholder="0.000" required />
+              </div>
+              <div class="form-group">
+                <label>Unit *</label>
+                <select id="pbUnit" class="form-control">
+                  <option value="TON" selected>TON</option>
+                  <option value="KG">KG</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Rate (PKR per Unit) *</label>
+                <input type="number" id="pbRate" class="form-control" step="0.01" min="0" placeholder="PKR / Ton or KG" required />
+              </div>
+              <div class="form-group">
+                <label>Total Amount (Auto-Calculated)</label>
+                <input type="number" id="pbTotal" class="form-control" readonly />
+                <small id="pbCalcTotal" style="color:var(--teal);font-weight:700;display:block;margin-top:4px;">PKR 0</small>
+              </div>
+              <div class="form-group">
+                <label>Payment Terms *</label>
+                <select id="pbPaymentType" class="form-control">
+                  <option value="credit" selected>Credit (Add to Supplier Payable Account)</option>
+                  <option value="cash">Cash (Auto Cash Out in Expenses)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Destination Warehouse / Yard</label>
+                <input type="text" id="pbWarehouse" class="form-control" value="Main Export Yard" />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks / Quality Specs</label>
+                <input type="text" id="pbRemarks" class="form-control" placeholder="Grade, Mesh size, Mine location notes..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Purchase Booking</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Purchase Bookings Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-list" style="color:var(--mineral-blue);margin-right:8px;"></i>Export Purchase Bookings Record</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Booking #</th>
+                <th>Supplier</th>
+                <th>Mineral</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Total</th>
+                <th>Terms</th>
+                <th>Warehouse</th>
+                <th>Receiving Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pbTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 3: WAREHOUSE RECEIVING
+         ============================================= -->
+    <div class="export-panel" id="tab-receiving">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-truck-ramp-box" style="color:var(--teal);margin-right:8px;"></i>Record Material Warehouse Receiving</h3>
+        </div>
+        <div class="card-body">
+          <form id="expReceivingForm">
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Select Purchase Booking *</label>
+                <select id="rcvBookingId" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label>Supplier</label>
+                <input type="text" id="rcvSupplierDisplay" class="form-control" readonly placeholder="Auto-filled" />
+              </div>
+              <div class="form-group">
+                <label>Mineral</label>
+                <input type="text" id="rcvMineralDisplay" class="form-control" readonly placeholder="Auto-filled" />
+              </div>
+              <div class="form-group">
+                <label>Pending Remaining Quantity</label>
+                <input type="text" id="rcvPendingDisplay" class="form-control" readonly style="font-weight:700;color:var(--copper);" />
+              </div>
+              <div class="form-group">
+                <label>Received Quantity * (<span id="rcvUnitDisplay">TON</span>)</label>
+                <input type="number" id="rcvQuantity" class="form-control" step="0.001" min="0.001" required />
+              </div>
+              <div class="form-group">
+                <label>Receiving Date *</label>
+                <input type="date" id="rcvDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Warehouse / Location</label>
+                <input type="text" id="rcvWarehouse" class="form-control" value="Main Export Yard" />
+              </div>
+              <div class="form-group">
+                <label>Vehicle No. / Truck</label>
+                <input type="text" id="rcvVehicle" class="form-control" placeholder="e.g. TL-8492" />
+              </div>
+              <div class="form-group">
+                <label>Bilty / Challan No.</label>
+                <input type="text" id="rcvBiltyNo" class="form-control" placeholder="Bilty #" />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks</label>
+                <input type="text" id="rcvRemarks" class="form-control" placeholder="Weighbridge slip no, condition notes..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Confirm Warehouse Receiving</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Receiving Log Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-history" style="color:var(--mineral-blue);margin-right:8px;"></i>Warehouse Inward Receiving Logs</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Booking #</th>
+                <th>Supplier</th>
+                <th>Mineral</th>
+                <th>Received Qty</th>
+                <th>Warehouse</th>
+                <th>Vehicle / Bilty</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="rcvTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 4: MATERIAL INWARD EXPENSES
+         ============================================= -->
+    <div class="export-panel" id="tab-material-expenses">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-money-bill-transfer" style="color:var(--teal);margin-right:8px;"></i>Attach Inward Material Expenses</h3>
+        </div>
+        <div class="card-body">
+          <form id="expMaterialExpenseForm">
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Attached Purchase Booking *</label>
+                <select id="matExpBookingId" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label>Expense Type *</label>
+                <select id="matExpType" class="form-control">
+                  <option value="Transport">Transport / Freight (Inward)</option>
+                  <option value="Loading">Loading Charges</option>
+                  <option value="Unloading">Unloading Charges</option>
+                  <option value="Labour">Labour &amp; Handling</option>
+                  <option value="Weighbridge">Weighbridge Charges</option>
+                  <option value="Other">Other Material Expense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="matExpDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Amount (PKR) *</label>
+                <input type="number" id="matExpAmount" class="form-control" step="0.01" min="1" placeholder="PKR Amount" required />
+              </div>
+              <div class="form-group">
+                <label>Payment Method *</label>
+                <select id="matExpPaymentMethod" class="form-control">
+                  <option value="cash" selected>Cash (Auto Cash Out in Expenses)</option>
+                  <option value="supplier_account">Supplier Account (Add to Supplier Payable)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Supplier (Optional override)</label>
+                <select id="matExpSupplier" class="form-control"></select>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks / Notes</label>
+                <input type="text" id="matExpRemarks" class="form-control" placeholder="Driver name, receipt no..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Material Expense</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Inward Expenses Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-receipt" style="color:var(--mineral-blue);margin-right:8px;"></i>Material Inward Expenses Log</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Booking #</th>
+                <th>Expense Type</th>
+                <th>Amount (PKR)</th>
+                <th>Paid Via</th>
+                <th>Party / Remarks</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="matExpTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 5: PRODUCTION / PROCESSING
+         ============================================= -->
+    <div class="export-panel" id="tab-production">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-industry" style="color:var(--teal);margin-right:8px;"></i>Mineral Processing Entry (Warehouse → Production → Ready Stock)</h3>
+        </div>
+        <div class="card-body">
+          <form id="expProductionForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Production No. *</label>
+                <input type="text" id="prNo" class="form-control" required readonly />
+              </div>
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="prDate" class="form-control" required />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Raw Material Stock Batch *</label>
+                <select id="prMineralSource" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label>Input Quantity *</label>
+                <input type="number" id="prInputQty" class="form-control" step="0.001" min="0.001" placeholder="Raw input qty" required />
+              </div>
+              <div class="form-group">
+                <label>Unit *</label>
+                <select id="prUnit" class="form-control">
+                  <option value="TON" selected>TON</option>
+                  <option value="KG">KG</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Machine / Plant / Mill</label>
+                <input type="text" id="prMachine" class="form-control" value="Plant 1 / Grinding Mill" />
+              </div>
+              <div class="form-group">
+                <label>Wastage Loss Quantity</label>
+                <input type="number" id="prWastageQty" class="form-control" step="0.001" min="0" value="0" />
+              </div>
+              <div class="form-group">
+                <label>Ready / Output Quantity (Yield)</label>
+                <input type="number" id="prReadyQty" class="form-control" step="0.001" min="0" placeholder="Auto-calculated" required />
+              </div>
+              <div class="form-group">
+                <label>Bags Packed (Optional)</label>
+                <input type="number" id="prBags" class="form-control" min="0" placeholder="e.g. 500" />
+              </div>
+              <div class="form-group">
+                <label>Bag Weight (KG)</label>
+                <input type="number" id="prBagWeight" class="form-control" value="50" step="0.5" />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks / Processing Notes</label>
+                <input type="text" id="prRemarks" class="form-control" placeholder="Mesh 300 / Micron / Brightness %..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-cogs"></i> Complete Processing &amp; Add Ready Stock</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Production Logs Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Production Batch Records</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Batch #</th>
+                <th>Mineral</th>
+                <th>Plant / Yard</th>
+                <th>Input Qty</th>
+                <th>Wastage</th>
+                <th>Ready Output</th>
+                <th>Packing</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 6: READY / FINISHED STOCK
+         ============================================= -->
+    <div class="export-panel" id="tab-ready-stock">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-layer-group" style="color:var(--emerald);margin-right:8px;"></i>Ready Mineral Inventory &amp; Order Reservation Status</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mineral Type</th>
+                <th>Total Processed Stock</th>
+                <th>Reserved Bags / Packing</th>
+                <th>Booked for Customers</th>
+                <th>Available for Export</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="readyStockTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 7: CUSTOMERS / BUYERS
+         ============================================= -->
+    <div class="export-panel" id="tab-customers">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-user-plus" style="color:var(--teal);margin-right:8px;"></i>Add Foreign Customer / Buyer</h3>
+        </div>
+        <div class="card-body">
+          <form id="expCustomerForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Company / Buyer Name *</label>
+                <input type="text" id="custName" class="form-control" placeholder="e.g. Global Mineral Trading LLC" required />
+              </div>
+              <div class="form-group">
+                <label>Destination Country *</label>
+                <input type="text" id="custCountry" class="form-control" placeholder="e.g. UAE, China, Turkey, Vietnam" required />
+              </div>
+              <div class="form-group">
+                <label>Destination Port</label>
+                <input type="text" id="custPort" class="form-control" placeholder="e.g. Jebel Ali, Shanghai, Mersin" />
+              </div>
+              <div class="form-group">
+                <label>Billing Currency</label>
+                <select id="custCurrency" class="form-control">
+                  <option value="USD" selected>USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="AED">AED (AED)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="PKR">PKR (Rs)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Phone / WhatsApp</label>
+                <input type="text" id="custContact" class="form-control" placeholder="+971 50 1234567" />
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="custEmail" class="form-control" placeholder="buyer@mineraltrade.com" />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Company Office Address</label>
+                <input type="text" id="custAddress" class="form-control" placeholder="Full address, City, Country" />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Register Customer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Customer Cards Grid -->
+      <div class="export-card-grid" id="customersCardsGrid"></div>
+    </div>
+
+    <!-- =============================================
+         TAB 8: SALES / EXPORT BOOKING
+         ============================================= -->
+    <div class="export-panel" id="tab-sales">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-file-signature" style="color:var(--teal);margin-right:8px;"></i>New Export Sales Booking / Customer Order</h3>
+        </div>
+        <div class="card-body">
+          <form id="expSalesBookingForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Export Booking No. *</label>
+                <input type="text" id="sbBookingNo" class="form-control" required readonly />
+              </div>
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="sbDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Customer / Buyer *</label>
+                <select id="sbCustomer" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label>Mineral Type *</label>
+                <input type="text" id="sbMineral" class="form-control" list="mineralList" placeholder="e.g. Talc" required />
+              </div>
+              <div class="form-group">
+                <label>Quantity *</label>
+                <input type="number" id="sbQuantity" class="form-control" step="0.001" min="0.001" placeholder="Order quantity" required />
+              </div>
+              <div class="form-group">
+                <label>Unit *</label>
+                <select id="sbUnit" class="form-control">
+                  <option value="TON" selected>TON</option>
+                  <option value="KG">KG</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Bag Weight (KG)</label>
+                <input type="number" id="sbBagWeight" class="form-control" value="50" step="0.5" />
+              </div>
+              <div class="form-group">
+                <label>Total Bags (Auto-Calculated)</label>
+                <input type="number" id="sbBags" class="form-control" min="0" placeholder="e.g. 500" />
+              </div>
+              <div class="form-group">
+                <label>Sale Rate (PKR / Unit) *</label>
+                <input type="number" id="sbRate" class="form-control" step="0.01" min="0" placeholder="Rate in PKR" required />
+              </div>
+              <div class="form-group">
+                <label>Total Sale Amount (PKR)</label>
+                <input type="number" id="sbTotal" class="form-control" readonly />
+                <small id="sbCalcTotal" style="color:var(--emerald);font-weight:700;display:block;margin-top:4px;">PKR 0</small>
+              </div>
+              <div class="form-group">
+                <label>Payment Terms *</label>
+                <select id="sbPaymentTerms" class="form-control">
+                  <option value="credit" selected>Credit (Customer Receivable)</option>
+                  <option value="cash">Cash (Auto Cash In to Income)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Destination Country</label>
+                <input type="text" id="sbCountry" class="form-control" placeholder="e.g. UAE" />
+              </div>
+              <div class="form-group">
+                <label>Destination Port</label>
+                <input type="text" id="sbPort" class="form-control" placeholder="e.g. Jebel Ali Port" />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks / Export Order Terms</label>
+                <input type="text" id="sbRemarks" class="form-control" placeholder="LC details, packing specs, palletized..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Export Sales Booking</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Sales Bookings Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Export Sales Orders &amp; Bookings</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Booking #</th>
+                <th>Customer</th>
+                <th>Mineral</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Total Sale (PKR)</th>
+                <th>Terms</th>
+                <th>Destination</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sbTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 9: CONTAINER MANAGEMENT
+         ============================================= -->
+    <div class="export-panel" id="tab-containers">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-ship" style="color:var(--teal);margin-right:8px;"></i>Create &amp; Stuff Container</h3>
+        </div>
+        <div class="card-body">
+          <form id="expContainerForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Container No. *</label>
+                <input type="text" id="cntContainerNo" class="form-control" placeholder="e.g. MSCU-902184-7" required />
+              </div>
+              <div class="form-group">
+                <label>Container Size *</label>
+                <select id="cntSize" class="form-control">
+                  <option value="20ft" selected>20ft Standard Container</option>
+                  <option value="40ft">40ft Standard Container</option>
+                  <option value="40ft HQ">40ft High Cube (HQ)</option>
+                  <option value="Open Top">Open Top Container</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Seal No.</label>
+                <input type="text" id="cntSealNo" class="form-control" placeholder="e.g. SL-558291" />
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Link to Export Sales Booking</label>
+                <select id="cntSalesBookingId" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label>Customer / Buyer</label>
+                <select id="cntCustomer" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label>Mineral Cargo *</label>
+                <input type="text" id="cntMineral" class="form-control" list="mineralList" placeholder="e.g. Talc" required />
+              </div>
+              <div class="form-group">
+                <label>Number of Bags *</label>
+                <input type="number" id="cntBags" class="form-control" min="1" placeholder="e.g. 500" required />
+              </div>
+              <div class="form-group">
+                <label>Bag Weight (KG) *</label>
+                <input type="number" id="cntBagWeight" class="form-control" value="50" step="0.5" required />
+              </div>
+              <div class="form-group">
+                <label>Total Weight (KG)</label>
+                <input type="number" id="cntTotalKG" class="form-control" readonly />
+              </div>
+              <div class="form-group">
+                <label>Total Weight (TON)</label>
+                <input type="number" id="cntTotalTon" class="form-control" readonly style="font-weight:700;color:var(--teal);" />
+              </div>
+              <div class="form-group">
+                <label>Vehicle / Truck No.</label>
+                <input type="text" id="cntVehicle" class="form-control" placeholder="e.g. TR-2810" />
+              </div>
+              <div class="form-group">
+                <label>Stuffing Date *</label>
+                <input type="date" id="cntStuffingDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Port of Loading</label>
+                <input type="text" id="cntPort" class="form-control" value="Karachi Port" />
+              </div>
+              <div class="form-group">
+                <label>Destination Country</label>
+                <input type="text" id="cntDestinationCountry" class="form-control" placeholder="e.g. UAE" />
+              </div>
+              <div class="form-group">
+                <label>Shipment / Sailing Date</label>
+                <input type="date" id="cntShipmentDate" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Initial Status</label>
+                <select id="cntStatus" class="form-control">
+                  <option value="Ready" selected>Ready</option>
+                  <option value="Booked">Booked</option>
+                  <option value="Stuffed">Stuffed</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Register Container</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Containers List -->
+      <div class="export-card-grid" id="containersGrid"></div>
+    </div>
+
+    <!-- =============================================
+         TAB 10: EXPORT SHIPMENT EXPENSES
+         ============================================= -->
+    <div class="export-panel" id="tab-ship-expenses">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-receipt" style="color:var(--teal);margin-right:8px;"></i>Log Export Shipment &amp; Clearance Expenses</h3>
+        </div>
+        <div class="card-body">
+          <form id="expShipmentExpenseForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Attached Export Order</label>
+                <select id="shipExpSalesBookingId" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label>Attached Container</label>
+                <select id="shipExpContainerId" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label>Expense Type *</label>
+                <select id="shipExpType" class="form-control">
+                  <option value="Transport / Freight">Transport / Road Freight</option>
+                  <option value="Loading & Stuffing">Loading &amp; Stuffing Charges</option>
+                  <option value="Container Charges">Container Charges / Detention</option>
+                  <option value="Clearing & Forwarding">Clearing &amp; Forwarding Agent</option>
+                  <option value="Customs Duty">Customs &amp; Duty</option>
+                  <option value="Port Charges">Port Charges / KPT / Port Qasim</option>
+                  <option value="Ocean Freight">Sea / Ocean Freight</option>
+                  <option value="Documentation">Documentation / BL / CO / Inspection</option>
+                  <option value="Other Export Expense">Other Export Expense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="shipExpDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Amount (PKR) *</label>
+                <input type="number" id="shipExpAmount" class="form-control" step="0.01" min="1" placeholder="PKR Amount" required />
+              </div>
+              <div class="form-group">
+                <label>Payment Method *</label>
+                <select id="shipExpPaymentMethod" class="form-control">
+                  <option value="cash" selected>Cash (Auto Cash Out in Expenses)</option>
+                  <option value="customer_account">Customer Account (Charge to Buyer's Balance)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Customer / Buyer</label>
+                <select id="shipExpCustomer" class="form-control"></select>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks / Receipt Reference</label>
+                <input type="text" id="shipExpRemarks" class="form-control" placeholder="Agent invoice no, receipt details..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Shipment Expense</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Shipment Expenses Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Export Outward Expenses Log</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Expense Type</th>
+                <th>Booking / Container</th>
+                <th>Amount (PKR)</th>
+                <th>Method</th>
+                <th>Customer / Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shipExpTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 11: FOREIGN CUSTOMER PAYMENTS
+         ============================================= -->
+    <div class="export-panel" id="tab-payments">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-hand-holding-dollar" style="color:var(--emerald);margin-right:8px;"></i>Record Foreign Customer Payment Receipt</h3>
+        </div>
+        <div class="card-body">
+          <form id="expPaymentForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Payment Voucher No. *</label>
+                <input type="text" id="payReceiptNo" class="form-control" required readonly />
+              </div>
+              <div class="form-group">
+                <label>Customer / Buyer *</label>
+                <select id="payCustomer" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label>Export Order Ref</label>
+                <select id="paySalesBookingId" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label>Container Ref</label>
+                <select id="payContainerId" class="form-control"></select>
+              </div>
+              <div class="form-group">
+                <label>Foreign Currency *</label>
+                <select id="payCurrency" class="form-control">
+                  <option value="USD" selected>USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="AED">AED (AED)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="PKR">PKR (Rs)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Foreign Amount *</label>
+                <input type="number" id="payForeignAmount" class="form-control" step="0.01" min="0.01" placeholder="e.g. 10000" required />
+              </div>
+              <div class="form-group">
+                <label>Exchange Rate (PKR) *</label>
+                <input type="number" id="payExchangeRate" class="form-control" step="0.0001" value="280.00" placeholder="e.g. 280" required />
+              </div>
+              <div class="form-group">
+                <label>Total PKR Amount (Auto-Calculated)</label>
+                <input type="number" id="payPKRAmount" class="form-control" readonly style="font-weight:800;color:var(--emerald);" />
+                <div class="currency-convert-box" id="payConvertPreview">Conversion preview will appear here</div>
+              </div>
+              <div class="form-group">
+                <label>Payment Date *</label>
+                <input type="date" id="payDate" class="form-control" required />
+              </div>
+              <div class="form-group">
+                <label>Bank / Payment Channel *</label>
+                <select id="payBankOrCash" class="form-control">
+                  <option value="Meezan Bank" selected>Meezan Bank Ltd</option>
+                  <option value="Habib Bank Limited (HBL)">Habib Bank Limited (HBL)</option>
+                  <option value="Bank Alfalah">Bank Alfalah</option>
+                  <option value="Standard Chartered">Standard Chartered</option>
+                  <option value="Cash in Hand">Cash in Hand</option>
+                  <option value="Exchange / TT">Exchange / TT Wire</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label>Remarks / Bank Reference / Swift</label>
+                <input type="text" id="payRemarks" class="form-control" placeholder="Swift ref, TT number, branch..." />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-check-double"></i> Receive Payment &amp; Credit Customer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Payments Table -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Foreign Customer Payment Vouchers</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Voucher #</th>
+                <th>Customer</th>
+                <th>Order Ref</th>
+                <th>Foreign Amount</th>
+                <th>Exchange Rate</th>
+                <th>PKR Amount</th>
+                <th>Channel</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 12: PROFIT ENGINE
+         ============================================= -->
+    <div class="export-panel" id="tab-profit">
+      <div class="profit-card-highlight">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h2 style="margin:0;font-size:22px;"><i class="fas fa-scale-balanced" style="color:var(--sand);margin-right:10px;"></i>Export Profit &amp; Loss Financial Engine</h2>
+            <p style="margin:4px 0 0 0;font-size:13px;opacity:0.8;">Formula: Net Profit = Total Sales - Purchase Cost - Inward Expenses - Shipment &amp; Clearance Expenses</p>
+          </div>
+          <span class="badge" style="background:rgba(255,255,255,0.15);color:#fff;font-size:13px;padding:6px 12px;">Real-Time Audit</span>
+        </div>
+
+        <div class="profit-grid">
+          <div class="profit-metric-item">
+            <div class="profit-metric-lbl">Gross Sales Revenue</div>
+            <div class="profit-metric-val" id="pfGrossSales">PKR 0</div>
+          </div>
+          <div class="profit-metric-item">
+            <div class="profit-metric-lbl">Raw Purchase Material Cost</div>
+            <div class="profit-metric-val copper" id="pfPurchaseCost">PKR 0</div>
+          </div>
+          <div class="profit-metric-item">
+            <div class="profit-metric-lbl">Inward Material Expenses</div>
+            <div class="profit-metric-val copper" id="pfMatExpenses">PKR 0</div>
+          </div>
+          <div class="profit-metric-item">
+            <div class="profit-metric-lbl">Export Shipment Expenses</div>
+            <div class="profit-metric-val copper" id="pfShipExpenses">PKR 0</div>
+          </div>
+          <div class="profit-metric-item">
+            <div class="profit-metric-lbl">Total Consolidated Costs</div>
+            <div class="profit-metric-val crimson" id="pfTotalCosts">PKR 0</div>
+          </div>
+          <div class="profit-metric-item" style="border:2px solid #52b788;background:rgba(82, 183, 136, 0.15);">
+            <div class="profit-metric-lbl" style="color:#52b788;font-weight:700;">Consolidated Net Profit</div>
+            <div class="profit-metric-val green" id="pfNetProfit">PKR 0</div>
+          </div>
+          <div class="profit-metric-item">
+            <div class="profit-metric-lbl">Net Profit Margin</div>
+            <div class="profit-metric-val" id="pfMargin">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profit Breakdown by Export Orders -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-file-invoice" style="color:var(--teal);margin-right:8px;"></i>Order-Wise Net Profit Breakdown</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Export Order #</th>
+                <th>Customer</th>
+                <th>Mineral</th>
+                <th>Sale Amount</th>
+                <th>Material Cost</th>
+                <th>Shipment Exp</th>
+                <th>Net Profit (Margin %)</th>
+              </tr>
+            </thead>
+            <tbody id="pfBookingTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Profit Breakdown by Mineral -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-gem" style="color:var(--copper);margin-right:8px;"></i>Mineral-Wise Profitability</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mineral Type</th>
+                <th>Volume Traded</th>
+                <th>Total Purchase (PKR)</th>
+                <th>Total Sales (PKR)</th>
+                <th>Net Profit (PKR)</th>
+              </tr>
+            </thead>
+            <tbody id="pfMineralTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
+         TAB 13: EXPORT REPORTS
+         ============================================= -->
+    <div class="export-panel" id="tab-reports">
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="export-filter-bar" style="margin-bottom:0;">
+            <div class="export-filter-item">
+              <label><i class="fas fa-filter"></i> Select Report Type:</label>
+              <select id="expReportSelect" class="form-control" style="font-weight:600;min-width:300px;">
+                <option value="purchase">1. Export Purchase &amp; Supplier Material Report</option>
+                <option value="receiving">2. Warehouse Stock Inward Receiving Report</option>
+                <option value="production">3. Production &amp; Wastage Yield Report</option>
+                <option value="ready_stock">4. Ready Stock &amp; Reservation Report</option>
+                <option value="sales">5. Customer Export Sales Orders Report</option>
+                <option value="containers">6. Container &amp; Shipment Tracking Report</option>
+                <option value="expenses">7. Consolidated Export Expense Report</option>
+                <option value="payments">8. Foreign Payment Receipts Report</option>
+                <option value="profit">9. Consolidated Net Profit Report</option>
+              </select>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button class="btn btn-secondary btn-sm" onclick="exportReportCSV()"><i class="fas fa-file-csv"></i> Download CSV / Excel</button>
+              <button class="btn btn-primary btn-sm" onclick="printExportReport()"><i class="fas fa-print"></i> Print Report</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="expReportPrintArea">
+        <div class="card-header">
+          <h3 class="card-title" id="expReportTitle"><i class="fas fa-file-alt" style="color:var(--teal);margin-right:8px;"></i>Export Report</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table" id="expReportTable">
+            <thead id="expReportTableHead"></thead>
+            <tbody id="expReportTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- end page-content -->
+
+</main>
+
+<!-- ===== MODAL: CUSTOMER LEDGER STATEMENT ===== -->
+<div class="modal-overlay" id="custLedgerModal">
+  <div class="modal" style="max-width:850px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="custLedgerModalTitle"><i class="fas fa-file-invoice" style="color:var(--teal);margin-right:8px;"></i>Customer Statement of Account</h3>
+      <button class="modal-close" onclick="closeModal('custLedgerModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type / Ref</th>
+              <th>Description</th>
+              <th>Debit (Receivable)</th>
+              <th>Credit (Paid)</th>
+              <th>Running Balance</th>
+            </tr>
+          </thead>
+          <tbody id="custLedgerTableBody"></tbody>
+        </table>
+      </div>
+      <div id="custLedgerSummaryTotal"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('custLedgerModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/auth.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js?v=2"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/export.js?v=2"></script>
+</body>
+</html>

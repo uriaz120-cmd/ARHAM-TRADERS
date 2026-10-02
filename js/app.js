@@ -255,7 +255,11 @@ function deleteAllDataConfirm() {
             'finished_goods', 'deliveries',
             'sf_payments',
             'vendors', 'vendor_expenses', 'vendor_payments', 'vendor_monthly_closings',
-            'income', 'expenses', 'monthly_closings'
+            'income', 'expenses', 'monthly_closings',
+            'exp_bookings', 'exp_receivings', 'exp_material_expenses',
+            'exp_production', 'exp_ready_stock', 'exp_customers',
+            'exp_sales_bookings', 'exp_containers', 'exp_shipment_expenses',
+            'exp_payments'
           ];
 
           /* Step 1: Clear in-memory store */
