@@ -140,17 +140,17 @@ function setFormDefaults() {
    POPULATE ALL DROPDOWNS
    ============================================= */
 function populateDropdowns() {
-  const suppliers = DB.get('suppliers') || [];
+  const suppliers = DB.get('exp_suppliers') || [];
   const customers = DB.get('exp_customers') || [];
   const pBookings = DB.get('exp_bookings') || [];
   const sBookings = DB.get('exp_sales_bookings') || [];
   const containers = DB.get('exp_containers') || [];
 
-  // 1. Suppliers dropdowns
-  const supOptions = '<option value="">— Select Supplier —</option>' +
-    suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
+  // 1. Export Suppliers dropdowns
+  const supOptions = '<option value="">— Select Export Supplier —</option>' +
+    suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)} (${escapeHtml(s.city || 'Export Supplier')})</option>`).join('');
   
-  const filterSupOpts = '<option value="">All Suppliers</option>' +
+  const filterSupOpts = '<option value="">All Export Suppliers</option>' +
     suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
 
   ['pbSupplier', 'matExpSupplier', 'rcvSupplierFilter'].forEach(id => {
@@ -374,6 +374,16 @@ function bindCalculations() {
    FORM SUBMISSION HANDLERS
    ============================================= */
 function bindForms() {
+  // 0. Export Supplier Forms
+  document.getElementById('expSupplierForm')?.addEventListener('submit', e => {
+    e.preventDefault();
+    saveExportSupplier();
+  });
+  document.getElementById('quickExpSupplierForm')?.addEventListener('submit', e => {
+    e.preventDefault();
+    saveQuickExportSupplier();
+  });
+
   // 1. Purchase Booking Form
   document.getElementById('expPurchaseBookingForm')?.addEventListener('submit', e => {
     e.preventDefault();
@@ -430,6 +440,223 @@ function bindForms() {
 }
 
 /* =============================================
+   MODULE 0: EXPORT MINERAL SUPPLIERS
+   ============================================= */
+function openQuickSupplierModal() {
+  document.getElementById('quickExpSupplierForm')?.reset();
+  openModal('quickSupplierModal');
+}
+
+function saveQuickExportSupplier() {
+  const name = sanitizeInput(document.getElementById('quickSupName')?.value || '');
+  const phone = sanitizeInput(document.getElementById('quickSupPhone')?.value || '');
+  const city = sanitizeInput(document.getElementById('quickSupCity')?.value || '');
+  const minerals = sanitizeInput(document.getElementById('quickSupMinerals')?.value || '');
+
+  if (!name) { showToast('Supplier name is required.', 'error'); return; }
+  if (!phone) { showToast('Phone number is required.', 'error'); return; }
+
+  const sup = DB.add('exp_suppliers', {
+    name,
+    phone,
+    city: city || 'Pakistan',
+    minerals: minerals || 'Minerals',
+    bank: '',
+    address: ''
+  });
+
+  showToast(`Export Supplier "${name}" registered!`, 'success');
+  closeModal('quickSupplierModal');
+  populateDropdowns();
+  renderExportSuppliersList();
+
+  // Auto-select in pbSupplier
+  const pbSel = document.getElementById('pbSupplier');
+  if (pbSel) pbSel.value = sup.id;
+}
+
+function saveExportSupplier() {
+  const name = sanitizeInput(document.getElementById('expSupName')?.value || '');
+  const phone = sanitizeInput(document.getElementById('expSupPhone')?.value || '');
+  const city = sanitizeInput(document.getElementById('expSupCity')?.value || '');
+  const minerals = sanitizeInput(document.getElementById('expSupMinerals')?.value || '');
+  const bank = sanitizeInput(document.getElementById('expSupBank')?.value || '');
+  const address = sanitizeInput(document.getElementById('expSupAddress')?.value || '');
+
+  if (!name) { showToast('Supplier name is required.', 'error'); return; }
+  if (!phone) { showToast('Phone number is required.', 'error'); return; }
+
+  DB.add('exp_suppliers', {
+    name,
+    phone,
+    city: city || 'Pakistan',
+    minerals: minerals || 'Minerals',
+    bank,
+    address
+  });
+
+  showToast(`Export Supplier "${name}" registered!`, 'success');
+  document.getElementById('expSupplierForm')?.reset();
+  populateDropdowns();
+  renderExportSuppliersList();
+  renderExportDashboard();
+}
+
+function renderExportSuppliersList() {
+  const container = document.getElementById('expSuppliersCardsGrid');
+  if (!container) return;
+
+  const suppliers = DB.get('exp_suppliers') || [];
+
+  if (suppliers.length === 0) {
+    container.innerHTML = `<div class="col-12 text-center py-5" style="color:var(--text-muted);"><i class="fas fa-truck-field fa-3x mb-3"></i><p>No export suppliers registered yet. Register your first mineral supplier above.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = suppliers.map(s => {
+    const stats = getExpSupplierFinancialSummary(s.id);
+    const balanceClass = stats.payableBalance > 0 ? 'color:var(--crimson);' : 'color:var(--emerald);';
+
+    return `
+      <div class="export-item-card">
+        <div class="export-item-card-header">
+          <div>
+            <div class="export-item-card-title"><i class="fas fa-truck-field" style="color:var(--teal);margin-right:6px;"></i>${escapeHtml(s.name)}</div>
+            <div class="export-item-card-sub"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(s.city || 'Mine / Yard')} • <i class="fas fa-phone"></i> ${escapeHtml(s.phone || '—')}</div>
+          </div>
+          <span class="badge badge-mineral">${escapeHtml(s.minerals || 'Minerals')}</span>
+        </div>
+        <div class="export-item-body">
+          <div class="export-item-row">
+            <span class="lbl">Purchase Bookings:</span>
+            <span class="val">${stats.bookingCount} (${formatTON(stats.totalTon)} TON)</span>
+          </div>
+          <div class="export-item-row">
+            <span class="lbl">Total Purchases:</span>
+            <span class="val">PKR ${formatCurrency(stats.totalPurchasesPKR)}</span>
+          </div>
+          <div class="export-item-row">
+            <span class="lbl">Supplier Inward Expenses:</span>
+            <span class="val">PKR ${formatCurrency(stats.totalExpensesPKR)}</span>
+          </div>
+          <div class="export-item-row" style="border-top:1px dashed var(--color-border);padding-top:6px;margin-top:4px;">
+            <span class="lbl"><strong>Payable Balance:</strong></span>
+            <span class="val" style="${balanceClass};font-size:14px;"><strong>PKR ${formatCurrency(stats.payableBalance)}</strong></span>
+          </div>
+          ${s.bank ? `<div class="export-item-row" style="font-size:11px;color:var(--text-muted);margin-top:4px;"><span class="lbl">Bank:</span> <span class="val">${escapeHtml(s.bank)}</span></div>` : ''}
+        </div>
+        <div class="export-item-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openExportSupplierLedgerModal('${escapeHtml(s.id)}')"><i class="fas fa-file-invoice"></i> Statement</button>
+          <button class="btn btn-secondary btn-sm btn-action-danger" onclick="deleteExportSupplier('${escapeHtml(s.id)}')"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function getExpSupplierFinancialSummary(supplierId) {
+  const bookings = DB.filter('exp_bookings', b => b.supplierId === supplierId);
+  const expenses = DB.filter('exp_material_expenses', e => e.supplierId === supplierId && e.paymentMethod === 'supplier_account');
+
+  const totalPurchasesPKR = bookings.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
+  const totalExpensesPKR = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const totalTon = bookings.reduce((s, b) => s + (b.unit === 'TON' ? (Number(b.quantity) || 0) : (Number(b.quantity) || 0) / 1000), 0);
+
+  const creditPurchases = bookings.filter(b => b.paymentType === 'credit')
+                                  .reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
+  const payableBalance = creditPurchases + totalExpensesPKR;
+
+  return {
+    bookingCount: bookings.length,
+    totalTon,
+    totalPurchasesPKR,
+    totalExpensesPKR,
+    payableBalance
+  };
+}
+
+function deleteExportSupplier(id) {
+  const s = DB.findById('exp_suppliers', id);
+  if (!s) return;
+
+  showConfirm(`Delete Export Supplier "${s.name}"?`, () => {
+    DB.remove('exp_suppliers', id);
+    showToast('Export supplier deleted.', 'success');
+    populateDropdowns();
+    renderExportSuppliersList();
+    renderExportDashboard();
+  });
+}
+
+function openExportSupplierLedgerModal(supplierId) {
+  const sup = DB.findById('exp_suppliers', supplierId);
+  if (!sup) return;
+
+  const titleEl = document.getElementById('expSupLedgerModalTitle');
+  if (titleEl) titleEl.textContent = `${sup.name} (${sup.city || 'Export Supplier'}) — Statement of Account`;
+
+  const tbody = document.getElementById('expSupLedgerTableBody');
+  if (!tbody) return;
+
+  const bookings = DB.filter('exp_bookings', b => b.supplierId === supplierId);
+  const expenses = DB.filter('exp_material_expenses', e => e.supplierId === supplierId && e.paymentMethod === 'supplier_account');
+
+  const entries = [];
+  bookings.forEach(b => {
+    entries.push({
+      date: b.date,
+      type: 'Purchase Booking',
+      ref: b.bookingNo,
+      desc: `Mineral Purchase: ${b.mineral} (${formatKG(b.quantity)} ${b.unit} @ ${b.rate}) [${b.paymentType.toUpperCase()}]`,
+      debit: b.paymentType === 'cash' ? Number(b.totalAmount) || 0 : 0,
+      credit: Number(b.totalAmount) || 0
+    });
+  });
+
+  expenses.forEach(e => {
+    entries.push({
+      date: e.date,
+      type: 'Material Expense',
+      ref: e.bookingNo || 'EXP-MAT',
+      desc: `Inward ${e.expenseType} (Added to Supplier Account)`,
+      debit: 0,
+      credit: Number(e.amount) || 0
+    });
+  });
+
+  entries.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  let runningBal = 0;
+  tbody.innerHTML = entries.map(e => {
+    runningBal += (e.credit - e.debit);
+    return `
+      <tr>
+        <td>${formatDate(e.date)}</td>
+        <td><strong>${escapeHtml(e.type)}</strong><br><small style="color:var(--text-muted);">${escapeHtml(e.ref)}</small></td>
+        <td>${escapeHtml(e.desc)}</td>
+        <td style="color:var(--emerald);">${e.debit > 0 ? 'PKR ' + formatCurrency(e.debit) : '—'}</td>
+        <td style="color:var(--copper);">${e.credit > 0 ? 'PKR ' + formatCurrency(e.credit) : '—'}</td>
+        <td><strong>PKR ${formatCurrency(runningBal)}</strong></td>
+      </tr>
+    `;
+  }).join('');
+
+  const stats = getExpSupplierFinancialSummary(supplierId);
+  const sumEl = document.getElementById('expSupLedgerSummaryTotal');
+  if (sumEl) {
+    sumEl.innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-top:12px;padding:12px;background:var(--color-surface-2);border-radius:var(--radius-md);">
+        <div>Total Purchases: <strong>PKR ${formatCurrency(stats.totalPurchasesPKR)}</strong></div>
+        <div>Inward Expenses: <strong>PKR ${formatCurrency(stats.totalExpensesPKR)}</strong></div>
+        <div>Net Supplier Payable: <strong style="color:var(--crimson);font-size:14px;">PKR ${formatCurrency(stats.payableBalance)}</strong></div>
+      </div>
+    `;
+  }
+
+  openModal('expSupLedgerModal');
+}
+
+/* =============================================
    MODULE 1: SUPPLIER PURCHASE BOOKING
    ============================================= */
 function savePurchaseBooking() {
@@ -448,7 +675,7 @@ function savePurchaseBooking() {
 
   // Validation
   if (!bookingNo) { showToast('Booking Number is required.', 'error'); return; }
-  if (!supplierId) { showToast('Please select a Supplier.', 'error'); return; }
+  if (!supplierId) { showToast('Please select an Export Supplier (or click + New Supplier).', 'error'); return; }
   if (!mineral) { showToast('Please enter/select Mineral Type.', 'error'); return; }
   if (quantity <= 0) { showToast('Quantity must be greater than 0.', 'error'); return; }
   if (rate <= 0) { showToast('Rate must be greater than 0.', 'error'); return; }
@@ -461,8 +688,8 @@ function savePurchaseBooking() {
     return;
   }
 
-  const supplier = DB.findById('suppliers', supplierId);
-  const supplierName = supplier ? supplier.name : 'Unknown Supplier';
+  const supplier = DB.findById('exp_suppliers', supplierId);
+  const supplierName = supplier ? supplier.name : 'Export Supplier';
 
   const booking = DB.add('exp_bookings', {
     bookingNo,
@@ -2520,6 +2747,7 @@ function bindFilters() {
 
 function renderAllExportViews() {
   renderExportDashboard();
+  renderExportSuppliersList();
   renderPurchaseBookingsTable();
   renderReceivingsTable();
   renderMaterialExpensesTable();

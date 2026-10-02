@@ -22,7 +22,7 @@
     'vendors', 'vendor_expenses', 'vendor_payments', 'vendor_monthly_closings',
     'income', 'expenses', 'monthly_closings',
     /* Export Module Data Keys */
-    'exp_bookings', 'exp_receivings', 'exp_material_expenses',
+    'exp_suppliers', 'exp_bookings', 'exp_receivings', 'exp_material_expenses',
     'exp_production', 'exp_ready_stock', 'exp_customers',
     'exp_sales_bookings', 'exp_containers', 'exp_shipment_expenses',
     'exp_payments'

@@ -129,6 +129,7 @@
     <div class="export-tabs-wrapper">
       <div class="export-tabs">
         <button class="export-tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Export Dashboard</button>
+        <button class="export-tab-btn" data-tab="suppliers"><i class="fas fa-truck-field"></i> Export Suppliers</button>
         <button class="export-tab-btn" data-tab="purchase"><i class="fas fa-clipboard-check"></i> Purchase Booking</button>
         <button class="export-tab-btn" data-tab="receiving"><i class="fas fa-truck-ramp-box"></i> Warehouse Receiving</button>
         <button class="export-tab-btn" data-tab="material-expenses"><i class="fas fa-money-bill-transfer"></i> Inward Expenses</button>
@@ -276,6 +277,53 @@
     </div>
 
     <!-- =============================================
+         TAB: EXPORT SUPPLIERS
+         ============================================= -->
+    <div class="export-panel" id="tab-suppliers">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-truck-field" style="color:var(--teal);margin-right:8px;"></i>Register Dedicated Export Mineral Supplier</h3>
+        </div>
+        <div class="card-body">
+          <form id="expSupplierForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Supplier / Company Name *</label>
+                <input type="text" id="expSupName" class="form-control" placeholder="e.g. Hazara Mineral Mining Corp" required />
+              </div>
+              <div class="form-group">
+                <label>Phone / WhatsApp *</label>
+                <input type="text" id="expSupPhone" class="form-control" placeholder="e.g. 0300 1234567" required />
+              </div>
+              <div class="form-group">
+                <label>Mine Location / City</label>
+                <input type="text" id="expSupCity" class="form-control" placeholder="e.g. Abbottabad, Swat, Balochistan" />
+              </div>
+              <div class="form-group">
+                <label>Minerals Supplied</label>
+                <input type="text" id="expSupMinerals" class="form-control" placeholder="e.g. Talc, Chromite, Barite" />
+              </div>
+              <div class="form-group">
+                <label>Bank Account / Payment Details</label>
+                <input type="text" id="expSupBank" class="form-control" placeholder="Bank name, Title, Account / IBAN" />
+              </div>
+              <div class="form-group">
+                <label>Address / Notes</label>
+                <input type="text" id="expSupAddress" class="form-control" placeholder="Office / Quarry address" />
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Register Export Supplier</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Export Suppliers Cards Grid -->
+      <div class="export-card-grid" id="expSuppliersCardsGrid"></div>
+    </div>
+
+    <!-- =============================================
          TAB 2: SUPPLIER PURCHASE BOOKING
          ============================================= -->
     <div class="export-panel" id="tab-purchase">
@@ -299,7 +347,10 @@
                 <input type="date" id="pbDate" class="form-control" required />
               </div>
               <div class="form-group">
-                <label>Supplier (Existing Database) *</label>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                  <label style="margin:0;">Export Supplier *</label>
+                  <button type="button" class="btn btn-secondary btn-sm" style="padding:2px 8px;font-size:11px;" onclick="openQuickSupplierModal()"><i class="fas fa-plus"></i> New Supplier</button>
+                </div>
                 <select id="pbSupplier" class="form-control" required></select>
               </div>
               <div class="form-group">
@@ -1284,6 +1335,70 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('custLedgerModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: QUICK ADD EXPORT SUPPLIER ===== -->
+<div class="modal-overlay" id="quickSupplierModal">
+  <div class="modal" style="max-width:550px;">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-truck-field" style="color:var(--teal);margin-right:8px;"></i>Quick Add Export Supplier</h3>
+      <button class="modal-close" onclick="closeModal('quickSupplierModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="quickExpSupplierForm">
+        <div class="form-group mb-2">
+          <label>Supplier / Company Name *</label>
+          <input type="text" id="quickSupName" class="form-control" placeholder="e.g. Kohistan Mining Co" required />
+        </div>
+        <div class="form-group mb-2">
+          <label>Phone / WhatsApp *</label>
+          <input type="text" id="quickSupPhone" class="form-control" placeholder="e.g. 0300 9876543" required />
+        </div>
+        <div class="form-group mb-2">
+          <label>Mine Location / City</label>
+          <input type="text" id="quickSupCity" class="form-control" placeholder="e.g. Swat, KP" />
+        </div>
+        <div class="form-group mb-2">
+          <label>Mineral Supplied</label>
+          <input type="text" id="quickSupMinerals" class="form-control" placeholder="e.g. Talc, Chromite" />
+        </div>
+        <div class="form-actions mt-3">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save &amp; Select Supplier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: EXPORT SUPPLIER STATEMENT / LEDGER ===== -->
+<div class="modal-overlay" id="expSupLedgerModal">
+  <div class="modal" style="max-width:850px;">
+    <div class="modal-header">
+      <h3 class="modal-title" id="expSupLedgerModalTitle"><i class="fas fa-file-invoice" style="color:var(--teal);margin-right:8px;"></i>Export Supplier Statement of Account</h3>
+      <button class="modal-close" onclick="closeModal('expSupLedgerModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type / Ref</th>
+              <th>Description</th>
+              <th>Debit (Paid / Expense)</th>
+              <th>Credit (Purchased)</th>
+              <th>Payable Balance</th>
+            </tr>
+          </thead>
+          <tbody id="expSupLedgerTableBody"></tbody>
+        </table>
+      </div>
+      <div id="expSupLedgerSummaryTotal"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('expSupLedgerModal')">Close</button>
     </div>
   </div>
 </div>

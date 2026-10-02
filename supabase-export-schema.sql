@@ -7,6 +7,23 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ============================================================================
+-- 0. EXPORT SUPPLIERS (DEDICATED EXPORT MINERAL SUPPLIERS)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.exp_suppliers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL,
+    phone TEXT,
+    city_or_mine TEXT,
+    minerals_supplied TEXT,
+    bank_details TEXT,
+    address TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_exp_suppliers_name ON public.exp_suppliers(name);
+
+-- ============================================================================
 -- 1. EXPORT CUSTOMERS / FOREIGN BUYERS TABLE
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.exp_customers (
@@ -32,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.exp_purchase_bookings (
     booking_no TEXT NOT NULL UNIQUE,
     receipt_no TEXT,
     booking_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    supplier_id TEXT NOT NULL,
+    supplier_id UUID REFERENCES public.exp_suppliers(id) ON DELETE RESTRICT,
     supplier_name TEXT NOT NULL,
     mineral TEXT NOT NULL,
     quantity NUMERIC(15, 3) NOT NULL CHECK (quantity > 0),
@@ -248,7 +265,7 @@ DECLARE
 BEGIN
     FOR t IN 
         SELECT unnest(ARRAY[
-            'exp_customers', 'exp_purchase_bookings', 'exp_warehouse_receivings',
+            'exp_suppliers', 'exp_customers', 'exp_purchase_bookings', 'exp_warehouse_receivings',
             'exp_material_expenses', 'exp_production', 'exp_sales_bookings',
             'exp_containers', 'exp_shipment_expenses', 'exp_payments'
         ])
@@ -402,6 +419,7 @@ LEFT JOIN (
 -- ============================================================================
 -- 12. ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
+ALTER TABLE public.exp_suppliers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.exp_customers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.exp_purchase_bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.exp_warehouse_receivings ENABLE ROW LEVEL SECURITY;
@@ -419,7 +437,7 @@ DECLARE
 BEGIN
     FOR t IN 
         SELECT unnest(ARRAY[
-            'exp_customers', 'exp_purchase_bookings', 'exp_warehouse_receivings',
+            'exp_suppliers', 'exp_customers', 'exp_purchase_bookings', 'exp_warehouse_receivings',
             'exp_material_expenses', 'exp_production', 'exp_sales_bookings',
             'exp_containers', 'exp_shipment_expenses', 'exp_payments'
         ])
