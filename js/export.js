@@ -1,21 +1,11 @@
 /* =============================================
-   ARHAM TRADERS — EXPORT MODULE CONTROLLER
+   ARHAM TRADERS — EXPORT MODULE CONTROLLER (SIMPLIFIED & STREAMLINED)
    js/export.js
    ============================================= */
 
-/* ---- Global State for Export Module ---- */
+/* ---- Global State ---- */
 let _expActiveTab = 'dashboard';
-let _expFilterDateFrom = '';
-let _expFilterDateTo = '';
-let _expFilterSupplier = '';
-let _expFilterCustomer = '';
-let _expFilterMineral = '';
-let _expFilterStatus = '';
-
-/* Chart Instances */
 let _expChartProfit = null;
-let _expChartContainers = null;
-let _expChartMinerals = null;
 
 /* =============================================
    INITIALIZATION
@@ -30,7 +20,6 @@ function initExportModule() {
   populateDropdowns();
   bindCalculations();
   bindForms();
-  bindFilters();
   renderAllExportViews();
 }
 
@@ -38,7 +27,7 @@ function initExportModule() {
    NUMBER GENERATORS
    ============================================= */
 function generateExpBookingNo() {
-  const list = DB.get('exp_bookings');
+  const list = DB.get('exp_bookings') || [];
   const year = new Date().getFullYear().toString().substr(-2);
   const month = String(new Date().getMonth() + 1).padStart(2, '0');
   const seq = String(list.length + 1).padStart(4, '0');
@@ -46,7 +35,7 @@ function generateExpBookingNo() {
 }
 
 function generateExpProductionNo() {
-  const list = DB.get('exp_production');
+  const list = DB.get('exp_production') || [];
   const year = new Date().getFullYear().toString().substr(-2);
   const month = String(new Date().getMonth() + 1).padStart(2, '0');
   const seq = String(list.length + 1).padStart(4, '0');
@@ -54,19 +43,11 @@ function generateExpProductionNo() {
 }
 
 function generateExpSalesBookingNo() {
-  const list = DB.get('exp_sales_bookings');
+  const list = DB.get('exp_sales_bookings') || [];
   const year = new Date().getFullYear().toString().substr(-2);
   const month = String(new Date().getMonth() + 1).padStart(2, '0');
   const seq = String(list.length + 1).padStart(4, '0');
   return `EXP-SB-${year}${month}-${seq}`;
-}
-
-function generateExpPaymentNo() {
-  const list = DB.get('exp_payments');
-  const year = new Date().getFullYear().toString().substr(-2);
-  const month = String(new Date().getMonth() + 1).padStart(2, '0');
-  const seq = String(list.length + 1).padStart(4, '0');
-  return `EXP-PAY-${year}${month}-${seq}`;
 }
 
 /* =============================================
@@ -81,7 +62,6 @@ function initTabs() {
     });
   });
 
-  // Check URL hash for direct tab navigation
   const hash = window.location.hash.replace('#', '');
   if (hash && document.getElementById(`tab-${hash}`)) {
     switchExportTab(hash);
@@ -100,10 +80,9 @@ function switchExportTab(tabName) {
     panel.classList.toggle('active', panel.id === `tab-${tabName}`);
   });
 
-  // Re-render specific views when opened
+  populateDropdowns();
   if (tabName === 'dashboard') renderExportDashboard();
-  if (tabName === 'profit') renderProfitAnalysis();
-  if (tabName === 'reports') renderExportReports();
+  if (tabName === 'expenses-profit') renderProfitAnalysis();
 }
 
 /* =============================================
@@ -111,29 +90,19 @@ function switchExportTab(tabName) {
    ============================================= */
 function setFormDefaults() {
   const todayStr = today();
-  const now = new Date();
-  const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
-  // Set today's date in all date fields
   document.querySelectorAll('input[type="date"]').forEach(inp => {
     if (!inp.value) inp.value = todayStr;
   });
-  document.querySelectorAll('input[type="datetime-local"]').forEach(inp => {
-    if (!inp.value) inp.value = localIso;
-  });
 
-  // Auto set Generated IDs
   const pbNo = document.getElementById('pbBookingNo');
-  if (pbNo && !pbNo.value) pbNo.value = generateExpBookingNo();
+  if (pbNo) pbNo.value = generateExpBookingNo();
 
   const prNo = document.getElementById('prNo');
-  if (prNo && !prNo.value) prNo.value = generateExpProductionNo();
+  if (prNo) prNo.value = generateExpProductionNo();
 
   const sbNo = document.getElementById('sbBookingNo');
-  if (sbNo && !sbNo.value) sbNo.value = generateExpSalesBookingNo();
-
-  const payNo = document.getElementById('payReceiptNo');
-  if (payNo && !payNo.value) payNo.value = generateExpPaymentNo();
+  if (sbNo) sbNo.value = generateExpSalesBookingNo();
 }
 
 /* =============================================
@@ -143,66 +112,64 @@ function populateDropdowns() {
   const suppliers = DB.get('exp_suppliers') || [];
   const customers = DB.get('exp_customers') || [];
   const pBookings = DB.get('exp_bookings') || [];
-  const sBookings = DB.get('exp_sales_bookings') || [];
-  const containers = DB.get('exp_containers') || [];
 
-  // 1. Export Suppliers dropdowns
-  const supOptions = '<option value="">— Select Export Supplier —</option>' +
-    suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)} (${escapeHtml(s.city || 'Export Supplier')})</option>`).join('');
-  
-  const filterSupOpts = '<option value="">All Export Suppliers</option>' +
-    suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`).join('');
+  // 1. Export Suppliers Dropdown
+  const pbSupSel = document.getElementById('pbSupplier');
+  if (pbSupSel) {
+    if (suppliers.length === 0) {
+      pbSupSel.innerHTML = '<option value="">— Koi Supplier nahi hai (Upar "+ Naya Supplier" dabayein) —</option>';
+    } else {
+      pbSupSel.innerHTML = '<option value="">— Select Supplier —</option>' +
+        suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)} (${escapeHtml(s.city || 'Supplier')})</option>`).join('');
+    }
+  }
 
-  ['pbSupplier', 'matExpSupplier', 'rcvSupplierFilter'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = supOptions;
-  });
-  const fSup = document.getElementById('expFilterSupplier');
-  if (fSup) fSup.innerHTML = filterSupOpts;
+  // 2. Pending Bookings Dropdown for Warehouse Receiving
+  const rcvBookingSel = document.getElementById('rcvBookingId');
+  if (rcvBookingSel) {
+    const pendingBookings = pBookings.filter(b => {
+      const rec = getBookingReceivedTotal(b.id);
+      return (Number(b.quantity) || 0) > rec;
+    });
 
-  // 2. Customers dropdowns
-  const custOptions = '<option value="">— Select Customer —</option>' +
-    customers.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} (${escapeHtml(c.country || 'International')})</option>`).join('');
+    if (pendingBookings.length === 0) {
+      rcvBookingSel.innerHTML = '<option value="">— Koi pending maal nahi hai (Nayi booking banayein) —</option>';
+    } else {
+      rcvBookingSel.innerHTML = '<option value="">— Select Purchase Booking —</option>' +
+        pendingBookings.map(b => {
+          const rec = getBookingReceivedTotal(b.id);
+          const rem = (Number(b.quantity) || 0) - rec;
+          return `<option value="${escapeHtml(b.id)}">${escapeHtml(b.bookingNo)} — ${escapeHtml(b.supplierName)} (${escapeHtml(b.mineral)}: ${formatKG(rem)} ${b.unit} Baqi)</option>`;
+        }).join('');
+    }
+  }
 
-  const filterCustOpts = '<option value="">All Customers</option>' +
-    customers.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)}</option>`).join('');
-
-  ['sbCustomer', 'cntCustomer', 'shipExpCustomer', 'payCustomer', 'custLedgerSelect'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = custOptions;
-  });
-  const fCust = document.getElementById('expFilterCustomer');
-  if (fCust) fCust.innerHTML = filterCustOpts;
-
-  // 3. Purchase Bookings dropdowns (for receiving & inward expenses)
-  const pbOptions = '<option value="">— Select Purchase Booking —</option>' +
-    pBookings.map(b => `<option value="${escapeHtml(b.id)}">${escapeHtml(b.bookingNo)} - ${escapeHtml(b.supplierName)} (${escapeHtml(b.mineral)} - ${formatKG(b.quantity)} ${b.unit})</option>`).join('');
-  
-  ['rcvBookingId', 'matExpBookingId'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = pbOptions;
-  });
-
-  // 4. Sales Bookings dropdowns (for container & shipment expenses)
-  const sbOptions = '<option value="">— Select Sales Booking —</option>' +
-    sBookings.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.bookingNo)} - ${escapeHtml(s.customerName)} (${escapeHtml(s.mineral)} - ${formatKG(s.quantity)} ${s.unit})</option>`).join('');
-
-  ['cntSalesBookingId', 'shipExpSalesBookingId', 'paySalesBookingId'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = sbOptions;
-  });
-
-  // 5. Container dropdowns (for payments & expenses)
-  const cntOptions = '<option value="">— Select Container (Optional) —</option>' +
-    containers.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.containerNo)} (${escapeHtml(c.mineral)} - ${escapeHtml(c.status)})</option>`).join('');
-
-  ['shipExpContainerId', 'payContainerId'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = cntOptions;
-  });
-
-  // 6. Minerals in Warehouse for Production
+  // 3. Raw Mineral Stock in Warehouse for Production
   populateProductionMineralSource();
+
+  // 4. Buyers Dropdown
+  const custSel = document.getElementById('sbCustomer');
+  if (custSel) {
+    if (customers.length === 0) {
+      custSel.innerHTML = '<option value="">— Koi Buyer nahi hai (Upar "+ Naya Buyer" dabayein) —</option>';
+    } else {
+      custSel.innerHTML = '<option value="">— Select Buyer / Customer —</option>' +
+        customers.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} (${escapeHtml(c.country || 'Buyer')})</option>`).join('');
+    }
+  }
+
+  // 5. Ready Stock Minerals Dropdown for Sale
+  const sbMinSel = document.getElementById('sbMineralSelect');
+  if (sbMinSel) {
+    const readyStocks = getExpReadyStockSummary();
+    const availableStocks = readyStocks.filter(s => s.availableTon > 0);
+    if (availableStocks.length === 0) {
+      sbMinSel.innerHTML = '<option value="">— Ready Stock khali hai (Pehle Production karein) —</option>';
+    } else {
+      sbMinSel.innerHTML = '<option value="">— Select Ready Mineral —</option>' +
+        availableStocks.map(s => `<option value="${escapeHtml(s.mineral)}">${escapeHtml(s.mineral)} — Available: ${formatTON(s.availableTon)} TON</option>`).join('');
+    }
+  }
 }
 
 function populateProductionMineralSource() {
@@ -210,15 +177,16 @@ function populateProductionMineralSource() {
   const prSel = document.getElementById('prMineralSource');
   if (!prSel) return;
 
-  if (stock.length === 0) {
-    prSel.innerHTML = '<option value="">No raw minerals in warehouse</option>';
+  const available = stock.filter(s => s.availableTon > 0);
+  if (available.length === 0) {
+    prSel.innerHTML = '<option value="">— Warehouse mein koi raw maal nahi hai (Pehle Receiving karein) —</option>';
     return;
   }
 
-  prSel.innerHTML = '<option value="">— Select Raw Stock Batch —</option>' +
-    stock.filter(s => s.availableTon > 0 || s.availableKG > 0).map(s => 
-      `<option value="${escapeHtml(s.mineral)}|${escapeHtml(s.warehouse)}" data-ton="${s.availableTon}" data-kg="${s.availableKG}">
-        ${escapeHtml(s.mineral)} (${escapeHtml(s.warehouse)}) — Available: ${formatTON(s.availableTon)} TON (${formatKG(s.availableKG)} KG)
+  prSel.innerHTML = '<option value="">— Select Raw Mineral from Warehouse —</option>' +
+    available.map(s => 
+      `<option value="${escapeHtml(s.mineral)}|${escapeHtml(s.warehouse)}">
+        ${escapeHtml(s.mineral)} (${escapeHtml(s.warehouse)}) — Available Raw Stock: ${formatTON(s.availableTon)} TON
       </option>`
     ).join('');
 }
@@ -230,7 +198,6 @@ function bindCalculations() {
   // 1. Purchase Booking Total Calculation
   const pbQty = document.getElementById('pbQuantity');
   const pbRate = document.getElementById('pbRate');
-  const pbUnit = document.getElementById('pbUnit');
   const pbTotal = document.getElementById('pbTotal');
   const pbCalcDisplay = document.getElementById('pbCalcTotal');
 
@@ -243,7 +210,6 @@ function bindCalculations() {
   };
   pbQty?.addEventListener('input', calcPB);
   pbRate?.addEventListener('input', calcPB);
-  pbUnit?.addEventListener('change', calcPB);
 
   // 2. Production Wastage & Output Calculation
   const prInput = document.getElementById('prInputQty');
@@ -259,11 +225,9 @@ function bindCalculations() {
   prInput?.addEventListener('input', calcPR);
   prWastage?.addEventListener('input', calcPR);
 
-  // 3. Sales Booking Total Calculation & Bag Weight
+  // 3. Sales Booking Total Calculation
   const sbQty = document.getElementById('sbQuantity');
   const sbRate = document.getElementById('sbRate');
-  const sbBags = document.getElementById('sbBags');
-  const sbBagWt = document.getElementById('sbBagWeight');
   const sbTotal = document.getElementById('sbTotal');
   const sbCalcDisplay = document.getElementById('sbCalcTotal');
 
@@ -273,59 +237,11 @@ function bindCalculations() {
     const total = q * r;
     if (sbTotal) sbTotal.value = total.toFixed(2);
     if (sbCalcDisplay) sbCalcDisplay.textContent = 'PKR ' + formatCurrency(total);
-
-    // Auto calculate bags if bag weight entered
-    const bWt = parseFloat(sbBagWt?.value) || 0;
-    const unit = document.getElementById('sbUnit')?.value || 'TON';
-    if (bWt > 0 && q > 0) {
-      const totalKG = unit === 'TON' ? q * 1000 : q;
-      const bags = Math.ceil(totalKG / bWt);
-      if (sbBags && !sbBags.value) sbBags.value = bags;
-    }
   };
   sbQty?.addEventListener('input', calcSB);
   sbRate?.addEventListener('input', calcSB);
-  sbBagWt?.addEventListener('input', calcSB);
-  document.getElementById('sbUnit')?.addEventListener('change', calcSB);
 
-  // 4. Container Bags & Weight Calculation
-  const cntBags = document.getElementById('cntBags');
-  const cntBagWt = document.getElementById('cntBagWeight');
-  const cntTotalKG = document.getElementById('cntTotalKG');
-  const cntTotalTon = document.getElementById('cntTotalTon');
-
-  const calcContainerWeight = () => {
-    const bags = parseFloat(cntBags?.value) || 0;
-    const bagWt = parseFloat(cntBagWt?.value) || 0;
-    const totalKG = bags * bagWt;
-    const totalTon = totalKG / 1000;
-    if (cntTotalKG) cntTotalKG.value = totalKG.toFixed(2);
-    if (cntTotalTon) cntTotalTon.value = totalTon.toFixed(3);
-  };
-  cntBags?.addEventListener('input', calcContainerWeight);
-  cntBagWt?.addEventListener('input', calcContainerWeight);
-
-  // 5. Foreign Payment Currency Converter
-  const payForeignAmt = document.getElementById('payForeignAmount');
-  const payExchangeRate = document.getElementById('payExchangeRate');
-  const payPKRAmt = document.getElementById('payPKRAmount');
-  const payConvertPreview = document.getElementById('payConvertPreview');
-
-  const calcPaymentPKR = () => {
-    const fAmt = parseFloat(payForeignAmt?.value) || 0;
-    const rate = parseFloat(payExchangeRate?.value) || 1;
-    const pkr = fAmt * rate;
-    if (payPKRAmt) payPKRAmt.value = pkr.toFixed(2);
-    const curr = document.getElementById('payCurrency')?.value || 'USD';
-    if (payConvertPreview) {
-      payConvertPreview.textContent = `${curr} ${formatCurrency(fAmt)} × ${rate} = PKR ${formatCurrency(pkr)}`;
-    }
-  };
-  payForeignAmt?.addEventListener('input', calcPaymentPKR);
-  payExchangeRate?.addEventListener('input', calcPaymentPKR);
-  document.getElementById('payCurrency')?.addEventListener('change', calcPaymentPKR);
-
-  // 6. Auto fill details on Receiving Booking Select
+  // 4. Warehouse Receiving Booking Change
   const rcvBookingSel = document.getElementById('rcvBookingId');
   if (rcvBookingSel) {
     rcvBookingSel.addEventListener('change', () => {
@@ -336,12 +252,11 @@ function bindCalculations() {
         document.getElementById('rcvMineralDisplay').value = booking.mineral;
         document.getElementById('rcvWarehouse').value = booking.warehouse || 'Main Export Yard';
         
-        // Calculate remaining
         const receivings = DB.filter('exp_receivings', r => r.bookingId === bId);
         const receivedTotal = receivings.reduce((s, r) => s + (Number(r.receivedQuantity) || 0), 0);
         const remaining = Math.max(0, (Number(booking.quantity) || 0) - receivedTotal);
         
-        document.getElementById('rcvPendingDisplay').value = `${formatKG(remaining)} ${booking.unit} remaining (out of ${formatKG(booking.quantity)} ${booking.unit})`;
+        document.getElementById('rcvPendingDisplay').value = `${formatKG(remaining)} ${booking.unit} baqi (Total: ${formatKG(booking.quantity)} ${booking.unit})`;
         const rcvQty = document.getElementById('rcvQuantity');
         if (rcvQty) {
           rcvQty.value = remaining > 0 ? remaining : 0;
@@ -350,318 +265,120 @@ function bindCalculations() {
       }
     });
   }
-
-  // 7. Auto fill details on Sales Booking Select for Container
-  const cntSalesBookingSel = document.getElementById('cntSalesBookingId');
-  if (cntSalesBookingSel) {
-    cntSalesBookingSel.addEventListener('change', () => {
-      const sbId = cntSalesBookingSel.value;
-      const sb = DB.findById('exp_sales_bookings', sbId);
-      if (sb) {
-        if (document.getElementById('cntCustomer')) document.getElementById('cntCustomer').value = sb.customerId;
-        if (document.getElementById('cntMineral')) document.getElementById('cntMineral').value = sb.mineral;
-        if (document.getElementById('cntDestinationCountry')) document.getElementById('cntDestinationCountry').value = sb.destinationCountry || '';
-        if (document.getElementById('cntPort')) document.getElementById('cntPort').value = sb.destinationPort || '';
-        if (document.getElementById('cntBagWeight') && sb.bagWeight) document.getElementById('cntBagWeight').value = sb.bagWeight;
-        if (document.getElementById('cntBags') && sb.bags) document.getElementById('cntBags').value = sb.bags;
-        calcContainerWeight();
-      }
-    });
-  }
 }
 
 /* =============================================
-   FORM SUBMISSION HANDLERS
+   FORM SUBMISSIONS
    ============================================= */
 function bindForms() {
-  // 0. Export Supplier Forms
+  // Modal: Add Supplier
   document.getElementById('expSupplierForm')?.addEventListener('submit', e => {
     e.preventDefault();
-    saveExportSupplier();
-  });
-  document.getElementById('quickExpSupplierForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    saveQuickExportSupplier();
+    saveSupplier();
   });
 
-  // 1. Purchase Booking Form
-  document.getElementById('expPurchaseBookingForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    savePurchaseBooking();
-  });
-
-  // 2. Receiving Form
-  document.getElementById('expReceivingForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    saveWarehouseReceiving();
-  });
-
-  // 3. Material Expense Form
-  document.getElementById('expMaterialExpenseForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    saveMaterialExpense();
-  });
-
-  // 4. Production Form
-  document.getElementById('expProductionForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    saveProduction();
-  });
-
-  // 5. Customer Form
+  // Modal: Add Customer
   document.getElementById('expCustomerForm')?.addEventListener('submit', e => {
     e.preventDefault();
     saveCustomer();
   });
 
-  // 6. Sales Booking Form
+  // Tab 2: Purchase Booking
+  document.getElementById('expPurchaseBookingForm')?.addEventListener('submit', e => {
+    e.preventDefault();
+    savePurchaseBooking();
+  });
+
+  // Tab 3: Warehouse Receiving
+  document.getElementById('expReceivingForm')?.addEventListener('submit', e => {
+    e.preventDefault();
+    saveWarehouseReceiving();
+  });
+
+  // Tab 4: Production
+  document.getElementById('expProductionForm')?.addEventListener('submit', e => {
+    e.preventDefault();
+    saveProduction();
+  });
+
+  // Tab 6: Sales Booking
   document.getElementById('expSalesBookingForm')?.addEventListener('submit', e => {
     e.preventDefault();
     saveSalesBooking();
   });
 
-  // 7. Container Form
-  document.getElementById('expContainerForm')?.addEventListener('submit', e => {
+  // Tab 7: Kharcha Form
+  document.getElementById('expSimpleExpenseForm')?.addEventListener('submit', e => {
     e.preventDefault();
-    saveContainer();
-  });
-
-  // 8. Shipment Expense Form
-  document.getElementById('expShipmentExpenseForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    saveShipmentExpense();
-  });
-
-  // 9. Payment Form
-  document.getElementById('expPaymentForm')?.addEventListener('submit', e => {
-    e.preventDefault();
-    savePayment();
+    saveSimpleExpense();
   });
 }
 
 /* =============================================
-   MODULE 0: EXPORT MINERAL SUPPLIERS
+   SUPPLIER & CUSTOMER HELPERS
    ============================================= */
-function openQuickSupplierModal() {
-  document.getElementById('quickExpSupplierForm')?.reset();
-  openModal('quickSupplierModal');
+function openSupplierModal() {
+  document.getElementById('expSupplierForm')?.reset();
+  openModal('supplierModal');
 }
 
-function saveQuickExportSupplier() {
-  const name = sanitizeInput(document.getElementById('quickSupName')?.value || '');
-  const phone = sanitizeInput(document.getElementById('quickSupPhone')?.value || '');
-  const city = sanitizeInput(document.getElementById('quickSupCity')?.value || '');
-  const minerals = sanitizeInput(document.getElementById('quickSupMinerals')?.value || '');
+function openCustomerModal() {
+  document.getElementById('expCustomerForm')?.reset();
+  openModal('customerModal');
+}
 
-  if (!name) { showToast('Supplier name is required.', 'error'); return; }
-  if (!phone) { showToast('Phone number is required.', 'error'); return; }
+function saveSupplier() {
+  const name = sanitizeInput(document.getElementById('expSupName')?.value || '');
+  const phone = sanitizeInput(document.getElementById('expSupPhone')?.value || '');
+  const city = sanitizeInput(document.getElementById('expSupCity')?.value || '');
+  const minerals = sanitizeInput(document.getElementById('expSupMinerals')?.value || '');
+
+  if (!name) { showToast('Supplier Name is required.', 'error'); return; }
 
   const sup = DB.add('exp_suppliers', {
     name,
-    phone,
+    phone: phone || '',
     city: city || 'Pakistan',
-    minerals: minerals || 'Minerals',
-    bank: '',
-    address: ''
+    minerals: minerals || 'Minerals'
   });
 
-  showToast(`Export Supplier "${name}" registered!`, 'success');
-  closeModal('quickSupplierModal');
+  showToast(`Supplier "${name}" save ho gaya!`, 'success');
+  closeModal('supplierModal');
   populateDropdowns();
-  renderExportSuppliersList();
 
   // Auto-select in pbSupplier
   const pbSel = document.getElementById('pbSupplier');
   if (pbSel) pbSel.value = sup.id;
 }
 
-function saveExportSupplier() {
-  const name = sanitizeInput(document.getElementById('expSupName')?.value || '');
-  const phone = sanitizeInput(document.getElementById('expSupPhone')?.value || '');
-  const city = sanitizeInput(document.getElementById('expSupCity')?.value || '');
-  const minerals = sanitizeInput(document.getElementById('expSupMinerals')?.value || '');
-  const bank = sanitizeInput(document.getElementById('expSupBank')?.value || '');
-  const address = sanitizeInput(document.getElementById('expSupAddress')?.value || '');
+function saveCustomer() {
+  const name = sanitizeInput(document.getElementById('custName')?.value || '');
+  const country = sanitizeInput(document.getElementById('custCountry')?.value || '');
+  const contact = sanitizeInput(document.getElementById('custContact')?.value || '');
 
-  if (!name) { showToast('Supplier name is required.', 'error'); return; }
-  if (!phone) { showToast('Phone number is required.', 'error'); return; }
+  if (!name) { showToast('Buyer Name is required.', 'error'); return; }
 
-  DB.add('exp_suppliers', {
+  const cust = DB.add('exp_customers', {
     name,
-    phone,
-    city: city || 'Pakistan',
-    minerals: minerals || 'Minerals',
-    bank,
-    address
+    country: country || 'International',
+    contact: contact || ''
   });
 
-  showToast(`Export Supplier "${name}" registered!`, 'success');
-  document.getElementById('expSupplierForm')?.reset();
+  showToast(`Buyer "${name}" save ho gaya!`, 'success');
+  closeModal('customerModal');
   populateDropdowns();
-  renderExportSuppliersList();
-  renderExportDashboard();
-}
+  renderCustomersList();
 
-function renderExportSuppliersList() {
-  const container = document.getElementById('expSuppliersCardsGrid');
-  if (!container) return;
-
-  const suppliers = DB.get('exp_suppliers') || [];
-
-  if (suppliers.length === 0) {
-    container.innerHTML = `<div class="col-12 text-center py-5" style="color:var(--text-muted);"><i class="fas fa-truck-field fa-3x mb-3"></i><p>No export suppliers registered yet. Register your first mineral supplier above.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = suppliers.map(s => {
-    const stats = getExpSupplierFinancialSummary(s.id);
-    const balanceClass = stats.payableBalance > 0 ? 'color:var(--crimson);' : 'color:var(--emerald);';
-
-    return `
-      <div class="export-item-card">
-        <div class="export-item-card-header">
-          <div>
-            <div class="export-item-card-title"><i class="fas fa-truck-field" style="color:var(--teal);margin-right:6px;"></i>${escapeHtml(s.name)}</div>
-            <div class="export-item-card-sub"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(s.city || 'Mine / Yard')} • <i class="fas fa-phone"></i> ${escapeHtml(s.phone || '—')}</div>
-          </div>
-          <span class="badge badge-mineral">${escapeHtml(s.minerals || 'Minerals')}</span>
-        </div>
-        <div class="export-item-body">
-          <div class="export-item-row">
-            <span class="lbl">Purchase Bookings:</span>
-            <span class="val">${stats.bookingCount} (${formatTON(stats.totalTon)} TON)</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Total Purchases:</span>
-            <span class="val">PKR ${formatCurrency(stats.totalPurchasesPKR)}</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Supplier Inward Expenses:</span>
-            <span class="val">PKR ${formatCurrency(stats.totalExpensesPKR)}</span>
-          </div>
-          <div class="export-item-row" style="border-top:1px dashed var(--color-border);padding-top:6px;margin-top:4px;">
-            <span class="lbl"><strong>Payable Balance:</strong></span>
-            <span class="val" style="${balanceClass};font-size:14px;"><strong>PKR ${formatCurrency(stats.payableBalance)}</strong></span>
-          </div>
-          ${s.bank ? `<div class="export-item-row" style="font-size:11px;color:var(--text-muted);margin-top:4px;"><span class="lbl">Bank:</span> <span class="val">${escapeHtml(s.bank)}</span></div>` : ''}
-        </div>
-        <div class="export-item-actions">
-          <button class="btn btn-secondary btn-sm" onclick="openExportSupplierLedgerModal('${escapeHtml(s.id)}')"><i class="fas fa-file-invoice"></i> Statement</button>
-          <button class="btn btn-secondary btn-sm btn-action-danger" onclick="deleteExportSupplier('${escapeHtml(s.id)}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function getExpSupplierFinancialSummary(supplierId) {
-  const bookings = DB.filter('exp_bookings', b => b.supplierId === supplierId);
-  const expenses = DB.filter('exp_material_expenses', e => e.supplierId === supplierId && e.paymentMethod === 'supplier_account');
-
-  const totalPurchasesPKR = bookings.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
-  const totalExpensesPKR = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalTon = bookings.reduce((s, b) => s + (b.unit === 'TON' ? (Number(b.quantity) || 0) : (Number(b.quantity) || 0) / 1000), 0);
-
-  const creditPurchases = bookings.filter(b => b.paymentType === 'credit')
-                                  .reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
-  const payableBalance = creditPurchases + totalExpensesPKR;
-
-  return {
-    bookingCount: bookings.length,
-    totalTon,
-    totalPurchasesPKR,
-    totalExpensesPKR,
-    payableBalance
-  };
-}
-
-function deleteExportSupplier(id) {
-  const s = DB.findById('exp_suppliers', id);
-  if (!s) return;
-
-  showConfirm(`Delete Export Supplier "${s.name}"?`, () => {
-    DB.remove('exp_suppliers', id);
-    showToast('Export supplier deleted.', 'success');
-    populateDropdowns();
-    renderExportSuppliersList();
-    renderExportDashboard();
-  });
-}
-
-function openExportSupplierLedgerModal(supplierId) {
-  const sup = DB.findById('exp_suppliers', supplierId);
-  if (!sup) return;
-
-  const titleEl = document.getElementById('expSupLedgerModalTitle');
-  if (titleEl) titleEl.textContent = `${sup.name} (${sup.city || 'Export Supplier'}) — Statement of Account`;
-
-  const tbody = document.getElementById('expSupLedgerTableBody');
-  if (!tbody) return;
-
-  const bookings = DB.filter('exp_bookings', b => b.supplierId === supplierId);
-  const expenses = DB.filter('exp_material_expenses', e => e.supplierId === supplierId && e.paymentMethod === 'supplier_account');
-
-  const entries = [];
-  bookings.forEach(b => {
-    entries.push({
-      date: b.date,
-      type: 'Purchase Booking',
-      ref: b.bookingNo,
-      desc: `Mineral Purchase: ${b.mineral} (${formatKG(b.quantity)} ${b.unit} @ ${b.rate}) [${b.paymentType.toUpperCase()}]`,
-      debit: b.paymentType === 'cash' ? Number(b.totalAmount) || 0 : 0,
-      credit: Number(b.totalAmount) || 0
-    });
-  });
-
-  expenses.forEach(e => {
-    entries.push({
-      date: e.date,
-      type: 'Material Expense',
-      ref: e.bookingNo || 'EXP-MAT',
-      desc: `Inward ${e.expenseType} (Added to Supplier Account)`,
-      debit: 0,
-      credit: Number(e.amount) || 0
-    });
-  });
-
-  entries.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-
-  let runningBal = 0;
-  tbody.innerHTML = entries.map(e => {
-    runningBal += (e.credit - e.debit);
-    return `
-      <tr>
-        <td>${formatDate(e.date)}</td>
-        <td><strong>${escapeHtml(e.type)}</strong><br><small style="color:var(--text-muted);">${escapeHtml(e.ref)}</small></td>
-        <td>${escapeHtml(e.desc)}</td>
-        <td style="color:var(--emerald);">${e.debit > 0 ? 'PKR ' + formatCurrency(e.debit) : '—'}</td>
-        <td style="color:var(--copper);">${e.credit > 0 ? 'PKR ' + formatCurrency(e.credit) : '—'}</td>
-        <td><strong>PKR ${formatCurrency(runningBal)}</strong></td>
-      </tr>
-    `;
-  }).join('');
-
-  const stats = getExpSupplierFinancialSummary(supplierId);
-  const sumEl = document.getElementById('expSupLedgerSummaryTotal');
-  if (sumEl) {
-    sumEl.innerHTML = `
-      <div style="display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-top:12px;padding:12px;background:var(--color-surface-2);border-radius:var(--radius-md);">
-        <div>Total Purchases: <strong>PKR ${formatCurrency(stats.totalPurchasesPKR)}</strong></div>
-        <div>Inward Expenses: <strong>PKR ${formatCurrency(stats.totalExpensesPKR)}</strong></div>
-        <div>Net Supplier Payable: <strong style="color:var(--crimson);font-size:14px;">PKR ${formatCurrency(stats.payableBalance)}</strong></div>
-      </div>
-    `;
-  }
-
-  openModal('expSupLedgerModal');
+  // Auto-select in sbCustomer
+  const sbSel = document.getElementById('sbCustomer');
+  if (sbSel) sbSel.value = cust.id;
 }
 
 /* =============================================
-   MODULE 1: SUPPLIER PURCHASE BOOKING
+   1. PURCHASE BOOKING (MAAL KHAREEDNA)
    ============================================= */
 function savePurchaseBooking() {
   const bookingNo = sanitizeInput(document.getElementById('pbBookingNo')?.value || '');
-  const receiptNo = sanitizeInput(document.getElementById('pbReceiptNo')?.value || '');
   const dateVal = document.getElementById('pbDate')?.value || today();
   const supplierId = document.getElementById('pbSupplier')?.value || '';
   const mineral = sanitizeInput(document.getElementById('pbMineral')?.value || '');
@@ -673,27 +390,16 @@ function savePurchaseBooking() {
   const warehouse = sanitizeInput(document.getElementById('pbWarehouse')?.value || 'Main Export Yard');
   const remarks = sanitizeInput(document.getElementById('pbRemarks')?.value || '');
 
-  // Validation
-  if (!bookingNo) { showToast('Booking Number is required.', 'error'); return; }
-  if (!supplierId) { showToast('Please select an Export Supplier (or click + New Supplier).', 'error'); return; }
-  if (!mineral) { showToast('Please enter/select Mineral Type.', 'error'); return; }
-  if (quantity <= 0) { showToast('Quantity must be greater than 0.', 'error'); return; }
-  if (rate <= 0) { showToast('Rate must be greater than 0.', 'error'); return; }
-
-  // Check duplicate booking number
-  const dups = DB.filter('exp_bookings', b => b.bookingNo === bookingNo);
-  if (dups.length > 0) {
-    showToast('Booking Number already exists. Regenerating...', 'warning');
-    document.getElementById('pbBookingNo').value = generateExpBookingNo();
-    return;
-  }
+  if (!supplierId) { showToast('Supplier select karein ya naya add karein.', 'error'); return; }
+  if (!mineral) { showToast('Mineral Type zaroori hai.', 'error'); return; }
+  if (quantity <= 0) { showToast('Quantity 0 se bari honi chahiye.', 'error'); return; }
+  if (rate <= 0) { showToast('Rate enter karein.', 'error'); return; }
 
   const supplier = DB.findById('exp_suppliers', supplierId);
-  const supplierName = supplier ? supplier.name : 'Export Supplier';
+  const supplierName = supplier ? supplier.name : 'Supplier';
 
   const booking = DB.add('exp_bookings', {
     bookingNo,
-    receiptNo: receiptNo || bookingNo,
     date: dateVal,
     supplierId,
     supplierName,
@@ -710,7 +416,7 @@ function savePurchaseBooking() {
     month: dateVal.substring(0, 7)
   });
 
-  // Accounting Integration: If Cash, post Cash Out entry in existing expenses table safely
+  // Agar Cash hai to Expense mein Cash Out record ho
   if (paymentType === 'cash') {
     DB.add('expenses', {
       month: dateVal.substring(0, 7),
@@ -723,9 +429,8 @@ function savePurchaseBooking() {
     });
   }
 
-  showToast(`Export Purchase Booking ${bookingNo} saved successfully!`, 'success');
+  showToast(`Booking ${bookingNo} save ho gayi! Ab Warehouse mein maal receive karein.`, 'success');
 
-  // Reset & Refresh
   document.getElementById('expPurchaseBookingForm').reset();
   setFormDefaults();
   populateDropdowns();
@@ -737,27 +442,26 @@ function renderPurchaseBookingsTable() {
   const container = document.getElementById('pbTableBody');
   if (!container) return;
 
-  let bookings = DB.get('exp_bookings') || [];
-
-  // Apply filters
-  if (_expFilterSupplier) bookings = bookings.filter(b => b.supplierId === _expFilterSupplier);
-  if (_expFilterMineral) bookings = bookings.filter(b => (b.mineral || '').toLowerCase().includes(_expFilterMineral.toLowerCase()));
-  if (_expFilterDateFrom) bookings = bookings.filter(b => b.date >= _expFilterDateFrom);
-  if (_expFilterDateTo) bookings = bookings.filter(b => b.date <= _expFilterDateTo);
-
-  // Sort latest first
+  const bookings = DB.get('exp_bookings') || [];
   bookings.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   if (bookings.length === 0) {
-    container.innerHTML = `<tr><td colspan="10" class="text-center py-4" style="color:var(--text-muted);"><i class="fas fa-inbox fa-2x mb-2"></i><br>No Export Purchase Bookings found.</td></tr>`;
+    container.innerHTML = `<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted);"><i class="fas fa-inbox fa-2x mb-2"></i><br>Koi Purchase Booking nahi mili. Upar se maal khareedein.</td></tr>`;
     return;
   }
 
-  container.innerHTML = bookings.map((b, idx) => {
-    const payBadge = b.paymentType === 'cash' ? '<span class="badge badge-status-cash">Cash</span>' : '<span class="badge badge-status-credit">Credit</span>';
+  container.innerHTML = bookings.map(b => {
+    const payBadge = b.paymentType === 'cash' 
+      ? '<span class="badge badge-status-cash">Naqad (Cash)</span>' 
+      : '<span class="badge badge-status-credit">Udhaar (Credit)</span>';
+    
     const recTotal = getBookingReceivedTotal(b.id);
     const rem = Math.max(0, (Number(b.quantity) || 0) - recTotal);
-    const recBadge = rem === 0 ? '<span class="badge badge-status-delivered">Fully Received</span>' : (recTotal > 0 ? '<span class="badge badge-status-booked">Partial</span>' : '<span class="badge badge-status-ready">Pending</span>');
+    const recBadge = rem === 0 
+      ? '<span class="badge badge-status-delivered">Pura Received</span>' 
+      : (recTotal > 0 
+          ? `<span class="badge badge-status-booked">Received: ${formatKG(recTotal)} / ${formatKG(b.quantity)} ${b.unit}</span>` 
+          : '<span class="badge badge-status-ready">Pending (Aana Baqi)</span>');
 
     return `
       <tr>
@@ -768,13 +472,9 @@ function renderPurchaseBookingsTable() {
         <td>PKR ${formatCurrency(b.rate)}/${b.unit}</td>
         <td><strong>PKR ${formatCurrency(b.totalAmount)}</strong></td>
         <td>${payBadge}</td>
-        <td>${escapeHtml(b.warehouse || '—')}</td>
-        <td>${recBadge}<br><small>${formatKG(recTotal)} / ${formatKG(b.quantity)} ${b.unit}</small></td>
+        <td>${recBadge}</td>
         <td>
-          <div class="action-btn-group">
-            <button class="btn-action-icon" title="Print Slip" onclick="printExportPurchaseSlip('${escapeHtml(b.id)}')"><i class="fas fa-print"></i></button>
-            <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deletePurchaseBooking('${escapeHtml(b.id)}')"><i class="fas fa-trash-alt"></i></button>
-          </div>
+          <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deletePurchaseBooking('${escapeHtml(b.id)}')"><i class="fas fa-trash-alt"></i></button>
         </td>
       </tr>
     `;
@@ -790,15 +490,13 @@ function deletePurchaseBooking(id) {
   const b = DB.findById('exp_bookings', id);
   if (!b) return;
 
-  showConfirm(`Delete Purchase Booking "${b.bookingNo}"? Any attached receiving and expenses will also be affected.`, () => {
-    // 1. Remove linked cash expense if cash
+  showConfirm(`Delete Purchase Booking "${b.bookingNo}"?`, () => {
     if (b.paymentType === 'cash') {
-      const linkedExp = DB.filter('expenses', e => e.reference === b.bookingNo || e.expBookingId === id);
-      linkedExp.forEach(e => DB.remove('expenses', e.id));
+      const linked = DB.filter('expenses', e => e.expBookingId === id || e.reference === b.bookingNo);
+      linked.forEach(e => DB.remove('expenses', e.id));
     }
-    // 2. Remove purchase booking
     DB.remove('exp_bookings', id);
-    showToast('Purchase booking deleted.', 'success');
+    showToast('Booking delete ho gayi.', 'success');
     populateDropdowns();
     renderPurchaseBookingsTable();
     renderExportDashboard();
@@ -806,7 +504,7 @@ function deletePurchaseBooking(id) {
 }
 
 /* =============================================
-   MODULE 2: WAREHOUSE RECEIVING
+   2. WAREHOUSE RECEIVING & RAW STOCK
    ============================================= */
 function saveWarehouseReceiving() {
   const bookingId = document.getElementById('rcvBookingId')?.value || '';
@@ -815,19 +513,18 @@ function saveWarehouseReceiving() {
   const warehouse = sanitizeInput(document.getElementById('rcvWarehouse')?.value || 'Main Export Yard');
   const vehicle = sanitizeInput(document.getElementById('rcvVehicle')?.value || '');
   const biltyNo = sanitizeInput(document.getElementById('rcvBiltyNo')?.value || '');
-  const remarks = sanitizeInput(document.getElementById('rcvRemarks')?.value || '');
 
-  if (!bookingId) { showToast('Please select a Purchase Booking.', 'error'); return; }
-  if (receivedQuantity <= 0) { showToast('Received quantity must be greater than 0.', 'error'); return; }
+  if (!bookingId) { showToast('Purchase booking select karein.', 'error'); return; }
+  if (receivedQuantity <= 0) { showToast('Received quantity 0 se bari honi chahiye.', 'error'); return; }
 
   const booking = DB.findById('exp_bookings', bookingId);
-  if (!booking) { showToast('Selected booking not found.', 'error'); return; }
+  if (!booking) { showToast('Booking nahi mili.', 'error'); return; }
 
   const alreadyReceived = getBookingReceivedTotal(bookingId);
   const remaining = Math.max(0, (Number(booking.quantity) || 0) - alreadyReceived);
 
-  if (receivedQuantity > remaining + 0.0001) {
-    showToast(`Cannot receive more than remaining balance (${formatKG(remaining)} ${booking.unit}).`, 'warning');
+  if (receivedQuantity > remaining + 0.001) {
+    showToast(`Baqi bache maal (${formatKG(remaining)} ${booking.unit}) se zyada receive nahi ho sakta.`, 'warning');
     return;
   }
 
@@ -843,41 +540,90 @@ function saveWarehouseReceiving() {
     warehouse,
     vehicle,
     biltyNo,
-    remarks,
     month: dateVal.substring(0, 7)
   });
 
-  // Update booking status
   const newTotalReceived = alreadyReceived + receivedQuantity;
   DB.update('exp_bookings', bookingId, {
     receivedQuantity: newTotalReceived,
     status: newTotalReceived >= (Number(booking.quantity) || 0) ? 'received' : 'partial'
   });
 
-  showToast(`Received ${formatKG(receivedQuantity)} ${booking.unit} into ${warehouse}!`, 'success');
+  showToast(`${formatKG(receivedQuantity)} ${booking.unit} ${booking.mineral} warehouse mein receive ho gaya!`, 'success');
 
   document.getElementById('expReceivingForm').reset();
   setFormDefaults();
   populateDropdowns();
   renderReceivingsTable();
+  renderWarehouseStockBanner();
   renderExportDashboard();
+}
+
+function getExpRawWarehouseStock() {
+  const receivings = DB.get('exp_receivings') || [];
+  const productions = DB.get('exp_production') || [];
+
+  const stockMap = {};
+  receivings.forEach(r => {
+    const key = `${r.mineral}|||${r.warehouse || 'Main Export Yard'}`;
+    if (!stockMap[key]) {
+      stockMap[key] = { mineral: r.mineral, warehouse: r.warehouse || 'Main Export Yard', totalReceivedTon: 0 };
+    }
+    const q = Number(r.receivedQuantity) || 0;
+    const ton = r.unit === 'TON' ? q : q / 1000.0;
+    stockMap[key].totalReceivedTon += ton;
+  });
+
+  productions.forEach(p => {
+    const key = `${p.mineral}|||${p.warehouse || 'Main Export Yard'}`;
+    if (stockMap[key]) {
+      const inp = Number(p.inputQuantity) || 0;
+      const ton = p.unit === 'TON' ? inp : inp / 1000.0;
+      stockMap[key].totalReceivedTon -= ton;
+    }
+  });
+
+  return Object.values(stockMap).map(s => ({
+    mineral: s.mineral,
+    warehouse: s.warehouse,
+    availableTon: Math.max(0, s.totalReceivedTon)
+  }));
+}
+
+function renderWarehouseStockBanner() {
+  const banner = document.getElementById('warehouseStockSummaryBanner');
+  if (!banner) return;
+
+  const stocks = getExpRawWarehouseStock();
+  if (stocks.length === 0 || stocks.every(s => s.availableTon <= 0)) {
+    banner.innerHTML = '<span style="opacity:0.8;font-size:13px;">Warehouse khali hai. Maal receive karein ge to yahan dikhega.</span>';
+    return;
+  }
+
+  banner.innerHTML = stocks.map(s => `
+    <div style="background:rgba(255,255,255,0.12);padding:10px 16px;border-radius:var(--radius-md);border:1px solid rgba(255,255,255,0.2);">
+      <div style="font-size:11px;opacity:0.8;text-transform:uppercase;">${escapeHtml(s.mineral)} (${escapeHtml(s.warehouse)})</div>
+      <div style="font-size:20px;font-weight:800;color:#52b788;">${formatTON(s.availableTon)} TON</div>
+      <div style="font-size:11px;opacity:0.7;">Raw Stock Maujood</div>
+    </div>
+  `).join('');
 }
 
 function renderReceivingsTable() {
   const container = document.getElementById('rcvTableBody');
   if (!container) return;
 
-  let receivings = DB.get('exp_receivings') || [];
+  const receivings = DB.get('exp_receivings') || [];
   receivings.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   if (receivings.length === 0) {
-    container.innerHTML = `<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">No warehouse receiving records yet.</td></tr>`;
+    container.innerHTML = `<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">Koi receiving record nahi mila.</td></tr>`;
     return;
   }
 
   container.innerHTML = receivings.map(r => `
     <tr>
-      <td><strong>${formatDate(r.date)}</strong></td>
+      <td>${formatDate(r.date)}</td>
       <td><strong>${escapeHtml(r.bookingNo)}</strong></td>
       <td>${escapeHtml(r.supplierName)}</td>
       <td><span class="badge badge-mineral">${escapeHtml(r.mineral)}</span></td>
@@ -895,199 +641,56 @@ function deleteReceiving(id) {
   const r = DB.findById('exp_receivings', id);
   if (!r) return;
 
-  showConfirm('Delete this receiving record? Warehouse stock balance will be adjusted.', () => {
+  showConfirm('Delete receiving entry?', () => {
     const bookingId = r.bookingId;
     DB.remove('exp_receivings', id);
 
     if (bookingId) {
       const recTotal = getBookingReceivedTotal(bookingId);
-      const booking = DB.findById('exp_bookings', bookingId);
-      if (booking) {
+      const b = DB.findById('exp_bookings', bookingId);
+      if (b) {
         DB.update('exp_bookings', bookingId, {
           receivedQuantity: recTotal,
-          status: recTotal >= (Number(booking.quantity) || 0) ? 'received' : (recTotal > 0 ? 'partial' : 'booked')
+          status: recTotal >= (Number(b.quantity) || 0) ? 'received' : (recTotal > 0 ? 'partial' : 'booked')
         });
       }
     }
 
-    showToast('Receiving record removed.', 'success');
+    showToast('Receiving delete ho gayi.', 'success');
     populateDropdowns();
     renderReceivingsTable();
+    renderWarehouseStockBanner();
     renderExportDashboard();
   });
 }
 
 /* =============================================
-   MODULE 3: MATERIAL INWARD EXPENSES
+   3. PRODUCTION (PROCESSING & READY YIELD)
    ============================================= */
-function saveMaterialExpense() {
-  const bookingId = document.getElementById('matExpBookingId')?.value || '';
-  const expenseType = document.getElementById('matExpType')?.value || 'Transport';
-  const dateVal = document.getElementById('matExpDate')?.value || today();
-  const amount = parseFloat(document.getElementById('matExpAmount')?.value) || 0;
-  const paymentMethod = document.getElementById('matExpPaymentMethod')?.value || 'cash';
-  const supplierId = document.getElementById('matExpSupplier')?.value || '';
-  const remarks = sanitizeInput(document.getElementById('matExpRemarks')?.value || '');
-
-  if (!bookingId) { showToast('Please select an Export Purchase Booking.', 'error'); return; }
-  if (amount <= 0) { showToast('Amount must be greater than 0.', 'error'); return; }
-
-  const booking = DB.findById('exp_bookings', bookingId);
-  const targetSupplierId = supplierId || (booking ? booking.supplierId : '');
-  const supplier = DB.findById('suppliers', targetSupplierId);
-  const supplierName = supplier ? supplier.name : (booking ? booking.supplierName : 'Supplier');
-
-  const exp = DB.add('exp_material_expenses', {
-    bookingId,
-    bookingNo: booking ? booking.bookingNo : '—',
-    mineral: booking ? booking.mineral : '—',
-    expenseType,
-    date: dateVal,
-    amount,
-    paymentMethod,
-    supplierId: targetSupplierId,
-    supplierName,
-    remarks,
-    month: dateVal.substring(0, 7)
-  });
-
-  // If Cash payment method, post Cash Out to general expenses
-  if (paymentMethod === 'cash') {
-    DB.add('expenses', {
-      month: dateVal.substring(0, 7),
-      date: dateVal,
-      description: `Inward ${expenseType}: ${booking ? booking.bookingNo : ''} (${supplierName})`,
-      reference: booking ? booking.bookingNo : 'EXP-MAT-EXP',
-      amount,
-      source: 'exp_material_expense',
-      expMatExpId: exp.id
-    });
-  }
-
-  showToast(`Material Expense of PKR ${formatCurrency(amount)} saved!`, 'success');
-
-  document.getElementById('expMaterialExpenseForm').reset();
-  setFormDefaults();
-  renderMaterialExpensesTable();
-  renderExportDashboard();
-}
-
-function renderMaterialExpensesTable() {
-  const container = document.getElementById('matExpTableBody');
-  if (!container) return;
-
-  let expenses = DB.get('exp_material_expenses') || [];
-  expenses.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-  if (expenses.length === 0) {
-    container.innerHTML = `<tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted);">No material expenses recorded.</td></tr>`;
-    return;
-  }
-
-  container.innerHTML = expenses.map(e => `
-    <tr>
-      <td>${formatDate(e.date)}</td>
-      <td><strong>${escapeHtml(e.bookingNo)}</strong></td>
-      <td><span class="badge badge-mineral">${escapeHtml(e.expenseType)}</span></td>
-      <td><strong>PKR ${formatCurrency(e.amount)}</strong></td>
-      <td>${e.paymentMethod === 'cash' ? '<span class="badge badge-status-cash">Cash Out</span>' : '<span class="badge badge-status-credit">Supplier Ledger</span>'}</td>
-      <td>${escapeHtml(e.supplierName || '—')}<br><small style="color:var(--text-muted);">${escapeHtml(e.remarks || '')}</small></td>
-      <td>
-        <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deleteMaterialExpense('${escapeHtml(e.id)}')"><i class="fas fa-trash-alt"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function deleteMaterialExpense(id) {
-  const exp = DB.findById('exp_material_expenses', id);
-  if (!exp) return;
-
-  showConfirm('Delete this material expense?', () => {
-    if (exp.paymentMethod === 'cash') {
-      const linked = DB.filter('expenses', e => e.expMatExpId === id || (e.reference === exp.bookingNo && e.source === 'exp_material_expense'));
-      linked.forEach(e => DB.remove('expenses', e.id));
-    }
-    DB.remove('exp_material_expenses', id);
-    showToast('Material expense deleted.', 'success');
-    renderMaterialExpensesTable();
-    renderExportDashboard();
-  });
-}
-
-/* =============================================
-   MODULE 4 & 5: PRODUCTION & READY STOCK
-   ============================================= */
-function getExpRawWarehouseStock() {
-  const receivings = DB.get('exp_receivings') || [];
-  const productions = DB.get('exp_production') || [];
-
-  // Group receiving by Mineral & Warehouse
-  const stockMap = {};
-  receivings.forEach(r => {
-    const key = `${r.mineral}|||${r.warehouse || 'Main Export Yard'}`;
-    if (!stockMap[key]) {
-      stockMap[key] = { mineral: r.mineral, warehouse: r.warehouse || 'Main Export Yard', totalReceivedTon: 0, totalReceivedKG: 0 };
-    }
-    const q = Number(r.receivedQuantity) || 0;
-    if (r.unit === 'TON') {
-      stockMap[key].totalReceivedTon += q;
-      stockMap[key].totalReceivedKG += q * 1000;
-    } else {
-      stockMap[key].totalReceivedKG += q;
-      stockMap[key].totalReceivedTon += q / 1000;
-    }
-  });
-
-  // Deduct productions
-  productions.forEach(p => {
-    const key = `${p.mineral}|||${p.warehouse || 'Main Export Yard'}`;
-    if (stockMap[key]) {
-      const inp = Number(p.inputQuantity) || 0;
-      if (p.unit === 'TON') {
-        stockMap[key].totalReceivedTon -= inp;
-        stockMap[key].totalReceivedKG -= inp * 1000;
-      } else {
-        stockMap[key].totalReceivedKG -= inp;
-        stockMap[key].totalReceivedTon -= inp / 1000;
-      }
-    }
-  });
-
-  return Object.values(stockMap).map(s => ({
-    mineral: s.mineral,
-    warehouse: s.warehouse,
-    availableTon: Math.max(0, s.totalReceivedTon),
-    availableKG: Math.max(0, s.totalReceivedKG)
-  }));
-}
-
 function saveProduction() {
   const prNo = sanitizeInput(document.getElementById('prNo')?.value || '');
   const dateVal = document.getElementById('prDate')?.value || today();
   const rawSource = document.getElementById('prMineralSource')?.value || '';
   const inputQty = parseFloat(document.getElementById('prInputQty')?.value) || 0;
   const unit = document.getElementById('prUnit')?.value || 'TON';
-  const machine = sanitizeInput(document.getElementById('prMachine')?.value || 'Plant 1');
   const wastageQty = parseFloat(document.getElementById('prWastageQty')?.value) || 0;
   const readyQty = parseFloat(document.getElementById('prReadyQty')?.value) || Math.max(0, inputQty - wastageQty);
+  const machine = sanitizeInput(document.getElementById('prMachine')?.value || 'Plant 1');
   const bags = parseInt(document.getElementById('prBags')?.value) || 0;
-  const bagWeight = parseFloat(document.getElementById('prBagWeight')?.value) || 50;
   const remarks = sanitizeInput(document.getElementById('prRemarks')?.value || '');
 
-  if (!prNo) { showToast('Production number is required.', 'error'); return; }
-  if (!rawSource) { showToast('Please select Raw Mineral batch.', 'error'); return; }
-  if (inputQty <= 0) { showToast('Input quantity must be greater than 0.', 'error'); return; }
+  if (!rawSource) { showToast('Warehouse ka raw mineral select karein.', 'error'); return; }
+  if (inputQty <= 0) { showToast('Input quantity 0 se bari honi chahiye.', 'error'); return; }
 
   const [mineral, warehouse] = rawSource.split('|');
 
-  // Verify stock availability
-  const currentStocks = getExpRawWarehouseStock();
-  const stock = currentStocks.find(s => s.mineral === mineral && s.warehouse === warehouse);
-  const availableInput = unit === 'TON' ? (stock ? stock.availableTon : 0) : (stock ? stock.availableKG : 0);
+  const stocks = getExpRawWarehouseStock();
+  const stock = stocks.find(s => s.mineral === mineral && s.warehouse === warehouse);
+  const availTon = stock ? stock.availableTon : 0;
+  const reqTon = unit === 'TON' ? inputQty : inputQty / 1000.0;
 
-  if (inputQty > availableInput + 0.001) {
-    showToast(`Insufficient raw mineral stock! Available: ${formatKG(availableInput)} ${unit}.`, 'warning');
+  if (reqTon > availTon + 0.001) {
+    showToast(`Warehouse mein raw maal kam hai! Available: ${formatTON(availTon)} TON.`, 'warning');
     return;
   }
 
@@ -1098,35 +701,21 @@ function saveProduction() {
     warehouse,
     inputQuantity: inputQty,
     unit,
-    machine,
     wastageQuantity: wastageQty,
     readyQuantity: readyQty,
+    machine,
     bags,
-    bagWeight,
     remarks,
     month: dateVal.substring(0, 7)
   });
 
-  // Ready Stock Entry / Batch
-  DB.add('exp_ready_stock', {
-    productionNo: prNo,
-    date: dateVal,
-    mineral,
-    warehouse,
-    quantity: readyQty,
-    unit,
-    bags,
-    bagWeight,
-    reservedQuantity: 0,
-    status: 'available'
-  });
-
-  showToast(`Production entry ${prNo} recorded. +${formatKG(readyQty)} ${unit} Ready Stock added!`, 'success');
+  showToast(`Batch ${prNo} ready! Warehouse se raw maal deduct hua aur +${formatKG(readyQty)} ${unit} Ready Stock mein add ho gaya.`, 'success');
 
   document.getElementById('expProductionForm').reset();
   setFormDefaults();
   populateDropdowns();
   renderProductionTable();
+  renderWarehouseStockBanner();
   renderReadyStockTable();
   renderExportDashboard();
 }
@@ -1135,11 +724,11 @@ function renderProductionTable() {
   const container = document.getElementById('prTableBody');
   if (!container) return;
 
-  let records = DB.get('exp_production') || [];
+  const records = DB.get('exp_production') || [];
   records.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   if (records.length === 0) {
-    container.innerHTML = `<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">No production records found.</td></tr>`;
+    container.innerHTML = `<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">Koi production record nahi hai.</td></tr>`;
     return;
   }
 
@@ -1147,11 +736,11 @@ function renderProductionTable() {
     <tr>
       <td><strong>${escapeHtml(p.productionNo)}</strong><br><small style="color:var(--text-muted);">${formatDate(p.date)}</small></td>
       <td><span class="badge badge-mineral">${escapeHtml(p.mineral)}</span></td>
-      <td>${escapeHtml(p.warehouse)}<br><small>${escapeHtml(p.machine)}</small></td>
       <td>${formatKG(p.inputQuantity)} ${p.unit}</td>
       <td style="color:var(--crimson);">${formatKG(p.wastageQuantity)} ${p.unit}</td>
       <td style="color:var(--emerald);font-weight:700;">+${formatKG(p.readyQuantity)} ${p.unit}</td>
-      <td>${p.bags ? `${p.bags} bags × ${p.bagWeight} kg` : 'Bulk'}</td>
+      <td>${p.bags ? `${p.bags} bags` : 'Bulk'}</td>
+      <td>${escapeHtml(p.machine)}</td>
       <td>
         <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deleteProduction('${escapeHtml(p.id)}')"><i class="fas fa-trash-alt"></i></button>
       </td>
@@ -1163,66 +752,45 @@ function deleteProduction(id) {
   const p = DB.findById('exp_production', id);
   if (!p) return;
 
-  showConfirm(`Delete Production Entry "${p.productionNo}"? Ready stock created by this batch will be adjusted.`, () => {
-    // Check if sales bookings are using ready stock from this production
-    const readyStock = DB.filter('exp_ready_stock', rs => rs.productionNo === p.productionNo);
-    readyStock.forEach(rs => DB.remove('exp_ready_stock', rs.id));
+  showConfirm(`Delete Production Batch "${p.productionNo}"?`, () => {
     DB.remove('exp_production', id);
-
-    showToast('Production entry deleted.', 'success');
+    showToast('Production entry delete ho gayi.', 'success');
     populateDropdowns();
     renderProductionTable();
+    renderWarehouseStockBanner();
     renderReadyStockTable();
     renderExportDashboard();
   });
 }
 
+/* =============================================
+   4. READY STOCK (TAYAR MAAL)
+   ============================================= */
 function getExpReadyStockSummary() {
-  const readyBatches = DB.get('exp_ready_stock') || [];
-  const salesBookings = DB.get('exp_sales_bookings') || [];
+  const productions = DB.get('exp_production') || [];
+  const sales = DB.get('exp_sales_bookings') || [];
 
-  // Group by Mineral
   const summary = {};
-  readyBatches.forEach(b => {
-    const min = b.mineral;
-    if (!summary[min]) {
-      summary[min] = { mineral: min, totalTon: 0, totalKG: 0, bags: 0, reservedTon: 0, reservedKG: 0 };
-    }
-    const q = Number(b.quantity) || 0;
-    if (b.unit === 'TON') {
-      summary[min].totalTon += q;
-      summary[min].totalKG += q * 1000;
-    } else {
-      summary[min].totalKG += q;
-      summary[min].totalTon += q / 1000;
-    }
-    summary[min].bags += (Number(b.bags) || 0);
+  productions.forEach(p => {
+    const min = p.mineral;
+    if (!summary[min]) summary[min] = { mineral: min, totalReadyTon: 0, soldTon: 0 };
+    const q = Number(p.readyQuantity) || 0;
+    summary[min].totalReadyTon += (p.unit === 'TON' ? q : q / 1000.0);
   });
 
-  // Calculate booked/reserved from sales bookings
-  salesBookings.forEach(sb => {
-    const min = sb.mineral;
+  sales.forEach(s => {
+    const min = s.mineral;
     if (summary[min]) {
-      const q = Number(sb.quantity) || 0;
-      if (sb.unit === 'TON') {
-        summary[min].reservedTon += q;
-        summary[min].reservedKG += q * 1000;
-      } else {
-        summary[min].reservedKG += q;
-        summary[min].reservedTon += q / 1000;
-      }
+      const q = Number(s.quantity) || 0;
+      summary[min].soldTon += (s.unit === 'TON' ? q : q / 1000.0);
     }
   });
 
   return Object.values(summary).map(s => ({
     mineral: s.mineral,
-    totalTon: s.totalTon,
-    totalKG: s.totalKG,
-    reservedTon: s.reservedTon,
-    reservedKG: s.reservedKG,
-    availableTon: Math.max(0, s.totalTon - s.reservedTon),
-    availableKG: Math.max(0, s.totalKG - s.reservedKG),
-    bags: s.bags
+    totalReadyTon: s.totalReadyTon,
+    soldTon: s.soldTon,
+    availableTon: Math.max(0, s.totalReadyTon - s.soldTon)
   }));
 }
 
@@ -1230,273 +798,63 @@ function renderReadyStockTable() {
   const container = document.getElementById('readyStockTableBody');
   if (!container) return;
 
-  const stocks = getExpReadyStockSummary();
-
-  if (stocks.length === 0) {
-    container.innerHTML = `<tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted);">No ready stock available. Process minerals in Production.</td></tr>`;
+  const list = getExpReadyStockSummary();
+  if (list.length === 0) {
+    container.innerHTML = `<tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted);">Koi ready stock nahi hai. Production karke maal tayar karein.</td></tr>`;
     return;
   }
 
-  container.innerHTML = stocks.map(s => `
+  container.innerHTML = list.map(s => `
     <tr>
       <td><span class="badge badge-mineral" style="font-size:13px;">${escapeHtml(s.mineral)}</span></td>
-      <td><strong>${formatTON(s.totalTon)} TON</strong><br><small style="color:var(--text-muted);">${formatKG(s.totalKG)} KG</small></td>
-      <td>${s.bags ? `${formatKG(s.bags)} Bags` : 'Bulk / Loose'}</td>
-      <td style="color:var(--copper);font-weight:600;">${formatTON(s.reservedTon)} TON</td>
+      <td><strong>${formatTON(s.totalReadyTon)} TON</strong></td>
+      <td style="color:var(--copper);">${formatTON(s.soldTon)} TON</td>
       <td style="color:var(--emerald);font-weight:800;font-size:14px;">${formatTON(s.availableTon)} TON</td>
       <td>
         ${s.availableTon > 0 
-          ? '<span class="badge badge-status-delivered">Available for Export</span>' 
-          : '<span class="badge badge-status-booked">Fully Reserved</span>'}
+          ? '<span class="badge badge-status-delivered">Stock Maujood Hai (Sell kar sakte hain)</span>' 
+          : '<span class="badge badge-status-booked">Pura Bik Chuka Hai</span>'}
       </td>
     </tr>
   `).join('');
 }
 
 /* =============================================
-   MODULE 6: EXPORT CUSTOMERS / BUYERS
-   ============================================= */
-function saveCustomer() {
-  const name = sanitizeInput(document.getElementById('custName')?.value || '');
-  const country = sanitizeInput(document.getElementById('custCountry')?.value || '');
-  const port = sanitizeInput(document.getElementById('custPort')?.value || '');
-  const currency = document.getElementById('custCurrency')?.value || 'USD';
-  const contact = sanitizeInput(document.getElementById('custContact')?.value || '');
-  const email = sanitizeInput(document.getElementById('custEmail')?.value || '');
-  const address = sanitizeInput(document.getElementById('custAddress')?.value || '');
-
-  if (!name) { showToast('Customer/Company Name is required.', 'error'); return; }
-
-  DB.add('exp_customers', {
-    name,
-    country: country || 'International',
-    port,
-    currency,
-    contact,
-    email,
-    address
-  });
-
-  showToast(`Export Customer "${name}" registered successfully!`, 'success');
-
-  document.getElementById('expCustomerForm').reset();
-  populateDropdowns();
-  renderCustomersList();
-  renderExportDashboard();
-}
-
-function renderCustomersList() {
-  const container = document.getElementById('customersCardsGrid');
-  if (!container) return;
-
-  const customers = DB.get('exp_customers') || [];
-
-  if (customers.length === 0) {
-    container.innerHTML = `<div class="col-12 text-center py-5" style="color:var(--text-muted);"><i class="fas fa-users fa-3x mb-3"></i><p>No export buyers registered yet. Add your first foreign buyer above.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = customers.map(c => {
-    const stats = getCustomerFinancialSummary(c.id);
-    const balanceClass = stats.outstandingBalance > 0 ? 'color:var(--crimson);' : 'color:var(--emerald);';
-
-    return `
-      <div class="export-item-card">
-        <div class="export-item-card-header">
-          <div>
-            <div class="export-item-card-title">${escapeHtml(c.name)}</div>
-            <div class="export-item-card-sub"><i class="fas fa-globe"></i> ${escapeHtml(c.country)} ${c.port ? `• ${escapeHtml(c.port)}` : ''}</div>
-          </div>
-          <span class="badge badge-mineral">${escapeHtml(c.currency || 'USD')}</span>
-        </div>
-        <div class="export-item-body">
-          <div class="export-item-row">
-            <span class="lbl">Export Bookings:</span>
-            <span class="val">${stats.bookingCount} (${formatTON(stats.totalTon)} TON)</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Total Sales:</span>
-            <span class="val">PKR ${formatCurrency(stats.totalSalesPKR)}</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Customer Expenses:</span>
-            <span class="val">PKR ${formatCurrency(stats.totalExpensesPKR)}</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Payments Received:</span>
-            <span class="val" style="color:var(--emerald);">PKR ${formatCurrency(stats.totalPaymentsPKR)}</span>
-          </div>
-          <div class="export-item-row" style="border-top:1px dashed var(--color-border);padding-top:6px;margin-top:4px;">
-            <span class="lbl"><strong>Outstanding Balance:</strong></span>
-            <span class="val" style="${balanceClass};font-size:14px;"><strong>PKR ${formatCurrency(stats.outstandingBalance)}</strong></span>
-          </div>
-        </div>
-        <div class="export-item-actions">
-          <button class="btn btn-secondary btn-sm" onclick="openCustomerLedgerModal('${escapeHtml(c.id)}')"><i class="fas fa-file-invoice"></i> Ledger</button>
-          <button class="btn btn-secondary btn-sm btn-action-danger" onclick="deleteCustomer('${escapeHtml(c.id)}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function getCustomerFinancialSummary(customerId) {
-  const salesBookings = DB.filter('exp_sales_bookings', s => s.customerId === customerId);
-  const shipmentExpenses = DB.filter('exp_shipment_expenses', e => e.customerId === customerId && e.paymentMethod === 'customer_account');
-  const payments = DB.filter('exp_payments', p => p.customerId === customerId);
-
-  const totalSalesPKR = salesBookings.reduce((s, b) => s + (Number(b.totalSaleAmount) || 0), 0);
-  const totalExpensesPKR = shipmentExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalPaymentsPKR = payments.reduce((s, p) => s + (Number(p.pkrAmount) || 0), 0);
-
-  const totalTon = salesBookings.reduce((s, b) => s + (b.unit === 'TON' ? (Number(b.quantity) || 0) : (Number(b.quantity) || 0) / 1000), 0);
-  const outstandingBalance = (totalSalesPKR + totalExpensesPKR) - totalPaymentsPKR;
-
-  return {
-    bookingCount: salesBookings.length,
-    totalTon,
-    totalSalesPKR,
-    totalExpensesPKR,
-    totalPaymentsPKR,
-    outstandingBalance
-  };
-}
-
-function deleteCustomer(id) {
-  const c = DB.findById('exp_customers', id);
-  if (!c) return;
-
-  showConfirm(`Delete Customer "${c.name}"?`, () => {
-    DB.remove('exp_customers', id);
-    showToast('Customer deleted.', 'success');
-    populateDropdowns();
-    renderCustomersList();
-    renderExportDashboard();
-  });
-}
-
-function openCustomerLedgerModal(customerId) {
-  const cust = DB.findById('exp_customers', customerId);
-  if (!cust) return;
-
-  const titleEl = document.getElementById('custLedgerModalTitle');
-  if (titleEl) titleEl.textContent = `${cust.name} (${cust.country || 'Export'}) — Statement of Account`;
-
-  const tbody = document.getElementById('custLedgerTableBody');
-  if (!tbody) return;
-
-  const salesBookings = DB.filter('exp_sales_bookings', s => s.customerId === customerId);
-  const shipmentExpenses = DB.filter('exp_shipment_expenses', e => e.customerId === customerId && e.paymentMethod === 'customer_account');
-  const payments = DB.filter('exp_payments', p => p.customerId === customerId);
-
-  // Combine into single chronological ledger
-  const entries = [];
-  salesBookings.forEach(sb => {
-    entries.push({
-      date: sb.date,
-      type: 'Sales Booking',
-      ref: sb.bookingNo,
-      desc: `Export Sale: ${sb.mineral} (${formatKG(sb.quantity)} ${sb.unit})`,
-      debit: Number(sb.totalSaleAmount) || 0,
-      credit: 0
-    });
-  });
-
-  shipmentExpenses.forEach(se => {
-    entries.push({
-      date: se.date,
-      type: 'Billed Expense',
-      ref: se.containerNo || 'EXP-EXP',
-      desc: `Shipment ${se.expenseType}`,
-      debit: Number(se.amount) || 0,
-      credit: 0
-    });
-  });
-
-  payments.forEach(p => {
-    entries.push({
-      date: p.date,
-      type: 'Payment Received',
-      ref: p.receiptNo || 'PAY-RCV',
-      desc: `Foreign Payment: ${p.currency} ${formatCurrency(p.foreignAmount)} @ ${p.exchangeRate} (${p.bankOrCash || 'Bank'})`,
-      debit: 0,
-      credit: Number(p.pkrAmount) || 0
-    });
-  });
-
-  entries.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-
-  let runningBal = 0;
-  tbody.innerHTML = entries.map(e => {
-    runningBal += (e.debit - e.credit);
-    return `
-      <tr>
-        <td>${formatDate(e.date)}</td>
-        <td><strong>${escapeHtml(e.type)}</strong><br><small style="color:var(--text-muted);">${escapeHtml(e.ref)}</small></td>
-        <td>${escapeHtml(e.desc)}</td>
-        <td style="color:var(--crimson);">${e.debit > 0 ? 'PKR ' + formatCurrency(e.debit) : '—'}</td>
-        <td style="color:var(--emerald);">${e.credit > 0 ? 'PKR ' + formatCurrency(e.credit) : '—'}</td>
-        <td><strong>PKR ${formatCurrency(runningBal)}</strong></td>
-      </tr>
-    `;
-  }).join('');
-
-  const stats = getCustomerFinancialSummary(customerId);
-  const sumEl = document.getElementById('custLedgerSummaryTotal');
-  if (sumEl) {
-    sumEl.innerHTML = `
-      <div style="display:flex;justify-content:space-between;gap:20px;font-size:13px;margin-top:12px;padding:12px;background:var(--color-surface-2);border-radius:var(--radius-md);">
-        <div>Total Sales: <strong>PKR ${formatCurrency(stats.totalSalesPKR)}</strong></div>
-        <div>Customer Expenses: <strong>PKR ${formatCurrency(stats.totalExpensesPKR)}</strong></div>
-        <div>Payments Received: <strong style="color:var(--emerald);">PKR ${formatCurrency(stats.totalPaymentsPKR)}</strong></div>
-        <div>Net Receivable: <strong style="color:var(--crimson);font-size:14px;">PKR ${formatCurrency(stats.outstandingBalance)}</strong></div>
-      </div>
-    `;
-  }
-
-  openModal('custLedgerModal');
-}
-
-/* =============================================
-   MODULE 7: SALES / EXPORT BOOKING
+   5. BUYERS & SALE (MAAL BECHNA)
    ============================================= */
 function saveSalesBooking() {
   const sbNo = sanitizeInput(document.getElementById('sbBookingNo')?.value || '');
   const dateVal = document.getElementById('sbDate')?.value || today();
   const customerId = document.getElementById('sbCustomer')?.value || '';
-  const mineral = sanitizeInput(document.getElementById('sbMineral')?.value || '');
+  const mineral = document.getElementById('sbMineralSelect')?.value || '';
   const quantity = parseFloat(document.getElementById('sbQuantity')?.value) || 0;
   const unit = document.getElementById('sbUnit')?.value || 'TON';
-  const bags = parseInt(document.getElementById('sbBags')?.value) || 0;
-  const bagWeight = parseFloat(document.getElementById('sbBagWeight')?.value) || 50;
   const rate = parseFloat(document.getElementById('sbRate')?.value) || 0;
   const totalSaleAmount = quantity * rate;
   const paymentTerms = document.getElementById('sbPaymentTerms')?.value || 'credit';
   const destinationCountry = sanitizeInput(document.getElementById('sbCountry')?.value || '');
-  const destinationPort = sanitizeInput(document.getElementById('sbPort')?.value || '');
   const remarks = sanitizeInput(document.getElementById('sbRemarks')?.value || '');
 
-  if (!sbNo) { showToast('Sales Booking number is required.', 'error'); return; }
-  if (!customerId) { showToast('Please select a Customer / Buyer.', 'error'); return; }
-  if (!mineral) { showToast('Please enter Mineral Type.', 'error'); return; }
-  if (quantity <= 0) { showToast('Quantity must be greater than 0.', 'error'); return; }
-  if (rate <= 0) { showToast('Rate must be greater than 0.', 'error'); return; }
+  if (!customerId) { showToast('Buyer select karein ya naya buyer add karein.', 'error'); return; }
+  if (!mineral) { showToast('Ready mineral select karein.', 'error'); return; }
+  if (quantity <= 0) { showToast('Quantity 0 se bari honi chahiye.', 'error'); return; }
+  if (rate <= 0) { showToast('Rate enter karein.', 'error'); return; }
 
-  // Check Ready Stock availability (Negative stock prevention)
-  const readyStocks = getExpReadyStockSummary();
-  const stock = readyStocks.find(s => s.mineral.toLowerCase() === mineral.toLowerCase());
-  const availableTon = stock ? stock.availableTon : 0;
-  const reqTon = unit === 'TON' ? quantity : quantity / 1000;
+  // Negative Stock Check
+  const stocks = getExpReadyStockSummary();
+  const stock = stocks.find(s => s.mineral === mineral);
+  const availTon = stock ? stock.availableTon : 0;
+  const reqTon = unit === 'TON' ? quantity : quantity / 1000.0;
 
-  if (reqTon > availableTon + 0.001) {
-    showToast(`Insufficient ready stock! Available for ${mineral}: ${formatTON(availableTon)} TON. Requested: ${formatTON(reqTon)} TON.`, 'warning');
+  if (reqTon > availTon + 0.001) {
+    showToast(`Tayar maal kam hai! Available: ${formatTON(availTon)} TON.`, 'warning');
     return;
   }
 
   const customer = DB.findById('exp_customers', customerId);
-  const customerName = customer ? customer.name : 'Unknown Customer';
+  const customerName = customer ? customer.name : 'Buyer';
 
-  const booking = DB.add('exp_sales_bookings', {
+  const sale = DB.add('exp_sales_bookings', {
     bookingNo: sbNo,
     date: dateVal,
     customerId,
@@ -1504,19 +862,15 @@ function saveSalesBooking() {
     mineral,
     quantity,
     unit,
-    bags,
-    bagWeight,
     rate,
     totalSaleAmount,
     paymentTerms,
-    destinationCountry: destinationCountry || (customer ? customer.country : ''),
-    destinationPort: destinationPort || (customer ? customer.port : ''),
+    destinationCountry,
     remarks,
-    containerStatus: 'pending',
     month: dateVal.substring(0, 7)
   });
 
-  // Accounting Integration: If Cash sale, post Cash In entry to Income table safely
+  // Agar Cash Sale hai to Income mein Cash In ho
   if (paymentTerms === 'cash') {
     DB.add('income', {
       month: dateVal.substring(0, 7),
@@ -1525,17 +879,18 @@ function saveSalesBooking() {
       reference: sbNo,
       amount: totalSaleAmount,
       source: 'exp_sales_booking',
-      expSalesBookingId: booking.id
+      expSalesBookingId: sale.id
     });
   }
 
-  showToast(`Export Sales Booking ${sbNo} saved! Quantity reserved from Ready Stock.`, 'success');
+  showToast(`Sale Invoice ${sbNo} save ho gaya! Ready stock se minus ho gaya.`, 'success');
 
   document.getElementById('expSalesBookingForm').reset();
   setFormDefaults();
   populateDropdowns();
   renderSalesBookingsTable();
   renderReadyStockTable();
+  renderCustomersList();
   renderExportDashboard();
 }
 
@@ -1543,1221 +898,336 @@ function renderSalesBookingsTable() {
   const container = document.getElementById('sbTableBody');
   if (!container) return;
 
-  let bookings = DB.get('exp_sales_bookings') || [];
-  bookings.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const sales = DB.get('exp_sales_bookings') || [];
+  sales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-  if (bookings.length === 0) {
-    container.innerHTML = `<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted);">No Export Sales Bookings found.</td></tr>`;
+  if (sales.length === 0) {
+    container.innerHTML = `<tr><td colspan="9" class="text-center py-4" style="color:var(--text-muted);">Koi sale order nahi hai. Upar se sale karein.</td></tr>`;
     return;
   }
 
-  container.innerHTML = bookings.map(b => `
+  container.innerHTML = sales.map(s => `
     <tr>
-      <td><strong>${escapeHtml(b.bookingNo)}</strong><br><small style="color:var(--text-muted);">${formatDate(b.date)}</small></td>
-      <td><strong>${escapeHtml(b.customerName)}</strong></td>
-      <td><span class="badge badge-mineral">${escapeHtml(b.mineral)}</span></td>
-      <td>${formatKG(b.quantity)} <strong>${b.unit}</strong><br><small>${b.bags ? `${b.bags} bags` : ''}</small></td>
-      <td>PKR ${formatCurrency(b.rate)}/${b.unit}</td>
-      <td><strong>PKR ${formatCurrency(b.totalSaleAmount)}</strong></td>
-      <td>${b.paymentTerms === 'cash' ? '<span class="badge badge-status-cash">Cash Sale</span>' : '<span class="badge badge-status-credit">Credit Sale</span>'}</td>
-      <td>${escapeHtml(b.destinationCountry || '—')} ${b.destinationPort ? `(${escapeHtml(b.destinationPort)})` : ''}</td>
+      <td><strong>${escapeHtml(s.bookingNo)}</strong><br><small style="color:var(--text-muted);">${formatDate(s.date)}</small></td>
+      <td><strong>${escapeHtml(s.customerName)}</strong></td>
+      <td><span class="badge badge-mineral">${escapeHtml(s.mineral)}</span></td>
+      <td>${formatKG(s.quantity)} <strong>${s.unit}</strong></td>
+      <td>PKR ${formatCurrency(s.rate)}/${s.unit}</td>
+      <td><strong>PKR ${formatCurrency(s.totalSaleAmount)}</strong></td>
+      <td>${s.paymentTerms === 'cash' ? '<span class="badge badge-status-cash">Naqad (Cash)</span>' : '<span class="badge badge-status-credit">Udhaar (Credit)</span>'}</td>
       <td>
-        <div class="action-btn-group">
-          <button class="btn-action-icon" title="Print Order Slip" onclick="printExportSalesSlip('${escapeHtml(b.id)}')"><i class="fas fa-print"></i></button>
-          <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deleteSalesBooking('${escapeHtml(b.id)}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
+        <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deleteSalesBooking('${escapeHtml(s.id)}')"><i class="fas fa-trash-alt"></i></button>
       </td>
     </tr>
   `).join('');
 }
 
 function deleteSalesBooking(id) {
-  const b = DB.findById('exp_sales_bookings', id);
-  if (!b) return;
+  const s = DB.findById('exp_sales_bookings', id);
+  if (!s) return;
 
-  showConfirm(`Delete Sales Booking "${b.bookingNo}"? Ready stock reservation will be released.`, () => {
-    if (b.paymentTerms === 'cash') {
-      const linkedInc = DB.filter('income', i => i.reference === b.bookingNo || i.expSalesBookingId === id);
-      linkedInc.forEach(i => DB.remove('income', i.id));
+  showConfirm(`Delete Sale Order "${s.bookingNo}"? Ready stock wapas barh jayega.`, () => {
+    if (s.paymentTerms === 'cash') {
+      const linked = DB.filter('income', i => i.expSalesBookingId === id || i.reference === s.bookingNo);
+      linked.forEach(i => DB.remove('income', i.id));
     }
     DB.remove('exp_sales_bookings', id);
-    showToast('Sales booking deleted.', 'success');
+    showToast('Sale order delete ho gaya.', 'success');
     populateDropdowns();
     renderSalesBookingsTable();
     renderReadyStockTable();
-    renderExportDashboard();
-  });
-}
-
-/* =============================================
-   MODULE 8: CONTAINER MANAGEMENT
-   ============================================= */
-function saveContainer() {
-  const containerNo = sanitizeInput(document.getElementById('cntContainerNo')?.value || '');
-  const containerSize = document.getElementById('cntSize')?.value || '20ft';
-  const sealNo = sanitizeInput(document.getElementById('cntSealNo')?.value || '');
-  const salesBookingId = document.getElementById('cntSalesBookingId')?.value || '';
-  const customerId = document.getElementById('cntCustomer')?.value || '';
-  const mineral = sanitizeInput(document.getElementById('cntMineral')?.value || '');
-  const bags = parseInt(document.getElementById('cntBags')?.value) || 0;
-  const bagWeight = parseFloat(document.getElementById('cntBagWeight')?.value) || 50;
-  const totalKG = parseFloat(document.getElementById('cntTotalKG')?.value) || (bags * bagWeight);
-  const totalTon = parseFloat(document.getElementById('cntTotalTon')?.value) || (totalKG / 1000);
-  const vehicle = sanitizeInput(document.getElementById('cntVehicle')?.value || '');
-  const stuffingDate = document.getElementById('cntStuffingDate')?.value || today();
-  const port = sanitizeInput(document.getElementById('cntPort')?.value || 'Karachi Port');
-  const destinationCountry = sanitizeInput(document.getElementById('cntDestinationCountry')?.value || '');
-  const shipmentDate = document.getElementById('cntShipmentDate')?.value || '';
-  const status = document.getElementById('cntStatus')?.value || 'Ready';
-
-  if (!containerNo) { showToast('Container Number is required.', 'error'); return; }
-  if (bags <= 0) { showToast('Number of bags must be greater than 0.', 'error'); return; }
-
-  const customer = DB.findById('exp_customers', customerId);
-  const customerName = customer ? customer.name : 'Export Buyer';
-
-  const sb = DB.findById('exp_sales_bookings', salesBookingId);
-  const bookingNo = sb ? sb.bookingNo : 'Direct';
-
-  DB.add('exp_containers', {
-    containerNo,
-    containerSize,
-    sealNo,
-    salesBookingId,
-    bookingNo,
-    customerId,
-    customerName,
-    mineral,
-    bags,
-    bagWeight,
-    totalKG,
-    totalTon,
-    vehicle,
-    stuffingDate,
-    port,
-    destinationCountry,
-    shipmentDate,
-    status,
-    month: stuffingDate.substring(0, 7)
-  });
-
-  showToast(`Container ${containerNo} (${totalTon} TON) registered!`, 'success');
-
-  document.getElementById('expContainerForm').reset();
-  setFormDefaults();
-  populateDropdowns();
-  renderContainersView();
-  renderExportDashboard();
-}
-
-function renderContainersView() {
-  const container = document.getElementById('containersGrid');
-  if (!container) return;
-
-  let list = DB.get('exp_containers') || [];
-  list.sort((a, b) => (b.stuffingDate || '').localeCompare(a.stuffingDate || ''));
-
-  if (list.length === 0) {
-    container.innerHTML = `<div class="col-12 text-center py-5" style="color:var(--text-muted);"><i class="fas fa-ship fa-3x mb-3"></i><p>No export containers created yet.</p></div>`;
-    return;
-  }
-
-  container.innerHTML = list.map(c => {
-    const statusClass = `badge-status-${(c.status || 'ready').toLowerCase()}`;
-    const steps = ['Ready', 'Booked', 'Stuffed', 'Shipped', 'Delivered'];
-    const currentIdx = steps.indexOf(c.status || 'Ready');
-
-    return `
-      <div class="export-item-card">
-        <div class="export-item-card-header">
-          <div>
-            <div class="export-item-card-title"><i class="fas fa-box"></i> ${escapeHtml(c.containerNo)}</div>
-            <div class="export-item-card-sub">${escapeHtml(c.containerSize)} • Seal: ${escapeHtml(c.sealNo || '—')}</div>
-          </div>
-          <span class="badge ${statusClass}">${escapeHtml(c.status)}</span>
-        </div>
-
-        <div class="container-stepper">
-          ${steps.map((st, i) => `
-            <div class="stepper-step ${i < currentIdx ? 'completed' : (i === currentIdx ? 'active' : '')}">
-              <div class="stepper-circle">${i < currentIdx ? '<i class="fas fa-check"></i>' : (i + 1)}</div>
-              <span>${st}</span>
-            </div>
-            ${i < steps.length - 1 ? `<div class="stepper-line ${i < currentIdx ? 'completed' : ''}"></div>` : ''}
-          `).join('')}
-        </div>
-
-        <div class="export-item-body">
-          <div class="export-item-row">
-            <span class="lbl">Customer / Order:</span>
-            <span class="val">${escapeHtml(c.customerName)} (${escapeHtml(c.bookingNo)})</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Mineral & Cargo:</span>
-            <span class="val"><span class="badge badge-mineral">${escapeHtml(c.mineral)}</span> ${c.bags} bags × ${c.bagWeight} kg</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Total Weight:</span>
-            <span class="val"><strong>${formatTON(c.totalTon)} TON</strong> (${formatKG(c.totalKG)} KG)</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Route & Port:</span>
-            <span class="val">${escapeHtml(c.port)} → ${escapeHtml(c.destinationCountry || 'Intl')}</span>
-          </div>
-          <div class="export-item-row">
-            <span class="lbl">Stuffing / Ship Date:</span>
-            <span class="val">${formatDate(c.stuffingDate)} ${c.shipmentDate ? `• Ship: ${formatDate(c.shipmentDate)}` : ''}</span>
-          </div>
-        </div>
-
-        <div class="export-item-actions">
-          <select class="form-control" style="font-size:12px;padding:4px 8px;width:auto;" onchange="updateContainerStatus('${escapeHtml(c.id)}', this.value)">
-            ${steps.map(st => `<option value="${st}" ${c.status === st ? 'selected' : ''}>Set Status: ${st}</option>`).join('')}
-          </select>
-          <button class="btn btn-secondary btn-sm" onclick="printContainerManifest('${escapeHtml(c.id)}')"><i class="fas fa-print"></i> Manifest</button>
-          <button class="btn btn-secondary btn-sm btn-action-danger" onclick="deleteContainer('${escapeHtml(c.id)}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function updateContainerStatus(id, newStatus) {
-  DB.update('exp_containers', id, { status: newStatus });
-  showToast(`Container status updated to "${newStatus}"!`, 'success');
-  renderContainersView();
-  renderExportDashboard();
-}
-
-function deleteContainer(id) {
-  const c = DB.findById('exp_containers', id);
-  if (!c) return;
-
-  showConfirm(`Delete Container "${c.containerNo}"?`, () => {
-    DB.remove('exp_containers', id);
-    showToast('Container deleted.', 'success');
-    populateDropdowns();
-    renderContainersView();
-    renderExportDashboard();
-  });
-}
-
-/* =============================================
-   MODULE 9: EXPORT SHIPMENT EXPENSES
-   ============================================= */
-function saveShipmentExpense() {
-  const salesBookingId = document.getElementById('shipExpSalesBookingId')?.value || '';
-  const containerId = document.getElementById('shipExpContainerId')?.value || '';
-  const expenseType = document.getElementById('shipExpType')?.value || 'Customs';
-  const dateVal = document.getElementById('shipExpDate')?.value || today();
-  const amount = parseFloat(document.getElementById('shipExpAmount')?.value) || 0;
-  const paymentMethod = document.getElementById('shipExpPaymentMethod')?.value || 'cash';
-  const customerId = document.getElementById('shipExpCustomer')?.value || '';
-  const remarks = sanitizeInput(document.getElementById('shipExpRemarks')?.value || '');
-
-  if (amount <= 0) { showToast('Amount must be greater than 0.', 'error'); return; }
-
-  const sb = DB.findById('exp_sales_bookings', salesBookingId);
-  const cnt = DB.findById('exp_containers', containerId);
-  const targetCustId = customerId || (sb ? sb.customerId : (cnt ? cnt.customerId : ''));
-  const cust = DB.findById('exp_customers', targetCustId);
-  const customerName = cust ? cust.name : (sb ? sb.customerName : 'Export Buyer');
-
-  const exp = DB.add('exp_shipment_expenses', {
-    salesBookingId,
-    bookingNo: sb ? sb.bookingNo : '—',
-    containerId,
-    containerNo: cnt ? cnt.containerNo : '—',
-    expenseType,
-    date: dateVal,
-    amount,
-    paymentMethod,
-    customerId: targetCustId,
-    customerName,
-    remarks,
-    month: dateVal.substring(0, 7)
-  });
-
-  // If Cash payment, post Cash Out entry to Income & Expense table
-  if (paymentMethod === 'cash') {
-    DB.add('expenses', {
-      month: dateVal.substring(0, 7),
-      date: dateVal,
-      description: `Export Expense (${expenseType}): ${cnt ? cnt.containerNo : (sb ? sb.bookingNo : '')} [${customerName}]`,
-      reference: cnt ? cnt.containerNo : (sb ? sb.bookingNo : 'EXP-SHIP-EXP'),
-      amount,
-      source: 'exp_shipment_expense',
-      expShipExpId: exp.id
-    });
-  }
-
-  showToast(`Shipment Expense of PKR ${formatCurrency(amount)} logged!`, 'success');
-
-  document.getElementById('expShipmentExpenseForm').reset();
-  setFormDefaults();
-  renderShipmentExpensesTable();
-  renderExportDashboard();
-}
-
-function renderShipmentExpensesTable() {
-  const container = document.getElementById('shipExpTableBody');
-  if (!container) return;
-
-  let list = DB.get('exp_shipment_expenses') || [];
-  list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-  if (list.length === 0) {
-    container.innerHTML = `<tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted);">No export shipment expenses recorded.</td></tr>`;
-    return;
-  }
-
-  container.innerHTML = list.map(e => `
-    <tr>
-      <td>${formatDate(e.date)}</td>
-      <td><strong>${escapeHtml(e.expenseType)}</strong></td>
-      <td>${escapeHtml(e.bookingNo || '—')}<br><small>${escapeHtml(e.containerNo || '')}</small></td>
-      <td><strong>PKR ${formatCurrency(e.amount)}</strong></td>
-      <td>${e.paymentMethod === 'cash' ? '<span class="badge badge-status-cash">Cash Out</span>' : '<span class="badge badge-status-credit">Customer Ledger</span>'}</td>
-      <td>${escapeHtml(e.customerName || '—')}<br><small style="color:var(--text-muted);">${escapeHtml(e.remarks || '')}</small></td>
-      <td>
-        <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deleteShipmentExpense('${escapeHtml(e.id)}')"><i class="fas fa-trash-alt"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function deleteShipmentExpense(id) {
-  const e = DB.findById('exp_shipment_expenses', id);
-  if (!e) return;
-
-  showConfirm('Delete this shipment expense?', () => {
-    if (e.paymentMethod === 'cash') {
-      const linked = DB.filter('expenses', exp => exp.expShipExpId === id);
-      linked.forEach(exp => DB.remove('expenses', exp.id));
-    }
-    DB.remove('exp_shipment_expenses', id);
-    showToast('Expense deleted.', 'success');
-    renderShipmentExpensesTable();
-    renderExportDashboard();
-  });
-}
-
-/* =============================================
-   MODULE 10: FOREIGN CUSTOMER PAYMENTS
-   ============================================= */
-function savePayment() {
-  const receiptNo = sanitizeInput(document.getElementById('payReceiptNo')?.value || '');
-  const customerId = document.getElementById('payCustomer')?.value || '';
-  const salesBookingId = document.getElementById('paySalesBookingId')?.value || '';
-  const containerId = document.getElementById('payContainerId')?.value || '';
-  const currency = document.getElementById('payCurrency')?.value || 'USD';
-  const foreignAmount = parseFloat(document.getElementById('payForeignAmount')?.value) || 0;
-  const exchangeRate = parseFloat(document.getElementById('payExchangeRate')?.value) || 1;
-  const pkrAmount = foreignAmount * exchangeRate;
-  const dateVal = document.getElementById('payDate')?.value || today();
-  const bankOrCash = document.getElementById('payBankOrCash')?.value || 'Bank Transfer';
-  const remarks = sanitizeInput(document.getElementById('payRemarks')?.value || '');
-
-  if (!customerId) { showToast('Please select a Customer.', 'error'); return; }
-  if (foreignAmount <= 0) { showToast('Foreign amount must be greater than 0.', 'error'); return; }
-  if (exchangeRate <= 0) { showToast('Exchange rate must be valid.', 'error'); return; }
-
-  const customer = DB.findById('exp_customers', customerId);
-  const customerName = customer ? customer.name : 'Customer';
-
-  const sb = DB.findById('exp_sales_bookings', salesBookingId);
-  const cnt = DB.findById('exp_containers', containerId);
-
-  const payment = DB.add('exp_payments', {
-    receiptNo: receiptNo || generateExpPaymentNo(),
-    customerId,
-    customerName,
-    salesBookingId,
-    bookingNo: sb ? sb.bookingNo : '—',
-    containerId,
-    containerNo: cnt ? cnt.containerNo : '—',
-    currency,
-    foreignAmount,
-    exchangeRate,
-    pkrAmount,
-    date: dateVal,
-    bankOrCash,
-    remarks,
-    month: dateVal.substring(0, 7)
-  });
-
-  // Post Income Entry directly into General Income store
-  DB.add('income', {
-    month: dateVal.substring(0, 7),
-    date: dateVal,
-    description: `Export Payment Received: ${customerName} (${currency} ${formatCurrency(foreignAmount)} @ ${exchangeRate}) [${payment.receiptNo}]`,
-    reference: payment.receiptNo,
-    amount: pkrAmount,
-    source: 'exp_payment',
-    expPaymentId: payment.id
-  });
-
-  showToast(`Payment of PKR ${formatCurrency(pkrAmount)} received & credited!`, 'success');
-
-  document.getElementById('expPaymentForm').reset();
-  setFormDefaults();
-  renderPaymentsTable();
-  renderCustomersList();
-  renderExportDashboard();
-}
-
-function renderPaymentsTable() {
-  const container = document.getElementById('paymentsTableBody');
-  if (!container) return;
-
-  let list = DB.get('exp_payments') || [];
-  list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-  if (list.length === 0) {
-    container.innerHTML = `<tr><td colspan="8" class="text-center py-4" style="color:var(--text-muted);">No foreign payments recorded yet.</td></tr>`;
-    return;
-  }
-
-  container.innerHTML = list.map(p => `
-    <tr>
-      <td><strong>${escapeHtml(p.receiptNo)}</strong><br><small style="color:var(--text-muted);">${formatDate(p.date)}</small></td>
-      <td><strong>${escapeHtml(p.customerName)}</strong></td>
-      <td>${escapeHtml(p.bookingNo || '—')}</td>
-      <td><span class="badge badge-mineral">${escapeHtml(p.currency)}</span> <strong>${formatCurrency(p.foreignAmount)}</strong></td>
-      <td>@ ${p.exchangeRate}</td>
-      <td style="color:var(--emerald);font-weight:800;font-size:13.5px;">PKR ${formatCurrency(p.pkrAmount)}</td>
-      <td><span class="badge badge-status-ready">${escapeHtml(p.bankOrCash)}</span></td>
-      <td>
-        <div class="action-btn-group">
-          <button class="btn-action-icon" title="Print Receipt" onclick="printPaymentReceiptSlip('${escapeHtml(p.id)}')"><i class="fas fa-print"></i></button>
-          <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deletePayment('${escapeHtml(p.id)}')"><i class="fas fa-trash-alt"></i></button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function deletePayment(id) {
-  const p = DB.findById('exp_payments', id);
-  if (!p) return;
-
-  showConfirm(`Delete Payment "${p.receiptNo}"?`, () => {
-    const linkedInc = DB.filter('income', i => i.expPaymentId === id || (i.reference === p.receiptNo && i.source === 'exp_payment'));
-    linkedInc.forEach(i => DB.remove('income', i.id));
-    DB.remove('exp_payments', id);
-
-    showToast('Payment voucher removed.', 'success');
-    renderPaymentsTable();
     renderCustomersList();
     renderExportDashboard();
   });
 }
 
+function renderCustomersList() {
+  const container = document.getElementById('customersCardsGrid');
+  if (!container) return;
+
+  const customers = DB.get('exp_customers') || [];
+  if (customers.length === 0) {
+    container.innerHTML = `<div class="col-12 text-center py-4" style="color:var(--text-muted);">Koi buyer registered nahi hai.</div>`;
+    return;
+  }
+
+  container.innerHTML = customers.map(c => {
+    const sales = DB.filter('exp_sales_bookings', s => s.customerId === c.id);
+    const totalSalesPKR = sales.reduce((sum, s) => sum + (Number(s.totalSaleAmount) || 0), 0);
+    const creditSalesPKR = sales.filter(s => s.paymentTerms === 'credit')
+                                .reduce((sum, s) => sum + (Number(s.totalSaleAmount) || 0), 0);
+    const totalTon = sales.reduce((sum, s) => sum + (s.unit === 'TON' ? (Number(s.quantity) || 0) : (Number(s.quantity) || 0) / 1000.0), 0);
+
+    return `
+      <div class="export-item-card">
+        <div class="export-item-card-header">
+          <div>
+            <div class="export-item-card-title"><i class="fas fa-user-tie" style="color:var(--teal);margin-right:6px;"></i>${escapeHtml(c.name)}</div>
+            <div class="export-item-card-sub"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(c.country)} • <i class="fas fa-phone"></i> ${escapeHtml(c.contact || '—')}</div>
+          </div>
+        </div>
+        <div class="export-item-body">
+          <div class="export-item-row">
+            <span class="lbl">Total Maal Diya:</span>
+            <span class="val">${formatTON(totalTon)} TON (${sales.length} Orders)</span>
+          </div>
+          <div class="export-item-row">
+            <span class="lbl">Total Sale Value:</span>
+            <span class="val">PKR ${formatCurrency(totalSalesPKR)}</span>
+          </div>
+          <div class="export-item-row" style="border-top:1px dashed var(--color-border);padding-top:6px;margin-top:4px;">
+            <span class="lbl"><strong>Baqi Udhaar (Receivable):</strong></span>
+            <span class="val" style="color:var(--crimson);font-size:14px;"><strong>PKR ${formatCurrency(creditSalesPKR)}</strong></span>
+          </div>
+        </div>
+        <div class="export-item-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openBuyerLedgerModal('${escapeHtml(c.id)}')"><i class="fas fa-file-invoice"></i> Khata Record</button>
+          <button class="btn btn-secondary btn-sm btn-action-danger" onclick="deleteCustomer('${escapeHtml(c.id)}')"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteCustomer(id) {
+  const c = DB.findById('exp_customers', id);
+  if (!c) return;
+
+  showConfirm(`Delete Buyer "${c.name}"?`, () => {
+    DB.remove('exp_customers', id);
+    showToast('Buyer delete ho gaya.', 'success');
+    populateDropdowns();
+    renderCustomersList();
+    renderExportDashboard();
+  });
+}
+
+function openBuyerLedgerModal(customerId) {
+  const c = DB.findById('exp_customers', customerId);
+  if (!c) return;
+
+  document.getElementById('custLedgerModalTitle').textContent = `${c.name} — Khata Record (Statement of Account)`;
+  const tbody = document.getElementById('custLedgerTableBody');
+  if (!tbody) return;
+
+  const sales = DB.filter('exp_sales_bookings', s => s.customerId === customerId);
+  sales.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  let runningBal = 0;
+  tbody.innerHTML = sales.map(s => {
+    const saleAmt = Number(s.totalSaleAmount) || 0;
+    const paidAmt = s.paymentTerms === 'cash' ? saleAmt : 0;
+    runningBal += (saleAmt - paidAmt);
+
+    return `
+      <tr>
+        <td>${formatDate(s.date)}</td>
+        <td><strong>${escapeHtml(s.bookingNo)}</strong></td>
+        <td>${escapeHtml(s.mineral)} (${formatKG(s.quantity)} ${s.unit}) [${s.paymentTerms.toUpperCase()}]</td>
+        <td style="color:var(--crimson);">PKR ${formatCurrency(saleAmt)}</td>
+        <td style="color:var(--emerald);">${paidAmt > 0 ? 'PKR ' + formatCurrency(paidAmt) : '—'}</td>
+        <td><strong>PKR ${formatCurrency(runningBal)}</strong></td>
+      </tr>
+    `;
+  }).join('');
+
+  const totalSales = sales.reduce((sum, s) => sum + (Number(s.totalSaleAmount) || 0), 0);
+  const totalPaid = sales.filter(s => s.paymentTerms === 'cash').reduce((sum, s) => sum + (Number(s.totalSaleAmount) || 0), 0);
+  const balance = totalSales - totalPaid;
+
+  document.getElementById('custLedgerSummaryTotal').innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:12px;background:var(--color-surface-2);border-radius:var(--radius-md);margin-top:12px;font-size:13px;">
+      <div>Total Sale: <strong>PKR ${formatCurrency(totalSales)}</strong></div>
+      <div>Paid: <strong style="color:var(--emerald);">PKR ${formatCurrency(totalPaid)}</strong></div>
+      <div>Baqi Udhaar: <strong style="color:var(--crimson);font-size:14px;">PKR ${formatCurrency(balance)}</strong></div>
+    </div>
+  `;
+
+  openModal('custLedgerModal');
+}
+
 /* =============================================
-   MODULE 11: PROFIT ENGINE & ANALYSIS
+   6. KHARCHAY & ASAL MUNAFA (PROFIT)
    ============================================= */
-function calculateExportProfitMetrics() {
-  const sales = DB.get('exp_sales_bookings') || [];
-  const purchases = DB.get('exp_bookings') || [];
-  const matExpenses = DB.get('exp_material_expenses') || [];
-  const shipExpenses = DB.get('exp_shipment_expenses') || [];
+function saveSimpleExpense() {
+  const expenseType = document.getElementById('expKharchaType')?.value || 'Transport';
+  const dateVal = document.getElementById('expKharchaDate')?.value || today();
+  const amount = parseFloat(document.getElementById('expKharchaAmount')?.value) || 0;
+  const paymentMethod = document.getElementById('expKharchaPayment')?.value || 'cash';
+  const remarks = sanitizeInput(document.getElementById('expKharchaRemarks')?.value || '');
 
-  const totalSalesPKR = sales.reduce((s, b) => s + (Number(b.totalSaleAmount) || 0), 0);
-  const totalPurchaseCostPKR = purchases.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
-  const totalMaterialExpensesPKR = matExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalShipmentExpensesPKR = shipExpenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  if (amount <= 0) { showToast('Amount enter karein.', 'error'); return; }
 
-  const totalCosts = totalPurchaseCostPKR + totalMaterialExpensesPKR + totalShipmentExpensesPKR;
-  const netProfitPKR = totalSalesPKR - totalCosts;
-  const profitMarginPercent = totalSalesPKR > 0 ? ((netProfitPKR / totalSalesPKR) * 100).toFixed(1) : 0;
+  const exp = DB.add('exp_material_expenses', {
+    expenseType,
+    date: dateVal,
+    amount,
+    paymentMethod,
+    remarks,
+    month: dateVal.substring(0, 7)
+  });
 
-  return {
-    totalSalesPKR,
-    totalPurchaseCostPKR,
-    totalMaterialExpensesPKR,
-    totalShipmentExpensesPKR,
-    totalCosts,
-    netProfitPKR,
-    profitMarginPercent
-  };
+  if (paymentMethod === 'cash') {
+    DB.add('expenses', {
+      month: dateVal.substring(0, 7),
+      date: dateVal,
+      description: `Export Kharcha (${expenseType}): ${remarks || ''}`,
+      reference: 'EXP-KHARCHA',
+      amount,
+      source: 'exp_material_expense',
+      expMatExpId: exp.id
+    });
+  }
+
+  showToast(`Kharcha of PKR ${formatCurrency(amount)} save ho gaya!`, 'success');
+  document.getElementById('expSimpleExpenseForm').reset();
+  setFormDefaults();
+  renderExpensesTable();
+  renderProfitAnalysis();
+  renderExportDashboard();
+}
+
+function renderExpensesTable() {
+  const container = document.getElementById('expKharchayTableBody');
+  if (!container) return;
+
+  const expenses = DB.get('exp_material_expenses') || [];
+  expenses.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if (expenses.length === 0) {
+    container.innerHTML = `<tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted);">Koi kharcha record nahi hai.</td></tr>`;
+    return;
+  }
+
+  container.innerHTML = expenses.map(e => `
+    <tr>
+      <td>${formatDate(e.date)}</td>
+      <td><strong>${escapeHtml(e.expenseType)}</strong></td>
+      <td><strong>PKR ${formatCurrency(e.amount)}</strong></td>
+      <td>${e.paymentMethod === 'cash' ? '<span class="badge badge-status-cash">Naqad (Cash)</span>' : '<span class="badge badge-status-credit">Khata / Udhar</span>'}</td>
+      <td>${escapeHtml(e.remarks || '—')}</td>
+      <td>
+        <button class="btn-action-icon btn-action-danger" title="Delete" onclick="deleteExpense('${escapeHtml(e.id)}')"><i class="fas fa-trash-alt"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function deleteExpense(id) {
+  const exp = DB.findById('exp_material_expenses', id);
+  if (!exp) return;
+
+  showConfirm('Delete kharcha?', () => {
+    if (exp.paymentMethod === 'cash') {
+      const linked = DB.filter('expenses', e => e.expMatExpId === id);
+      linked.forEach(e => DB.remove('expenses', e.id));
+    }
+    DB.remove('exp_material_expenses', id);
+    showToast('Kharcha delete ho gaya.', 'success');
+    renderExpensesTable();
+    renderProfitAnalysis();
+    renderExportDashboard();
+  });
 }
 
 function renderProfitAnalysis() {
-  const metrics = calculateExportProfitMetrics();
-
-  const setT = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  setT('pfGrossSales', `PKR ${formatCurrency(metrics.totalSalesPKR)}`);
-  setT('pfPurchaseCost', `PKR ${formatCurrency(metrics.totalPurchaseCostPKR)}`);
-  setT('pfMatExpenses', `PKR ${formatCurrency(metrics.totalMaterialExpensesPKR)}`);
-  setT('pfShipExpenses', `PKR ${formatCurrency(metrics.totalShipmentExpensesPKR)}`);
-  setT('pfTotalCosts', `PKR ${formatCurrency(metrics.totalCosts)}`);
-  setT('pfNetProfit', `PKR ${formatCurrency(metrics.netProfitPKR)}`);
-  setT('pfMargin', `${metrics.profitMarginPercent}%`);
-
-  const profitValEl = document.getElementById('pfNetProfit');
-  if (profitValEl) {
-    profitValEl.style.color = metrics.netProfitPKR >= 0 ? '#52b788' : '#ff6b6b';
-  }
-
-  renderBookingWiseProfitTable();
-  renderMineralWiseProfitTable();
-}
-
-function renderBookingWiseProfitTable() {
-  const container = document.getElementById('pfBookingTableBody');
-  if (!container) return;
-
-  const sales = DB.get('exp_sales_bookings') || [];
-
-  if (sales.length === 0) {
-    container.innerHTML = `<tr><td colspan="7" class="text-center py-4" style="color:var(--text-muted);">No sales bookings to compute profit.</td></tr>`;
-    return;
-  }
-
-  container.innerHTML = sales.map(sb => {
-    const saleAmt = Number(sb.totalSaleAmount) || 0;
-    // Allocated expenses for this booking
-    const shipExp = DB.filter('exp_shipment_expenses', e => e.salesBookingId === sb.id)
-                      .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-    
-    // Estimate purchase material cost based on mineral purchase rate
-    const purchases = DB.filter('exp_bookings', b => (b.mineral || '').toLowerCase() === (sb.mineral || '').toLowerCase());
-    const avgPurchaseRate = purchases.length > 0 
-      ? (purchases.reduce((s, b) => s + (Number(b.rate) || 0), 0) / purchases.length) 
-      : 0;
-    
-    const matCost = (Number(sb.quantity) || 0) * avgPurchaseRate;
-    const netProfit = saleAmt - matCost - shipExp;
-    const margin = saleAmt > 0 ? ((netProfit / saleAmt) * 100).toFixed(1) : 0;
-
-    return `
-      <tr>
-        <td><strong>${escapeHtml(sb.bookingNo)}</strong></td>
-        <td>${escapeHtml(sb.customerName)}</td>
-        <td><span class="badge badge-mineral">${escapeHtml(sb.mineral)}</span></td>
-        <td>PKR ${formatCurrency(saleAmt)}</td>
-        <td>PKR ${formatCurrency(matCost)}</td>
-        <td>PKR ${formatCurrency(shipExp)}</td>
-        <td style="color:${netProfit >= 0 ? 'var(--emerald)' : 'var(--crimson)'};font-weight:700;">
-          PKR ${formatCurrency(netProfit)} (${margin}%)
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function renderMineralWiseProfitTable() {
-  const container = document.getElementById('pfMineralTableBody');
-  if (!container) return;
-
   const sales = DB.get('exp_sales_bookings') || [];
   const purchases = DB.get('exp_bookings') || [];
+  const expenses = DB.get('exp_material_expenses') || [];
 
-  const minerals = [...new Set([...sales.map(s => s.mineral), ...purchases.map(p => p.mineral)].filter(Boolean))];
+  const totalSalesPKR = sales.reduce((s, b) => s + (Number(b.totalSaleAmount) || 0), 0);
+  const totalPurchasesPKR = purchases.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
+  const totalExpensesPKR = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
-  if (minerals.length === 0) {
-    container.innerHTML = `<tr><td colspan="6" class="text-center py-4" style="color:var(--text-muted);">No mineral data available.</td></tr>`;
-    return;
-  }
+  const netProfit = totalSalesPKR - totalPurchasesPKR - totalExpensesPKR;
 
-  container.innerHTML = minerals.map(min => {
-    const minSales = sales.filter(s => (s.mineral || '').toLowerCase() === min.toLowerCase());
-    const minPurchases = purchases.filter(p => (p.mineral || '').toLowerCase() === min.toLowerCase());
+  const setT = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setT('pfGrossSales', `PKR ${formatCurrency(totalSalesPKR)}`);
+  setT('pfPurchaseCost', `PKR ${formatCurrency(totalPurchasesPKR)}`);
+  setT('pfTotalExpenses', `PKR ${formatCurrency(totalExpensesPKR)}`);
+  setT('pfNetProfit', `PKR ${formatCurrency(netProfit)}`);
 
-    const totalSalesTon = minSales.reduce((s, b) => s + (b.unit === 'TON' ? (Number(b.quantity) || 0) : (Number(b.quantity) || 0) / 1000), 0);
-    const totalSalesAmt = minSales.reduce((s, b) => s + (Number(b.totalSaleAmount) || 0), 0);
-    const totalPurchaseAmt = minPurchases.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
-
-    const estProfit = totalSalesAmt - totalPurchaseAmt;
-
-    return `
-      <tr>
-        <td><span class="badge badge-mineral" style="font-size:13px;">${escapeHtml(min)}</span></td>
-        <td><strong>${formatTON(totalSalesTon)} TON</strong></td>
-        <td>PKR ${formatCurrency(totalPurchaseAmt)}</td>
-        <td>PKR ${formatCurrency(totalSalesAmt)}</td>
-        <td style="color:${estProfit >= 0 ? 'var(--emerald)' : 'var(--crimson)'};font-weight:700;">
-          PKR ${formatCurrency(estProfit)}
-        </td>
-      </tr>
-    `;
-  }).join('');
+  const profitEl = document.getElementById('pfNetProfit');
+  if (profitEl) profitEl.style.color = netProfit >= 0 ? '#52b788' : '#ff6b6b';
 }
 
 /* =============================================
-   MODULE 12: EXPORT DASHBOARD
+   DASHBOARD OVERVIEW & CHARTS
    ============================================= */
 function renderExportDashboard() {
-  // 1. Stock Counts
   const rawStock = getExpRawWarehouseStock();
   const rawTon = rawStock.reduce((s, r) => s + r.availableTon, 0);
 
+  const productions = DB.get('exp_production') || [];
+  const prodTon = productions.reduce((s, p) => s + (p.unit === 'TON' ? (Number(p.inputQuantity) || 0) : (Number(p.inputQuantity) || 0) / 1000.0), 0);
+
   const readyStock = getExpReadyStockSummary();
   const readyTon = readyStock.reduce((s, r) => s + r.availableTon, 0);
-  const reservedTon = readyStock.reduce((s, r) => s + r.reservedTon, 0);
+  const soldTon = readyStock.reduce((s, r) => s + r.soldTon, 0);
 
-  const productions = DB.get('exp_production') || [];
-  const prodTon = productions.reduce((s, p) => s + (p.unit === 'TON' ? (Number(p.inputQuantity) || 0) : (Number(p.inputQuantity) || 0) / 1000), 0);
-
-  // 2. Financials
-  const metrics = calculateExportProfitMetrics();
-  
-  // Suppliers Payable
+  const sales = DB.get('exp_sales_bookings') || [];
   const purchases = DB.get('exp_bookings') || [];
-  const creditPurchases = purchases.filter(b => b.paymentType === 'credit')
-                                   .reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
-  const creditExpenses = (DB.get('exp_material_expenses') || [])
-    .filter(e => e.paymentMethod === 'supplier_account')
-    .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalSupplierPayable = creditPurchases + creditExpenses;
+  const expenses = DB.get('exp_material_expenses') || [];
 
-  // Customer Receivables
-  const customers = DB.get('exp_customers') || [];
-  const totalCustomerReceivable = customers.reduce((sum, c) => sum + Math.max(0, getCustomerFinancialSummary(c.id).outstandingBalance), 0);
+  const totalSales = sales.reduce((s, b) => s + (Number(b.totalSaleAmount) || 0), 0);
+  const totalPurchases = purchases.reduce((s, b) => s + (Number(b.totalAmount) || 0), 0);
+  const totalExpenses = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const netProfit = totalSales - totalPurchases - totalExpenses;
 
-  // Payments received
-  const totalPaymentsReceived = (DB.get('exp_payments') || []).reduce((s, p) => s + (Number(p.pkrAmount) || 0), 0);
-
-  // Containers
-  const containers = DB.get('exp_containers') || [];
-  const inProcessCnt = containers.filter(c => c.status !== 'Delivered').length;
-  const shippedCnt = containers.filter(c => c.status === 'Shipped' || c.status === 'Delivered').length;
-
-  // Set KPI Card Values
   const setEl = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
   setEl('kpiRawStock', `${formatTON(rawTon)} TON`);
   setEl('kpiProductionStock', `${formatTON(prodTon)} TON`);
   setEl('kpiReadyStock', `${formatTON(readyTon)} TON`);
-  setEl('kpiReservedStock', `${formatTON(reservedTon)} TON`);
-  setEl('kpiTotalSales', `PKR ${formatCurrency(metrics.totalSalesPKR)}`);
-  setEl('kpiTotalExpenses', `PKR ${formatCurrency(metrics.totalMaterialExpensesPKR + metrics.totalShipmentExpensesPKR)}`);
-  setEl('kpiSupplierPayable', `PKR ${formatCurrency(totalSupplierPayable)}`);
-  setEl('kpiCustomerReceivable', `PKR ${formatCurrency(totalCustomerReceivable)}`);
-  setEl('kpiPaymentsReceived', `PKR ${formatCurrency(totalPaymentsReceived)}`);
-  setEl('kpiExportProfit', `PKR ${formatCurrency(metrics.netProfitPKR)}`);
-  setEl('kpiContainersProcess', inProcessCnt);
-  setEl('kpiContainersShipped', shippedCnt);
+  setEl('kpiSoldStock', `${formatTON(soldTon)} TON`);
+  setEl('kpiTotalPurchases', `PKR ${formatCurrency(totalPurchases)}`);
+  setEl('kpiTotalSales', `PKR ${formatCurrency(totalSales)}`);
+  setEl('kpiTotalExpenses', `PKR ${formatCurrency(totalExpenses)}`);
+  setEl('kpiExportProfit', `PKR ${formatCurrency(netProfit)}`);
 
-  // Render Charts
-  renderDashboardCharts(metrics, containers, readyStock);
+  const profitKpi = document.getElementById('kpiExportProfit');
+  if (profitKpi) profitKpi.style.color = netProfit >= 0 ? 'var(--emerald)' : 'var(--crimson)';
 
-  // Render Recent Activity Lists
-  renderDashboardActivity();
+  renderDashboardChart(totalPurchases, totalSales, totalExpenses, netProfit);
 }
 
-function renderDashboardCharts(metrics, containers, readyStock) {
+function renderDashboardChart(purchases, sales, expenses, profit) {
   if (typeof Chart === 'undefined') return;
 
-  // 1. Revenue vs Cost Chart
-  const ctxProfit = document.getElementById('chartExportFinancials')?.getContext('2d');
-  if (ctxProfit) {
-    if (_expChartProfit) _expChartProfit.destroy();
-    _expChartProfit = new Chart(ctxProfit, {
-      type: 'bar',
-      data: {
-        labels: ['Sales Revenue', 'Purchase Cost', 'Material Expenses', 'Export Expenses', 'Net Profit'],
-        datasets: [{
-          label: 'PKR Amount',
-          data: [
-            metrics.totalSalesPKR,
-            metrics.totalPurchaseCostPKR,
-            metrics.totalMaterialExpensesPKR,
-            metrics.totalShipmentExpensesPKR,
-            Math.max(0, metrics.netProfitPKR)
-          ],
-          backgroundColor: ['#2a9d8f', '#e76f51', '#f4a261', '#e07b39', '#52b788'],
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { ticks: { callback: v => 'Rs ' + formatCurrency(v) } }
-        }
+  const ctx = document.getElementById('chartExportFinancials')?.getContext('2d');
+  if (!ctx) return;
+
+  if (_expChartProfit) _expChartProfit.destroy();
+  _expChartProfit = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Kharidari (Purchases)', 'Kharchay (Expenses)', 'Farokht (Sales)', 'Asal Munafa (Net Profit)'],
+      datasets: [{
+        label: 'PKR Amount',
+        data: [purchases, expenses, sales, Math.max(0, profit)],
+        backgroundColor: ['#e76f51', '#f4a261', '#2a9d8f', '#52b788'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { callback: v => 'Rs ' + formatCurrency(v) } }
       }
-    });
-  }
-
-  // 2. Container Status Breakdown
-  const ctxCnt = document.getElementById('chartExportContainers')?.getContext('2d');
-  if (ctxCnt) {
-    if (_expChartContainers) _expChartContainers.destroy();
-    const statuses = ['Ready', 'Booked', 'Stuffed', 'Shipped', 'Delivered'];
-    const counts = statuses.map(st => containers.filter(c => (c.status || 'Ready') === st).length);
-
-    _expChartContainers = new Chart(ctxCnt, {
-      type: 'doughnut',
-      data: {
-        labels: statuses,
-        datasets: [{
-          data: counts,
-          backgroundColor: ['#264653', '#e9c46a', '#2a9d8f', '#52b788', '#1b4332']
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
-      }
-    });
-  }
-}
-
-function renderDashboardActivity() {
-  // Recent Bookings
-  const bkList = document.getElementById('dashRecentBookings');
-  if (bkList) {
-    const list = DB.get('exp_sales_bookings') || [];
-    list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    const top = list.slice(0, 5);
-
-    if (top.length === 0) {
-      bkList.innerHTML = '<div class="empty-state py-3"><p>No export bookings yet</p></div>';
-    } else {
-      bkList.innerHTML = top.map(b => `
-        <div class="activity-item">
-          <div>
-            <strong>${escapeHtml(b.bookingNo)}</strong> — ${escapeHtml(b.customerName)}
-            <br><small style="color:var(--text-muted);">${escapeHtml(b.mineral)} • ${formatKG(b.quantity)} ${b.unit}</small>
-          </div>
-          <div style="text-align:right;">
-            <strong style="color:var(--teal);">PKR ${formatCurrency(b.totalSaleAmount)}</strong>
-            <br><small>${formatDate(b.date)}</small>
-          </div>
-        </div>
-      `).join('');
     }
-  }
-
-  // Recent Containers
-  const cntList = document.getElementById('dashRecentContainers');
-  if (cntList) {
-    const list = DB.get('exp_containers') || [];
-    list.sort((a, b) => (b.stuffingDate || '').localeCompare(a.stuffingDate || ''));
-    const top = list.slice(0, 5);
-
-    if (top.length === 0) {
-      cntList.innerHTML = '<div class="empty-state py-3"><p>No containers registered</p></div>';
-    } else {
-      cntList.innerHTML = top.map(c => `
-        <div class="activity-item">
-          <div>
-            <strong>${escapeHtml(c.containerNo)}</strong> (${escapeHtml(c.mineral)})
-            <br><small style="color:var(--text-muted);">${escapeHtml(c.customerName)} → ${escapeHtml(c.port)}</small>
-          </div>
-          <div style="text-align:right;">
-            <span class="badge badge-status-${(c.status || 'ready').toLowerCase()}">${escapeHtml(c.status)}</span>
-            <br><small>${formatTON(c.totalTon)} TON</small>
-          </div>
-        </div>
-      `).join('');
-    }
-  }
-}
-
-/* =============================================
-   MODULE 13: EXPORT REPORTS & ANALYTICS
-   ============================================= */
-function renderExportReports() {
-  const repType = document.getElementById('expReportSelect')?.value || 'purchase';
-  const tableHead = document.getElementById('expReportTableHead');
-  const tableBody = document.getElementById('expReportTableBody');
-  const repTitle = document.getElementById('expReportTitle');
-  if (!tableHead || !tableBody) return;
-
-  if (repTitle) repTitle.textContent = getReportTitle(repType);
-
-  switch (repType) {
-    case 'purchase':
-      renderReportPurchase(tableHead, tableBody);
-      break;
-    case 'receiving':
-      renderReportReceiving(tableHead, tableBody);
-      break;
-    case 'production':
-      renderReportProduction(tableHead, tableBody);
-      break;
-    case 'ready_stock':
-      renderReportReadyStock(tableHead, tableBody);
-      break;
-    case 'sales':
-      renderReportSales(tableHead, tableBody);
-      break;
-    case 'containers':
-      renderReportContainers(tableHead, tableBody);
-      break;
-    case 'expenses':
-      renderReportExpenses(tableHead, tableBody);
-      break;
-    case 'payments':
-      renderReportPayments(tableHead, tableBody);
-      break;
-    case 'profit':
-      renderReportProfit(tableHead, tableBody);
-      break;
-    default:
-      renderReportPurchase(tableHead, tableBody);
-  }
-}
-
-function getReportTitle(type) {
-  const map = {
-    purchase: 'Export Purchase & Supplier Material Report',
-    receiving: 'Warehouse Raw Stock & Inward Receiving Report',
-    production: 'Mineral Processing & Wastage Yield Report',
-    ready_stock: 'Ready / Finished Export Stock & Reservation Report',
-    sales: 'Customer Export Sales & Order Bookings Report',
-    containers: 'Container Stuffing & Shipment Logistics Report',
-    expenses: 'Comprehensive Export Expenses (Material vs Port)',
-    payments: 'Foreign Customer Payment Receipts & Conversion Report',
-    profit: 'Consolidated Export Net Profitability Report'
-  };
-  return map[type] || 'Export Report';
-}
-
-function renderReportPurchase(th, tb) {
-  th.innerHTML = `<tr><th>Booking #</th><th>Date</th><th>Supplier</th><th>Mineral</th><th>Quantity</th><th>Rate</th><th>Total (PKR)</th><th>Payment</th><th>Status</th></tr>`;
-  const list = DB.get('exp_bookings') || [];
-  tb.innerHTML = list.map(b => `
-    <tr>
-      <td><strong>${escapeHtml(b.bookingNo)}</strong></td>
-      <td>${formatDate(b.date)}</td>
-      <td>${escapeHtml(b.supplierName)}</td>
-      <td>${escapeHtml(b.mineral)}</td>
-      <td>${formatKG(b.quantity)} ${b.unit}</td>
-      <td>PKR ${formatCurrency(b.rate)}</td>
-      <td><strong>PKR ${formatCurrency(b.totalAmount)}</strong></td>
-      <td>${b.paymentType}</td>
-      <td>${b.status}</td>
-    </tr>
-  `).join('');
-}
-
-function renderReportReceiving(th, tb) {
-  th.innerHTML = `<tr><th>Date</th><th>Booking #</th><th>Supplier</th><th>Mineral</th><th>Received Qty</th><th>Warehouse</th><th>Vehicle</th></tr>`;
-  const list = DB.get('exp_receivings') || [];
-  tb.innerHTML = list.map(r => `
-    <tr>
-      <td>${formatDate(r.date)}</td>
-      <td>${escapeHtml(r.bookingNo)}</td>
-      <td>${escapeHtml(r.supplierName)}</td>
-      <td>${escapeHtml(r.mineral)}</td>
-      <td><strong>${formatKG(r.receivedQuantity)} ${r.unit}</strong></td>
-      <td>${escapeHtml(r.warehouse)}</td>
-      <td>${escapeHtml(r.vehicle || '—')}</td>
-    </tr>
-  `).join('');
-}
-
-function renderReportProduction(th, tb) {
-  th.innerHTML = `<tr><th>PR #</th><th>Date</th><th>Mineral</th><th>Input Qty</th><th>Wastage</th><th>Ready Qty</th><th>Yield %</th><th>Bags</th></tr>`;
-  const list = DB.get('exp_production') || [];
-  tb.innerHTML = list.map(p => {
-    const yieldPct = p.inputQuantity > 0 ? (((p.readyQuantity || 0) / p.inputQuantity) * 100).toFixed(1) : 0;
-    return `
-      <tr>
-        <td><strong>${escapeHtml(p.productionNo)}</strong></td>
-        <td>${formatDate(p.date)}</td>
-        <td>${escapeHtml(p.mineral)}</td>
-        <td>${formatKG(p.inputQuantity)} ${p.unit}</td>
-        <td style="color:var(--crimson);">${formatKG(p.wastageQuantity)} ${p.unit}</td>
-        <td style="color:var(--emerald);font-weight:700;">+${formatKG(p.readyQuantity)} ${p.unit}</td>
-        <td><strong>${yieldPct}%</strong></td>
-        <td>${p.bags ? `${p.bags} bags` : 'Bulk'}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function renderReportReadyStock(th, tb) {
-  th.innerHTML = `<tr><th>Mineral</th><th>Total Ready Stock</th><th>Booked / Reserved</th><th>Available Stock</th><th>Bags</th><th>Status</th></tr>`;
-  const list = getExpReadyStockSummary();
-  tb.innerHTML = list.map(s => `
-    <tr>
-      <td><strong>${escapeHtml(s.mineral)}</strong></td>
-      <td>${formatTON(s.totalTon)} TON</td>
-      <td style="color:var(--copper);">${formatTON(s.reservedTon)} TON</td>
-      <td style="color:var(--emerald);font-weight:700;">${formatTON(s.availableTon)} TON</td>
-      <td>${formatKG(s.bags)} Bags</td>
-      <td>${s.availableTon > 0 ? 'In Stock' : 'Fully Booked'}</td>
-    </tr>
-  `).join('');
-}
-
-function renderReportSales(th, tb) {
-  th.innerHTML = `<tr><th>Booking #</th><th>Date</th><th>Customer</th><th>Mineral</th><th>Quantity</th><th>Rate</th><th>Total (PKR)</th><th>Terms</th><th>Destination</th></tr>`;
-  const list = DB.get('exp_sales_bookings') || [];
-  tb.innerHTML = list.map(b => `
-    <tr>
-      <td><strong>${escapeHtml(b.bookingNo)}</strong></td>
-      <td>${formatDate(b.date)}</td>
-      <td>${escapeHtml(b.customerName)}</td>
-      <td>${escapeHtml(b.mineral)}</td>
-      <td>${formatKG(b.quantity)} ${b.unit}</td>
-      <td>PKR ${formatCurrency(b.rate)}</td>
-      <td><strong>PKR ${formatCurrency(b.totalSaleAmount)}</strong></td>
-      <td>${b.paymentTerms}</td>
-      <td>${escapeHtml(b.destinationCountry || '')} (${escapeHtml(b.destinationPort || '')})</td>
-    </tr>
-  `).join('');
-}
-
-function renderReportContainers(th, tb) {
-  th.innerHTML = `<tr><th>Container #</th><th>Size / Seal</th><th>Customer</th><th>Cargo / Mineral</th><th>Weight (TON)</th><th>Bags</th><th>Port</th><th>Status</th></tr>`;
-  const list = DB.get('exp_containers') || [];
-  tb.innerHTML = list.map(c => `
-    <tr>
-      <td><strong>${escapeHtml(c.containerNo)}</strong></td>
-      <td>${escapeHtml(c.containerSize)} / ${escapeHtml(c.sealNo || '—')}</td>
-      <td>${escapeHtml(c.customerName)}</td>
-      <td>${escapeHtml(c.mineral)}</td>
-      <td><strong>${formatTON(c.totalTon)} TON</strong></td>
-      <td>${c.bags} bags × ${c.bagWeight} kg</td>
-      <td>${escapeHtml(c.port)}</td>
-      <td><span class="badge badge-status-${(c.status || 'ready').toLowerCase()}">${escapeHtml(c.status)}</span></td>
-    </tr>
-  `).join('');
-}
-
-function renderReportExpenses(th, tb) {
-  th.innerHTML = `<tr><th>Date</th><th>Category</th><th>Expense Type</th><th>Reference</th><th>Amount (PKR)</th><th>Payment Method</th><th>Party</th></tr>`;
-  const matExp = (DB.get('exp_material_expenses') || []).map(e => ({ ...e, cat: 'Material Inward' }));
-  const shipExp = (DB.get('exp_shipment_expenses') || []).map(e => ({ ...e, cat: 'Export Shipment' }));
-  const allExp = [...matExp, ...shipExp].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
-  tb.innerHTML = allExp.map(e => `
-    <tr>
-      <td>${formatDate(e.date)}</td>
-      <td><span class="badge badge-mineral">${e.cat}</span></td>
-      <td><strong>${escapeHtml(e.expenseType)}</strong></td>
-      <td>${escapeHtml(e.bookingNo || e.containerNo || '—')}</td>
-      <td><strong>PKR ${formatCurrency(e.amount)}</strong></td>
-      <td>${e.paymentMethod}</td>
-      <td>${escapeHtml(e.supplierName || e.customerName || '—')}</td>
-    </tr>
-  `).join('');
-}
-
-function renderReportPayments(th, tb) {
-  th.innerHTML = `<tr><th>Receipt #</th><th>Date</th><th>Customer</th><th>Foreign Currency</th><th>Exchange Rate</th><th>PKR Amount</th><th>Channel</th></tr>`;
-  const list = DB.get('exp_payments') || [];
-  tb.innerHTML = list.map(p => `
-    <tr>
-      <td><strong>${escapeHtml(p.receiptNo)}</strong></td>
-      <td>${formatDate(p.date)}</td>
-      <td>${escapeHtml(p.customerName)}</td>
-      <td>${escapeHtml(p.currency)} ${formatCurrency(p.foreignAmount)}</td>
-      <td>@ ${p.exchangeRate}</td>
-      <td style="color:var(--emerald);font-weight:700;">PKR ${formatCurrency(p.pkrAmount)}</td>
-      <td>${escapeHtml(p.bankOrCash)}</td>
-    </tr>
-  `).join('');
-}
-
-function renderReportProfit(th, tb) {
-  th.innerHTML = `<tr><th>Export Order</th><th>Customer</th><th>Mineral</th><th>Sale Amount</th><th>Est. Material Cost</th><th>Shipment Exp</th><th>Net Profit</th></tr>`;
-  const sales = DB.get('exp_sales_bookings') || [];
-  tb.innerHTML = sales.map(sb => {
-    const saleAmt = Number(sb.totalSaleAmount) || 0;
-    const shipExp = DB.filter('exp_shipment_expenses', e => e.salesBookingId === sb.id)
-                      .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-    const purchases = DB.filter('exp_bookings', b => (b.mineral || '').toLowerCase() === (sb.mineral || '').toLowerCase());
-    const avgRate = purchases.length > 0 ? (purchases.reduce((s, b) => s + (Number(b.rate) || 0), 0) / purchases.length) : 0;
-    const matCost = (Number(sb.quantity) || 0) * avgRate;
-    const profit = saleAmt - matCost - shipExp;
-
-    return `
-      <tr>
-        <td><strong>${escapeHtml(sb.bookingNo)}</strong></td>
-        <td>${escapeHtml(sb.customerName)}</td>
-        <td>${escapeHtml(sb.mineral)}</td>
-        <td>PKR ${formatCurrency(saleAmt)}</td>
-        <td>PKR ${formatCurrency(matCost)}</td>
-        <td>PKR ${formatCurrency(shipExp)}</td>
-        <td style="color:${profit >= 0 ? 'var(--emerald)' : 'var(--crimson)'};font-weight:700;">PKR ${formatCurrency(profit)}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-/* =============================================
-   EXPORT TO CSV / EXCEL
-   ============================================= */
-function exportReportCSV() {
-  const table = document.getElementById('expReportTable');
-  if (!table) return;
-
-  let csv = [];
-  const rows = table.querySelectorAll('tr');
-
-  rows.forEach(row => {
-    const cols = row.querySelectorAll('th, td');
-    const rowData = [];
-    cols.forEach(col => {
-      let text = col.innerText.replace(/"/g, '""').trim();
-      rowData.push(`"${text}"`);
-    });
-    csv.push(rowData.join(','));
-  });
-
-  const csvString = csv.join('\n');
-  const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Export_Report_${today()}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showToast('Report downloaded as CSV!', 'success');
-}
-
-/* =============================================
-   PRINT / PDF HELPERS
-   ============================================= */
-function printExportReport() {
-  const content = document.getElementById('expReportPrintArea');
-  if (!content) return;
-  const win = window.open('', '_blank', 'width=900,height=700');
-  win.document.write(`
-    <!DOCTYPE html><html><head>
-      <title>Arham Traders - Export Report</title>
-      <link rel="stylesheet" href="css/main.css" />
-      <style>
-        body { font-family: 'Inter', sans-serif; padding: 24px; color: #1e2333; background: #fff; }
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 11px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #f4f5f7; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #181c2a; padding-bottom: 12px; }
-        @media print { body { padding: 0; } }
-      </style>
-    </head><body>
-      <div class="header">
-        <h2>ARHAM TRADERS — EXPORT DIVISION</h2>
-        <p style="margin:2px 0;">Mineral Processing & Global Trade</p>
-        <p style="font-size:12px;color:#666;">Generated on: ${new Date().toLocaleString('en-PK')}</p>
-      </div>
-      ${content.innerHTML}
-    </body></html>
-  `);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); win.close(); }, 400);
-}
-
-function printExportPurchaseSlip(id) {
-  const b = DB.findById('exp_bookings', id);
-  if (!b) return;
-
-  const win = window.open('', '_blank', 'width=600,height=700');
-  win.document.write(`
-    <!DOCTYPE html><html><head>
-      <title>Purchase Slip - ${b.bookingNo}</title>
-      <style>
-        body { font-family: 'Inter', sans-serif; padding: 20px; font-size: 12px; color: #1e2333; }
-        .slip { max-width: 400px; margin: 0 auto; border: 1px dashed #999; padding: 20px; border-radius: 8px; }
-        .head { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 12px; }
-        .row { display: flex; justify-content: space-between; padding: 5px 0; }
-        .total-box { background: #f5f5f5; padding: 10px; border-radius: 6px; text-align: center; margin-top: 12px; font-size: 16px; font-weight: bold; }
-      </style>
-    </head><body>
-      <div class="slip">
-        <div class="head">
-          <h3 style="margin:0;">ARHAM TRADERS</h3>
-          <p style="margin:2px 0;font-size:11px;">Export Mineral Purchase Booking</p>
-          <p style="margin:2px 0;font-weight:bold;">${escapeHtml(b.bookingNo)}</p>
-        </div>
-        <div class="row"><span>Date:</span><span>${formatDate(b.date)}</span></div>
-        <div class="row"><span>Supplier:</span><span>${escapeHtml(b.supplierName)}</span></div>
-        <div class="row"><span>Mineral:</span><span>${escapeHtml(b.mineral)}</span></div>
-        <div class="row"><span>Quantity:</span><span>${formatKG(b.quantity)} ${b.unit}</span></div>
-        <div class="row"><span>Rate:</span><span>PKR ${formatCurrency(b.rate)}/${b.unit}</span></div>
-        <div class="row"><span>Payment Terms:</span><span>${b.paymentType.toUpperCase()}</span></div>
-        <div class="row"><span>Warehouse:</span><span>${escapeHtml(b.warehouse)}</span></div>
-        <div class="total-box">Total: PKR ${formatCurrency(b.totalAmount)}</div>
-        <p style="text-align:center;font-size:10px;color:#888;margin-top:20px;">Export Division Management System</p>
-      </div>
-    </body></html>
-  `);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); win.close(); }, 400);
-}
-
-function printExportSalesSlip(id) {
-  const b = DB.findById('exp_sales_bookings', id);
-  if (!b) return;
-
-  const win = window.open('', '_blank', 'width=600,height=700');
-  win.document.write(`
-    <!DOCTYPE html><html><head>
-      <title>Sales Order - ${b.bookingNo}</title>
-      <style>
-        body { font-family: 'Inter', sans-serif; padding: 20px; font-size: 12px; color: #1e2333; }
-        .slip { max-width: 440px; margin: 0 auto; border: 1px solid #264653; padding: 20px; border-radius: 8px; }
-        .head { text-align: center; border-bottom: 2px solid #264653; padding-bottom: 10px; margin-bottom: 14px; }
-        .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted #eee; }
-        .total-box { background: #e0f5f3; color: #1e7a6e; padding: 12px; border-radius: 6px; text-align: center; margin-top: 14px; font-size: 17px; font-weight: bold; }
-      </style>
-    </head><body>
-      <div class="slip">
-        <div class="head">
-          <h2 style="margin:0;color:#264653;">ARHAM TRADERS</h2>
-          <p style="margin:2px 0;font-size:11px;">Export Sales Order & Booking Confirmation</p>
-          <p style="margin:4px 0;font-weight:bold;">${escapeHtml(b.bookingNo)}</p>
-        </div>
-        <div class="row"><span>Date:</span><span>${formatDate(b.date)}</span></div>
-        <div class="row"><span>Customer / Buyer:</span><span><strong>${escapeHtml(b.customerName)}</strong></span></div>
-        <div class="row"><span>Mineral:</span><span>${escapeHtml(b.mineral)}</span></div>
-        <div class="row"><span>Quantity:</span><span>${formatKG(b.quantity)} ${b.unit} (${b.bags || '—'} Bags)</span></div>
-        <div class="row"><span>Rate:</span><span>PKR ${formatCurrency(b.rate)}/${b.unit}</span></div>
-        <div class="row"><span>Destination:</span><span>${escapeHtml(b.destinationCountry || 'Intl')} (${escapeHtml(b.destinationPort || 'Port')})</span></div>
-        <div class="row"><span>Terms:</span><span>${b.paymentTerms.toUpperCase()}</span></div>
-        <div class="total-box">Total Order Value: PKR ${formatCurrency(b.totalSaleAmount)}</div>
-      </div>
-    </body></html>
-  `);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); win.close(); }, 400);
-}
-
-function printContainerManifest(id) {
-  const c = DB.findById('exp_containers', id);
-  if (!c) return;
-
-  const win = window.open('', '_blank', 'width=700,height=750');
-  win.document.write(`
-    <!DOCTYPE html><html><head>
-      <title>Container Manifest - ${c.containerNo}</title>
-      <style>
-        body { font-family: 'Inter', sans-serif; padding: 24px; font-size: 12px; color: #1e2333; }
-        .manifest { border: 2px solid #181c2a; padding: 24px; border-radius: 8px; }
-        .head { text-align: center; border-bottom: 2px solid #181c2a; padding-bottom: 12px; margin-bottom: 16px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-        .box { background: #f8f9fa; border: 1px solid #eee; padding: 10px; border-radius: 6px; }
-        .row { display: flex; justify-content: space-between; padding: 4px 0; }
-      </style>
-    </head><body>
-      <div class="manifest">
-        <div class="head">
-          <h2 style="margin:0;">ARHAM TRADERS — EXPORT LOGISTICS</h2>
-          <p style="margin:2px 0;">CONTAINER STUFFING & SHIPPING MANIFEST</p>
-          <h3 style="margin:6px 0;color:#2a9d8f;">CONTAINER NO: ${escapeHtml(c.containerNo)}</h3>
-        </div>
-        <div class="grid">
-          <div class="box">
-            <div class="row"><span>Container Size:</span><strong>${escapeHtml(c.containerSize)}</strong></div>
-            <div class="row"><span>Seal No:</span><strong>${escapeHtml(c.sealNo || '—')}</strong></div>
-            <div class="row"><span>Vehicle / Truck:</span><strong>${escapeHtml(c.vehicle || '—')}</strong></div>
-            <div class="row"><span>Status:</span><strong>${escapeHtml(c.status)}</strong></div>
-          </div>
-          <div class="box">
-            <div class="row"><span>Customer:</span><strong>${escapeHtml(c.customerName)}</strong></div>
-            <div class="row"><span>Port of Loading:</span><strong>${escapeHtml(c.port)}</strong></div>
-            <div class="row"><span>Destination:</span><strong>${escapeHtml(c.destinationCountry)}</strong></div>
-            <div class="row"><span>Stuffing Date:</span><strong>${formatDate(c.stuffingDate)}</strong></div>
-          </div>
-        </div>
-        <div class="box" style="margin-bottom:16px;">
-          <h4 style="margin:0 0 8px 0;border-bottom:1px solid #ddd;padding-bottom:4px;">CARGO SPECIFICATION</h4>
-          <div class="row"><span>Mineral Type:</span><strong>${escapeHtml(c.mineral)}</strong></div>
-          <div class="row"><span>Number of Bags:</span><strong>${formatKG(c.bags)} Bags</strong></div>
-          <div class="row"><span>Bag Weight:</span><strong>${c.bagWeight} KG</strong></div>
-          <div class="row"><span>Total Net Weight:</span><strong>${formatTON(c.totalTon)} TON (${formatKG(c.totalKG)} KG)</strong></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;border-top:1px dashed #ccc;">
-          <div>Authorized Logistics Sign: _____________________</div>
-          <div>Port Authority Stamp: _____________________</div>
-        </div>
-      </div>
-    </body></html>
-  `);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); win.close(); }, 400);
-}
-
-function printPaymentReceiptSlip(id) {
-  const p = DB.findById('exp_payments', id);
-  if (!p) return;
-
-  const win = window.open('', '_blank', 'width=600,height=650');
-  win.document.write(`
-    <!DOCTYPE html><html><head>
-      <title>Payment Receipt - ${p.receiptNo}</title>
-      <style>
-        body { font-family: 'Inter', sans-serif; padding: 20px; font-size: 12px; color: #1e2333; }
-        .slip { max-width: 420px; margin: 0 auto; border: 1px solid #52b788; padding: 20px; border-radius: 8px; }
-        .head { text-align: center; border-bottom: 2px solid #52b788; padding-bottom: 10px; margin-bottom: 14px; }
-        .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dotted #eee; }
-        .total-box { background: #ebf7f2; color: #2d8a5e; padding: 12px; border-radius: 6px; text-align: center; margin-top: 14px; font-size: 18px; font-weight: bold; }
-      </style>
-    </head><body>
-      <div class="slip">
-        <div class="head">
-          <h2 style="margin:0;color:#2d8a5e;">ARHAM TRADERS</h2>
-          <p style="margin:2px 0;font-size:11px;">Foreign Export Payment Voucher</p>
-          <p style="margin:4px 0;font-weight:bold;">${escapeHtml(p.receiptNo)}</p>
-        </div>
-        <div class="row"><span>Date:</span><span>${formatDate(p.date)}</span></div>
-        <div class="row"><span>Customer:</span><span><strong>${escapeHtml(p.customerName)}</strong></span></div>
-        <div class="row"><span>Foreign Currency:</span><span>${escapeHtml(p.currency)} ${formatCurrency(p.foreignAmount)}</span></div>
-        <div class="row"><span>Exchange Rate:</span><span>PKR ${p.exchangeRate}</span></div>
-        <div class="row"><span>Channel / Bank:</span><span>${escapeHtml(p.bankOrCash)}</span></div>
-        <div class="row"><span>Reference Order:</span><span>${escapeHtml(p.bookingNo || 'Direct')}</span></div>
-        <div class="total-box">PKR Amount: PKR ${formatCurrency(p.pkrAmount)}</div>
-      </div>
-    </body></html>
-  `);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); win.close(); }, 400);
-}
-
-/* =============================================
-   FILTERS BINDING & VIEW RE-RENDER
-   ============================================= */
-function bindFilters() {
-  document.getElementById('expFilterSupplier')?.addEventListener('change', e => {
-    _expFilterSupplier = e.target.value;
-    renderPurchaseBookingsTable();
-  });
-  document.getElementById('expFilterCustomer')?.addEventListener('change', e => {
-    _expFilterCustomer = e.target.value;
-  });
-  document.getElementById('expFilterMineral')?.addEventListener('input', e => {
-    _expFilterMineral = e.target.value;
-    renderPurchaseBookingsTable();
-  });
-  document.getElementById('expFilterDateFrom')?.addEventListener('change', e => {
-    _expFilterDateFrom = e.target.value;
-    renderPurchaseBookingsTable();
-  });
-  document.getElementById('expFilterDateTo')?.addEventListener('change', e => {
-    _expFilterDateTo = e.target.value;
-    renderPurchaseBookingsTable();
-  });
-  document.getElementById('expReportSelect')?.addEventListener('change', () => {
-    renderExportReports();
   });
 }
 
 function renderAllExportViews() {
   renderExportDashboard();
-  renderExportSuppliersList();
   renderPurchaseBookingsTable();
   renderReceivingsTable();
-  renderMaterialExpensesTable();
+  renderWarehouseStockBanner();
   renderProductionTable();
   renderReadyStockTable();
-  renderCustomersList();
   renderSalesBookingsTable();
-  renderContainersView();
-  renderShipmentExpensesTable();
-  renderPaymentsTable();
+  renderCustomersList();
+  renderExpensesTable();
   renderProfitAnalysis();
-  renderExportReports();
 }
