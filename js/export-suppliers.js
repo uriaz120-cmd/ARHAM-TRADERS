@@ -76,10 +76,6 @@ function renderSuppliers() {
         <td>${formatDate(s.createdAt)}</td>
         <td>
           <div style="display:flex;gap:6px;align-items:center;">
-            <button class="btn btn-secondary btn-sm btn-icon" title="View Ledger"
-              onclick="window.location.href='export-ledger.html?supplier=${encodeURIComponent(s.id)}'">
-              <i class="fas fa-book"></i>
-            </button>
             <button class="btn btn-secondary btn-sm btn-icon" title="Edit"
               onclick="editSupplier('${escapeHtml(s.id)}')">
               <i class="fas fa-edit"></i>
@@ -114,9 +110,6 @@ function renderSuppliers() {
           ${s.address ? `<div class="sc-detail-item"><i class="fas fa-map"></i><span>${escapeHtml(s.address)}</span></div>` : ''}
         </div>
         <div class="sc-actions">
-          <button class="btn btn-secondary btn-sm" onclick="window.location.href='export-ledger.html?supplier=${encodeURIComponent(s.id)}'">
-            <i class="fas fa-book"></i> Ledger
-          </button>
           <button class="btn btn-secondary btn-sm" onclick="editSupplier('${escapeHtml(s.id)}')">
             <i class="fas fa-edit"></i> Edit
           </button>
