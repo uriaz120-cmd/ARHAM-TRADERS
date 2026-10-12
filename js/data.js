@@ -223,3 +223,71 @@ const Stats = {
     };
   }
 };
+
+/* =============================================
+   EXPORT GENERATORS & STATS ENGINE
+   ============================================= */
+function generateExportBookingNo() {
+  const bookings = DB.get('exp_bookings');
+  const year = new Date().getFullYear().toString().substr(-2);
+  const month = String(new Date().getMonth() + 1).padStart(2, '0');
+  const seq = String(bookings.length + 1).padStart(4, '0');
+  return `EXP-BK-${year}${month}-${seq}`;
+}
+
+function generateExportDeliveryNo() {
+  const deliveries = DB.get('exp_deliveries');
+  const year = new Date().getFullYear().toString().substr(-2);
+  const month = String(new Date().getMonth() + 1).padStart(2, '0');
+  const seq = String(deliveries.length + 1).padStart(4, '0');
+  return `EXP-DL-${year}${month}-${seq}`;
+}
+
+const ExpStats = {
+  getTotalSuppliers() {
+    return DB.count('exp_suppliers');
+  },
+
+  getWarehouseStock() {
+    return DB.get('exp_warehouse').reduce((s, i) => s + (Number(i.remainingWeight) || 0), 0);
+  },
+
+  getInProduction() {
+    return DB.filter('exp_production', p => p.status === 'pending' || p.status === 'in_process')
+             .reduce((s, p) => s + (Number(p.weight) || 0), 0);
+  },
+
+  getFinishedGoods() {
+    return DB.get('exp_finished_goods').reduce((s, i) => s + (Number(i.remainingWeight) || 0), 0);
+  },
+
+  getTodayBookings() {
+    const t = today();
+    return DB.filter('exp_bookings', b => b.date && b.date.startsWith(t)).length;
+  },
+
+  getTodayDeliveries() {
+    const t = today();
+    return DB.filter('exp_deliveries', d => d.date && d.date.startsWith(t)).length;
+  },
+
+  getSupplierLedger(supplierId) {
+    const totalReceived  = DB.filter('exp_bookings', b => b.supplierId === supplierId)
+                            .reduce((s, b) => s + (Number(b.weight) || 0), 0);
+    const sentProduction = DB.filter('exp_production', p => p.supplierId === supplierId)
+                            .reduce((s, p) => s + (Number(p.weight) || 0), 0);
+    const totalFinished  = DB.filter('exp_finished_goods', f => f.supplierId === supplierId)
+                            .reduce((s, f) => s + (Number(f.finishedWeight) || 0), 0);
+    const totalScrap     = DB.filter('exp_finished_goods', f => f.supplierId === supplierId)
+                            .reduce((s, f) => s + (Number(f.scrapWeight) || 0), 0);
+    const totalDelivered = DB.filter('exp_deliveries', d => d.supplierId === supplierId)
+                            .reduce((s, d) => s + (Number(d.weight) || 0), 0);
+    const remainingFinished = totalFinished - totalDelivered;
+    const warehouseBalance  = DB.filter('exp_warehouse', w => w.supplierId === supplierId)
+                               .reduce((s, w) => s + (Number(w.remainingWeight) || 0), 0);
+    return {
+      totalReceived, sentProduction, totalFinished, totalScrap,
+      totalDelivered, remainingFinished, warehouseBalance
+    };
+  }
+};

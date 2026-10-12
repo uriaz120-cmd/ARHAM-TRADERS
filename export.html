@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,18 +6,107 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>Export Management — Arham Traders</title>
+  <title>Export Operations Hub — Arham Traders</title>
   <link rel="stylesheet" href="css/main.css?v=2" />
-  <link rel="stylesheet" href="css/export.css?v=3" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .hub-card {
+      background: var(--color-surface, #ffffff);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+    }
+    .hub-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      border-color: var(--teal, #0d9488);
+    }
+    .hub-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+    .hub-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-text, #1e293b);
+      margin-bottom: 6px;
+    }
+    .hub-desc {
+      font-size: 13px;
+      color: var(--text-muted, #64748b);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .hub-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--color-border, #f1f5f9);
+      padding-top: 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--teal, #0d9488);
+    }
+    .hub-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .hub-stat-box {
+      background: var(--color-surface, #ffffff);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 10px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .hstat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .hstat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text, #0f172a);
+    }
+    .hstat-lbl {
+      font-size: 12px;
+      color: var(--text-muted, #64748b);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- ===== SIDEBAR OVERLAY ===== -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- ===== SIDEBAR ===== -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="brand">
@@ -38,47 +127,31 @@
       </a>
     </div>
     <div class="nav-section">
-      <span class="nav-section-label">International Trade</span>
-      <a href="export.html" class="nav-item active">
-        <i class="fas fa-ship"></i><span>Export</span>
-      </a>
+      <span class="nav-section-label">Export Operations</span>
+      <a href="export.html" class="nav-item active"><i class="fas fa-ship"></i><span>Export Hub</span></a>
+      <a href="export-suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Export Suppliers</span></a>
+      <a href="export-suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Export Suppliers Finance</span></a>
+      <a href="export-booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Export Booking</span></a>
+      <a href="export-warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Export Warehouse</span></a>
+      <a href="export-production.html" class="nav-item"><i class="fas fa-industry"></i><span>Export Production</span></a>
+      <a href="export-finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Export Finished Goods</span></a>
+      <a href="export-delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Export Delivery / Sale</span></a>
+      <a href="export-ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Export Supplier Ledger</span></a>
+      <a href="export-income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Export Income &amp; Expense</span></a>
     </div>
     <div class="nav-section">
-      <span class="nav-section-label">Operations</span>
-      <a href="suppliers.html" class="nav-item">
-        <i class="fas fa-users"></i><span>Suppliers</span>
-      </a>
+      <span class="nav-section-label">Domestic System</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
       <a href="suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
-      <a href="booking.html" class="nav-item">
-        <i class="fas fa-clipboard-list"></i><span>Booking</span>
-        <span class="nav-badge" id="todayBookingBadge">0</span>
-      </a>
-      <a href="warehouse.html" class="nav-item">
-        <i class="fas fa-warehouse"></i><span>Warehouse</span>
-      </a>
-      <a href="production.html" class="nav-item">
-        <i class="fas fa-industry"></i><span>Production</span>
-      </a>
-    </div>
-    <div class="nav-section">
-      <span class="nav-section-label">Stock</span>
-      <a href="finished-goods.html" class="nav-item">
-        <i class="fas fa-layer-group"></i><span>Finished Goods</span>
-      </a>
-      <a href="delivery.html" class="nav-item">
-        <i class="fas fa-truck"></i><span>Delivery</span>
-      </a>
-    </div>
-    <div class="nav-section">
-      <span class="nav-section-label">Accounts</span>
-      <a href="ledger.html" class="nav-item">
-        <i class="fas fa-book"></i><span>Supplier Ledger</span>
-      </a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
       <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
       <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
-      <a href="reports.html" class="nav-item">
-        <i class="fas fa-chart-bar"></i><span>Reports</span>
-      </a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
     </div>
   </nav>
 
@@ -93,763 +166,212 @@
   </div>
 </aside>
 
-<!-- ===== MAIN CONTENT ===== -->
 <main class="main-content" id="mainContent">
-
-  <!-- Topbar -->
   <header class="topbar">
     <div class="topbar-left">
       <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
       <div class="page-title">
-        <h1>Export Management</h1>
-        <span class="breadcrumb">Mineral Kharidari ➔ Warehouse ➔ Production ➔ Ready Stock ➔ Sale &amp; Munafa</span>
+        <h1>Export Operations Hub</h1>
+        <span class="breadcrumb">Independent export management system</span>
       </div>
     </div>
     <div class="topbar-right">
-      <div class="topbar-date">
-        <i class="fas fa-calendar-alt"></i>
-        <span id="currentDate"></span>
-      </div>
-      <button id="deleteAllDataBtn" class="topbar-btn topbar-btn-danger" title="Delete All Data" onclick="deleteAllDataConfirm()">
-        <i class="fas fa-trash-alt"></i><span class="btn-label-desktop"> Delete All Data</span>
-      </button>
-      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()">
-        <i class="fas fa-cloud-upload-alt"></i>
-      </button>
-      <button class="topbar-btn" title="Refresh" onclick="location.reload()">
-        <i class="fas fa-sync-alt"></i>
-      </button>
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()"><i class="fas fa-cloud-upload-alt"></i></button>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
     </div>
   </header>
 
-  <!-- Page Content -->
   <div class="page-content">
 
-    <!-- ===== STREAMLINED 6-TAB NAVIGATION BAR ===== -->
-    <div class="export-tabs-wrapper">
-      <div class="export-tabs">
-        <button class="export-tab-btn active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> 1. Dashboard</button>
-        <button class="export-tab-btn" data-tab="purchase"><i class="fas fa-cart-shopping"></i> 2. Maal Khareedna (Purchase)</button>
-        <button class="export-tab-btn" data-tab="warehouse"><i class="fas fa-warehouse"></i> 3. Warehouse (Maal Received &amp; Stock)</button>
-        <button class="export-tab-btn" data-tab="production"><i class="fas fa-industry"></i> 4. Production (Processing)</button>
-        <button class="export-tab-btn" data-tab="ready-stock"><i class="fas fa-layer-group"></i> 5. Ready Stock (Tayar Maal)</button>
-        <button class="export-tab-btn" data-tab="sales"><i class="fas fa-handshake"></i> 6. Buyers &amp; Sale (Bechna)</button>
-        <button class="export-tab-btn" data-tab="expenses-profit"><i class="fas fa-scale-balanced"></i> 7. Kharchay &amp; Munafa (Profit)</button>
+    <!-- PAGE HEADER -->
+    <div class="page-header" style="margin-bottom: 12px;">
+      <div class="page-header-left">
+        <h2>Export Management Overview</h2>
+        <p>Parallel international trade system directly linked to Supabase cloud storage</p>
       </div>
     </div>
 
-    <!-- =============================================
-         TAB 1: DASHBOARD (EXECUTIVE OVERVIEW)
-         ============================================= -->
-    <div class="export-panel active" id="tab-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#e0f5f3;color:#2a9d8f;"><i class="fas fa-warehouse"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Warehouse Raw Stock</span>
-            <span class="stat-value" id="kpiRawStock">0 TON</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#fdf0e8;color:#e07b39;"><i class="fas fa-industry"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">In Production / Process</span>
-            <span class="stat-value" id="kpiProductionStock">0 TON</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#ebf7f2;color:#52b788;"><i class="fas fa-cubes"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Ready Finished Stock</span>
-            <span class="stat-value" id="kpiReadyStock">0 TON</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#fdf8ec;color:#e9c46a;"><i class="fas fa-truck-ramp-box"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Total Sold to Buyers</span>
-            <span class="stat-value" id="kpiSoldStock">0 TON</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#fff3e0;color:#e65100;"><i class="fas fa-file-invoice-dollar"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Total Purchase Cost</span>
-            <span class="stat-value" id="kpiTotalPurchases">PKR 0</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#e3ecf0;color:#264653;"><i class="fas fa-hand-holding-dollar"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Total Sales Revenue</span>
-            <span class="stat-value" id="kpiTotalSales">PKR 0</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#fde8ea;color:#e63946;"><i class="fas fa-receipt"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Total Kharchay (Expenses)</span>
-            <span class="stat-value" id="kpiTotalExpenses">PKR 0</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background:#d8f3dc;color:#1b4332;"><i class="fas fa-chart-line"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">Asal Net Munafa (Profit)</span>
-            <span class="stat-value" id="kpiExportProfit" style="color:var(--emerald);font-weight:800;">PKR 0</span>
-          </div>
+    <!-- OVERVIEW METRICS -->
+    <div class="hub-stats-bar">
+      <div class="hub-stat-box">
+        <div class="hstat-icon" style="background:#e6fffa;color:#0d9488;"><i class="fas fa-users"></i></div>
+        <div>
+          <div class="hstat-val" id="statExpSuppliers">0</div>
+          <div class="hstat-lbl">Export Suppliers</div>
         </div>
       </div>
-
-      <!-- Quick Action Buttons Row -->
-      <div class="card mb-4 mt-3" style="background:var(--color-surface);border-left:4px solid var(--teal);">
-        <div class="card-body" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
-          <div>
-            <h3 style="margin:0;font-size:16px;"><i class="fas fa-bolt" style="color:var(--copper);margin-right:8px;"></i>Quick Operations</h3>
-            <span style="font-size:12px;color:var(--text-secondary);">Direct kisi bhi marhalay par jayein:</span>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-primary btn-sm" onclick="switchExportTab('purchase')"><i class="fas fa-plus"></i> Naya Maal Khareedein</button>
-            <button class="btn btn-secondary btn-sm" onclick="switchExportTab('warehouse')"><i class="fas fa-box-open"></i> Warehouse Receiving</button>
-            <button class="btn btn-secondary btn-sm" onclick="switchExportTab('production')"><i class="fas fa-cogs"></i> Maal Processing</button>
-            <button class="btn btn-primary btn-sm" style="background:var(--emerald);border-color:var(--emerald);" onclick="switchExportTab('sales')"><i class="fas fa-handshake"></i> Buyer ko Maal Bechein</button>
-          </div>
+      <div class="hub-stat-box">
+        <div class="hstat-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-warehouse"></i></div>
+        <div>
+          <div class="hstat-val" id="statExpWh">0 TON</div>
+          <div class="hstat-lbl">Warehouse Stock</div>
         </div>
       </div>
-
-      <!-- Overview Chart -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-chart-bar" style="color:var(--teal);margin-right:8px;"></i>Export Financial Breakdown (Purchases vs Sales vs Kharchay vs Munafa)</h3>
+      <div class="hub-stat-box">
+        <div class="hstat-icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-industry"></i></div>
+        <div>
+          <div class="hstat-val" id="statExpProd">0 TON</div>
+          <div class="hstat-lbl">In Production</div>
         </div>
-        <div class="card-body" style="height:280px;">
-          <canvas id="chartExportFinancials"></canvas>
+      </div>
+      <div class="hub-stat-box">
+        <div class="hstat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-layer-group"></i></div>
+        <div>
+          <div class="hstat-val" id="statExpFg">0 TON</div>
+          <div class="hstat-lbl">Ready Stock (FG)</div>
         </div>
       </div>
     </div>
 
-    <!-- =============================================
-         TAB 2: MAAL KHAREEDNA (PURCHASE BOOKING)
-         ============================================= -->
-    <div class="export-panel" id="tab-purchase">
-      <div class="card mb-4">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-          <h3 class="card-title"><i class="fas fa-cart-shopping" style="color:var(--teal);margin-right:8px;"></i>1. Mineral Purchase Booking (Supplier se Maal Khareedna)</h3>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openSupplierModal()"><i class="fas fa-user-plus"></i> + Naya Supplier Add Karein</button>
-        </div>
-        <div class="card-body">
-          <form id="expPurchaseBookingForm">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Booking No. *</label>
-                <input type="text" id="pbBookingNo" class="form-control" required readonly />
-              </div>
-              <div class="form-group">
-                <label>Date *</label>
-                <input type="date" id="pbDate" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                  <label style="margin:0;">Export Supplier *</label>
-                  <span style="font-size:11px;color:var(--teal);cursor:pointer;" onclick="openSupplierModal()">+ Naya Supplier</span>
-                </div>
-                <select id="pbSupplier" class="form-control" required></select>
-              </div>
-              <div class="form-group">
-                <label>Mineral Type *</label>
-                <input type="text" id="pbMineral" class="form-control" list="mineralList" placeholder="e.g. Talc, Chromite, Barite" required />
-                <datalist id="mineralList">
-                  <option value="Talc (Soapstone)"></option>
-                  <option value="Chromite"></option>
-                  <option value="Barite"></option>
-                  <option value="Quartz"></option>
-                  <option value="Calcium Carbonate"></option>
-                  <option value="Fluorite"></option>
-                  <option value="Iron Ore"></option>
-                </datalist>
-              </div>
-              <div class="form-group">
-                <label>Quantity *</label>
-                <input type="number" id="pbQuantity" class="form-control" step="0.001" min="0.001" placeholder="0.000" required />
-              </div>
-              <div class="form-group">
-                <label>Unit *</label>
-                <select id="pbUnit" class="form-control">
-                  <option value="TON" selected>TON</option>
-                  <option value="KG">KG</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Rate (PKR / Unit) *</label>
-                <input type="number" id="pbRate" class="form-control" step="0.01" min="0" placeholder="PKR Rate" required />
-              </div>
-              <div class="form-group">
-                <label>Total Amount (Auto-Calculated)</label>
-                <input type="number" id="pbTotal" class="form-control" readonly />
-                <small id="pbCalcTotal" style="color:var(--teal);font-weight:700;display:block;margin-top:4px;">PKR 0</small>
-              </div>
-              <div class="form-group">
-                <label>Payment Mode *</label>
-                <select id="pbPaymentType" class="form-control">
-                  <option value="credit" selected>Udhaar (Credit - Supplier Payable)</option>
-                  <option value="cash">Naqad (Cash Out - Expense)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Warehouse / Location</label>
-                <input type="text" id="pbWarehouse" class="form-control" value="Main Export Yard" />
-              </div>
-              <div class="form-group" style="grid-column: span 2;">
-                <label>Remarks / Notes</label>
-                <input type="text" id="pbRemarks" class="form-control" placeholder="Mine location, mesh size, terms..." />
-              </div>
-            </div>
-            <div class="form-actions mt-3">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Purchase Booking</button>
-            </div>
-          </form>
-        </div>
-      </div>
+    <!-- MODULE CARDS -->
+    <div class="hub-grid">
 
-      <!-- Purchase Bookings Record Table -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-list" style="color:var(--mineral-blue);margin-right:8px;"></i>Purchase Bookings Record</h3>
+      <!-- 1. Export Suppliers -->
+      <a href="export-suppliers.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(13,148,136,0.12);color:#0d9488;">
+          <i class="fas fa-users"></i>
         </div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Booking #</th>
-                <th>Supplier</th>
-                <th>Mineral</th>
-                <th>Quantity</th>
-                <th>Rate</th>
-                <th>Total (PKR)</th>
-                <th>Payment</th>
-                <th>Warehouse Receiving Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="pbTableBody"></tbody>
-          </table>
+        <div class="hub-title">Export Suppliers</div>
+        <div class="hub-desc">Manage dedicated export mineral vendors and suppliers separate from local suppliers.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
-    </div>
+      </a>
 
-    <!-- =============================================
-         TAB 3: WAREHOUSE (MAAL RECEIVED & STOCK)
-         ============================================= -->
-    <div class="export-panel" id="tab-warehouse">
-      <!-- Live Raw Stock Summary Banner -->
-      <div class="card mb-4" style="background:linear-gradient(135deg, #181c2a 0%, #264653 100%);color:#fff;">
-        <div class="card-body">
-          <h3 style="margin:0 0 12px 0;font-size:17px;color:#fff;"><i class="fas fa-boxes-stacked" style="color:var(--sand);margin-right:8px;"></i>Warehouse Raw Stock Summary (Godown mein Kitna Maal Pada Hai)</h3>
-          <div id="warehouseStockSummaryBanner" style="display:flex;flex-wrap:wrap;gap:16px;"></div>
+      <!-- 2. Export Purchase Booking -->
+      <a href="export-booking.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(37,99,235,0.12);color:#2563eb;">
+          <i class="fas fa-clipboard-list"></i>
         </div>
-      </div>
+        <div class="hub-title">Export Booking</div>
+        <div class="hub-desc">Record raw mineral purchase bookings for export with auto-warehouse entry.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
 
-      <!-- Warehouse Receiving Form -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-truck-ramp-box" style="color:var(--teal);margin-right:8px;"></i>Warehouse mein Maal Receive Karein</h3>
+      <!-- 3. Export Warehouse -->
+      <a href="export-warehouse.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(217,119,6,0.12);color:#d97706;">
+          <i class="fas fa-warehouse"></i>
         </div>
-        <div class="card-body">
-          <form id="expReceivingForm">
-            <div class="form-grid">
-              <div class="form-group" style="grid-column: span 2;">
-                <label>Select Purchase Booking *</label>
-                <select id="rcvBookingId" class="form-control" required></select>
-              </div>
-              <div class="form-group">
-                <label>Supplier</label>
-                <input type="text" id="rcvSupplierDisplay" class="form-control" readonly placeholder="Auto-filled" />
-              </div>
-              <div class="form-group">
-                <label>Mineral</label>
-                <input type="text" id="rcvMineralDisplay" class="form-control" readonly placeholder="Auto-filled" />
-              </div>
-              <div class="form-group">
-                <label>Baqi Pending Maal</label>
-                <input type="text" id="rcvPendingDisplay" class="form-control" readonly style="font-weight:700;color:var(--copper);" />
-              </div>
-              <div class="form-group">
-                <label>Received Quantity * (<span id="rcvUnitDisplay">TON</span>)</label>
-                <input type="number" id="rcvQuantity" class="form-control" step="0.001" min="0.001" required />
-              </div>
-              <div class="form-group">
-                <label>Receiving Date *</label>
-                <input type="date" id="rcvDate" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <label>Warehouse</label>
-                <input type="text" id="rcvWarehouse" class="form-control" value="Main Export Yard" />
-              </div>
-              <div class="form-group">
-                <label>Vehicle / Truck No.</label>
-                <input type="text" id="rcvVehicle" class="form-control" placeholder="e.g. TL-8492" />
-              </div>
-              <div class="form-group">
-                <label>Bilty / Challan No.</label>
-                <input type="text" id="rcvBiltyNo" class="form-control" placeholder="Bilty #" />
-              </div>
-            </div>
-            <div class="form-actions mt-3">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle"></i> Confirm Maal Received in Warehouse</button>
-            </div>
-          </form>
+        <div class="hub-title">Export Warehouse</div>
+        <div class="hub-desc">Track raw mineral stock received and dispatch tons into export production.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
+      </a>
 
-      <!-- Receiving Log Table -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-history" style="color:var(--mineral-blue);margin-right:8px;"></i>Warehouse Inward Receiving Logs</h3>
+      <!-- 4. Export Production -->
+      <a href="export-production.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(147,51,234,0.12);color:#9333ea;">
+          <i class="fas fa-industry"></i>
         </div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Booking #</th>
-                <th>Supplier</th>
-                <th>Mineral</th>
-                <th>Received Quantity</th>
-                <th>Warehouse</th>
-                <th>Vehicle / Bilty</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="rcvTableBody"></tbody>
-          </table>
+        <div class="hub-title">Export Production</div>
+        <div class="hub-desc">Manage production pipeline stages (Pending, In Process) and record completed &amp; scrap tons.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
-    </div>
+      </a>
 
-    <!-- =============================================
-         TAB 4: PRODUCTION (PROCESSING & WASTAGE)
-         ============================================= -->
-    <div class="export-panel" id="tab-production">
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-industry" style="color:var(--teal);margin-right:8px;"></i>Mineral Processing Entry (Warehouse ➔ Production ➔ Ready Stock)</h3>
+      <!-- 5. Export Finished Goods -->
+      <a href="export-finished-goods.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(5,150,105,0.12);color:#059669;">
+          <i class="fas fa-layer-group"></i>
         </div>
-        <div class="card-body">
-          <form id="expProductionForm">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Batch No. *</label>
-                <input type="text" id="prNo" class="form-control" required readonly />
-              </div>
-              <div class="form-group">
-                <label>Date *</label>
-                <input type="date" id="prDate" class="form-control" required />
-              </div>
-              <div class="form-group" style="grid-column: span 2;">
-                <label>Warehouse Raw Stock Batch *</label>
-                <select id="prMineralSource" class="form-control" required></select>
-              </div>
-              <div class="form-group">
-                <label>Input Raw Quantity *</label>
-                <input type="number" id="prInputQty" class="form-control" step="0.001" min="0.001" placeholder="Kitna maal dala" required />
-              </div>
-              <div class="form-group">
-                <label>Unit *</label>
-                <select id="prUnit" class="form-control">
-                  <option value="TON" selected>TON</option>
-                  <option value="KG">KG</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Wastage / Scrap Loss (Zaya Maal)</label>
-                <input type="number" id="prWastageQty" class="form-control" step="0.001" min="0" value="0" />
-              </div>
-              <div class="form-group">
-                <label>Tayar Maal (Ready Output Yield)</label>
-                <input type="number" id="prReadyQty" class="form-control" step="0.001" min="0" placeholder="Auto-calculated (Input - Wastage)" required />
-              </div>
-              <div class="form-group">
-                <label>Machine / Plant</label>
-                <input type="text" id="prMachine" class="form-control" value="Plant 1 / Grinding Mill" />
-              </div>
-              <div class="form-group">
-                <label>Packing Bags (Optional)</label>
-                <input type="number" id="prBags" class="form-control" min="0" placeholder="e.g. 500" />
-              </div>
-              <div class="form-group" style="grid-column: span 2;">
-                <label>Remarks</label>
-                <input type="text" id="prRemarks" class="form-control" placeholder="Mesh 300, brightness, quality notes..." />
-              </div>
-            </div>
-            <div class="form-actions mt-3">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-cogs"></i> Process Maal &amp; Add to Ready Stock</button>
-            </div>
-          </form>
+        <div class="hub-title">Export Finished Goods</div>
+        <div class="hub-desc">Track ready processed mineral inventory ready for export dispatch and monitor scrap logs.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
+      </a>
 
-      <!-- Production Table -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Production Processing History</h3>
+      <!-- 6. Export Delivery / Sale -->
+      <a href="export-delivery.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(225,29,72,0.12);color:#e11d48;">
+          <i class="fas fa-truck"></i>
         </div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Batch #</th>
-                <th>Date</th>
-                <th>Mineral</th>
-                <th>Input Maal</th>
-                <th>Wastage Loss</th>
-                <th>Tayar Maal (Output)</th>
-                <th>Packing</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="prTableBody"></tbody>
-          </table>
+        <div class="hub-title">Export Delivery / Sale</div>
+        <div class="hub-desc">Dispatch finished goods orders with automatic FIFO deduction and delivery receipts.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
-    </div>
+      </a>
 
-    <!-- =============================================
-         TAB 5: READY STOCK (TAYAR MAAL)
-         ============================================= -->
-    <div class="export-panel" id="tab-ready-stock">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-layer-group" style="color:var(--emerald);margin-right:8px;"></i>Ready Mineral Stock (Tayar Maal Ka Hisab)</h3>
+      <!-- 7. Export Suppliers Finance -->
+      <a href="export-suppliers-finance.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(168,85,247,0.12);color:#a855f7;">
+          <i class="fas fa-coins"></i>
         </div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Mineral Type</th>
-                <th>Total Tayar Hua</th>
-                <th>Bik Chuka (Sold)</th>
-                <th>Baqi Ready Stock (Available)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="readyStockTableBody"></tbody>
-          </table>
+        <div class="hub-title">Export Suppliers Finance</div>
+        <div class="hub-desc">Track bookings vs payments made to export suppliers with statement exports.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
-    </div>
+      </a>
 
-    <!-- =============================================
-         TAB 6: BUYERS & SALE (MAAL BECHNA)
-         ============================================= -->
-    <div class="export-panel" id="tab-sales">
-      <div class="card mb-4">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-          <h3 class="card-title"><i class="fas fa-handshake" style="color:var(--teal);margin-right:8px;"></i>Buyer ko Tayar Maal Bechein (Sale Entry)</h3>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openCustomerModal()"><i class="fas fa-user-plus"></i> + Naya Buyer Add Karein</button>
+      <!-- 8. Export Supplier Ledger -->
+      <a href="export-ledger.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(14,165,233,0.12);color:#0ea5e9;">
+          <i class="fas fa-book"></i>
         </div>
-        <div class="card-body">
-          <form id="expSalesBookingForm">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Sale Invoice / Order # *</label>
-                <input type="text" id="sbBookingNo" class="form-control" required readonly />
-              </div>
-              <div class="form-group">
-                <label>Date *</label>
-                <input type="date" id="sbDate" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                  <label style="margin:0;">Buyer / Customer *</label>
-                  <span style="font-size:11px;color:var(--teal);cursor:pointer;" onclick="openCustomerModal()">+ Naya Buyer</span>
-                </div>
-                <select id="sbCustomer" class="form-control" required></select>
-              </div>
-              <div class="form-group">
-                <label>Mineral (Ready Stock se) *</label>
-                <select id="sbMineralSelect" class="form-control" required></select>
-              </div>
-              <div class="form-group">
-                <label>Quantity *</label>
-                <input type="number" id="sbQuantity" class="form-control" step="0.001" min="0.001" placeholder="Sale quantity" required />
-              </div>
-              <div class="form-group">
-                <label>Unit *</label>
-                <select id="sbUnit" class="form-control">
-                  <option value="TON" selected>TON</option>
-                  <option value="KG">KG</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Sale Rate (PKR / Unit) *</label>
-                <input type="number" id="sbRate" class="form-control" step="0.01" min="0" placeholder="PKR Rate" required />
-              </div>
-              <div class="form-group">
-                <label>Total Sale Amount (PKR)</label>
-                <input type="number" id="sbTotal" class="form-control" readonly />
-                <small id="sbCalcTotal" style="color:var(--emerald);font-weight:700;display:block;margin-top:4px;">PKR 0</small>
-              </div>
-              <div class="form-group">
-                <label>Payment Terms *</label>
-                <select id="sbPaymentTerms" class="form-control">
-                  <option value="credit" selected>Udhaar (Customer Receivable Khata)</option>
-                  <option value="cash">Naqad (Cash In - Income)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Destination Country / City</label>
-                <input type="text" id="sbCountry" class="form-control" placeholder="e.g. UAE / Karachi" />
-              </div>
-              <div class="form-group" style="grid-column: span 2;">
-                <label>Remarks</label>
-                <input type="text" id="sbRemarks" class="form-control" placeholder="Payment terms, delivery details..." />
-              </div>
-            </div>
-            <div class="form-actions mt-3">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Sale &amp; Deduct Ready Stock</button>
-            </div>
-          </form>
+        <div class="hub-title">Export Supplier Ledger</div>
+        <div class="hub-desc">Complete export weight history, warehouse balance, and delivery statements.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
+      </a>
 
-      <!-- Sales Table & Buyer Statements -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Sales Orders History</h3>
+      <!-- 9. Export Income & Expense -->
+      <a href="export-income-expense.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(16,185,129,0.12);color:#10b981;">
+          <i class="fas fa-wallet"></i>
         </div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Order #</th>
-                <th>Date</th>
-                <th>Buyer</th>
-                <th>Mineral</th>
-                <th>Quantity</th>
-                <th>Rate</th>
-                <th>Total Sale (PKR)</th>
-                <th>Payment</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="sbTableBody"></tbody>
-          </table>
+        <div class="hub-title">Export Income &amp; Expense</div>
+        <div class="hub-desc">Record export sales revenue, freight/shipping operational expenses, and monthly closings.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
         </div>
-      </div>
+      </a>
 
-      <!-- Buyers Khata / Directory -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-users" style="color:var(--teal);margin-right:8px;"></i>Buyers Directory &amp; Outstanding Khata (Udhaar)</h3>
-        </div>
-        <div class="export-card-grid p-3" id="customersCardsGrid"></div>
-      </div>
-    </div>
-
-    <!-- =============================================
-         TAB 7: KHARCHAY & MUNAFA (EXPENSES & PROFIT)
-         ============================================= -->
-    <div class="export-panel" id="tab-expenses-profit">
-      <!-- Consolidated Profit Highlight Card -->
-      <div class="profit-card-highlight">
-        <h2 style="margin:0;font-size:22px;"><i class="fas fa-scale-balanced" style="color:var(--sand);margin-right:10px;"></i>Asal Net Munafa (Profit &amp; Loss Engine)</h2>
-        <p style="margin:4px 0 0 0;font-size:13px;opacity:0.8;">Formula: Asal Munafa = Total Sales − Maal Khareedari Cost − Total Kharchay</p>
-
-        <div class="profit-grid">
-          <div class="profit-metric-item">
-            <div class="profit-metric-lbl">Total Sales (Becha)</div>
-            <div class="profit-metric-val" id="pfGrossSales">PKR 0</div>
-          </div>
-          <div class="profit-metric-item">
-            <div class="profit-metric-lbl">Maal Khareedari Cost</div>
-            <div class="profit-metric-val copper" id="pfPurchaseCost">PKR 0</div>
-          </div>
-          <div class="profit-metric-item">
-            <div class="profit-metric-lbl">Total Kharchay (Expenses)</div>
-            <div class="profit-metric-val copper" id="pfTotalExpenses">PKR 0</div>
-          </div>
-          <div class="profit-metric-item" style="border:2px solid #52b788;background:rgba(82, 183, 136, 0.15);">
-            <div class="profit-metric-lbl" style="color:#52b788;font-weight:700;">Asal Net Munafa</div>
-            <div class="profit-metric-val green" id="pfNetProfit">PKR 0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Kharchay Add Karne Ka Form -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-receipt" style="color:var(--teal);margin-right:8px;"></i>Naya Kharcha Add Karein (Transport, Loading, Labour, Port etc.)</h3>
-        </div>
-        <div class="card-body">
-          <form id="expSimpleExpenseForm">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Kharcha Category *</label>
-                <select id="expKharchaType" class="form-control">
-                  <option value="Transport">Transport / Gari Kiraya</option>
-                  <option value="Loading">Loading Charges</option>
-                  <option value="Unloading">Unloading Charges</option>
-                  <option value="Labour">Labour &amp; Mazdoori</option>
-                  <option value="Customs & Port">Customs / Port / Terminal Charges</option>
-                  <option value="Clearing & Forwarding">Clearing &amp; Forwarding</option>
-                  <option value="Other">Other Kharcha</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Date *</label>
-                <input type="date" id="expKharchaDate" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <label>Amount (PKR) *</label>
-                <input type="number" id="expKharchaAmount" class="form-control" step="0.01" min="1" placeholder="PKR Amount" required />
-              </div>
-              <div class="form-group">
-                <label>Payment Method *</label>
-                <select id="expKharchaPayment" class="form-control">
-                  <option value="cash" selected>Naqad (Cash Out)</option>
-                  <option value="supplier_account">Supplier ke Khate mein</option>
-                  <option value="buyer_account">Buyer ke Khate mein</option>
-                </select>
-              </div>
-              <div class="form-group" style="grid-column: span 2;">
-                <label>Tafseel / Reference</label>
-                <input type="text" id="expKharchaRemarks" class="form-control" placeholder="Gari number, driver name, invoice #..." />
-              </div>
-            </div>
-            <div class="form-actions mt-3">
-              <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Kharcha</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Kharchay Table -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><i class="fas fa-table" style="color:var(--mineral-blue);margin-right:8px;"></i>Kharchon Ka Record</h3>
-        </div>
-        <div class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Kharcha Type</th>
-                <th>Amount (PKR)</th>
-                <th>Payment Mode</th>
-                <th>Tafseel / Reference</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="expKharchayTableBody"></tbody>
-          </table>
-        </div>
-      </div>
     </div>
 
   </div>
-  <!-- end page-content -->
-
 </main>
 
-<!-- ===== MODAL 1: ADD EXPORT SUPPLIER ===== -->
-<div class="modal-overlay" id="supplierModal">
-  <div class="modal" style="max-width:550px;">
-    <div class="modal-header">
-      <h3 class="modal-title"><i class="fas fa-user-plus" style="color:var(--teal);margin-right:8px;"></i>Naya Export Supplier Add Karein</h3>
-      <button class="modal-close" onclick="closeModal('supplierModal')"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <form id="expSupplierForm">
-        <div class="form-group mb-2">
-          <label>Supplier / Company Name *</label>
-          <input type="text" id="expSupName" class="form-control" placeholder="e.g. Swat Mining Corp" required />
-        </div>
-        <div class="form-group mb-2">
-          <label>Phone / WhatsApp *</label>
-          <input type="text" id="expSupPhone" class="form-control" placeholder="e.g. 0300 1234567" required />
-        </div>
-        <div class="form-group mb-2">
-          <label>City / Mine Location</label>
-          <input type="text" id="expSupCity" class="form-control" placeholder="e.g. Abbottabad" />
-        </div>
-        <div class="form-group mb-2">
-          <label>Mineral Supplied</label>
-          <input type="text" id="expSupMinerals" class="form-control" placeholder="e.g. Talc, Chromite" />
-        </div>
-        <div class="form-actions mt-3">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Supplier</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- ===== MODAL 2: ADD BUYER / CUSTOMER ===== -->
-<div class="modal-overlay" id="customerModal">
-  <div class="modal" style="max-width:550px;">
-    <div class="modal-header">
-      <h3 class="modal-title"><i class="fas fa-user-plus" style="color:var(--teal);margin-right:8px;"></i>Naya Buyer / Customer Add Karein</h3>
-      <button class="modal-close" onclick="closeModal('customerModal')"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <form id="expCustomerForm">
-        <div class="form-group mb-2">
-          <label>Buyer / Company Name *</label>
-          <input type="text" id="custName" class="form-control" placeholder="e.g. Al-Farooq Minerals Dubai" required />
-        </div>
-        <div class="form-group mb-2">
-          <label>Country / City *</label>
-          <input type="text" id="custCountry" class="form-control" placeholder="e.g. UAE / Karachi" required />
-        </div>
-        <div class="form-group mb-2">
-          <label>Phone / WhatsApp</label>
-          <input type="text" id="custContact" class="form-control" placeholder="+971 50 1234567" />
-        </div>
-        <div class="form-actions mt-3">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Buyer</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- ===== MODAL 3: BUYER STATEMENT / KHATA ===== -->
-<div class="modal-overlay" id="custLedgerModal">
-  <div class="modal" style="max-width:850px;">
-    <div class="modal-header">
-      <h3 class="modal-title" id="custLedgerModalTitle"><i class="fas fa-file-invoice" style="color:var(--teal);margin-right:8px;"></i>Buyer Statement / Khata Record</h3>
-      <button class="modal-close" onclick="closeModal('custLedgerModal')"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Order / Ref</th>
-              <th>Tafseel</th>
-              <th>Maal Sale (Udhar)</th>
-              <th>Paise Aaye (Received)</th>
-              <th>Baqi Udhaar</th>
-            </tr>
-          </thead>
-          <tbody id="custLedgerTableBody"></tbody>
-        </table>
-      </div>
-      <div id="custLedgerSummaryTotal"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeModal('custLedgerModal')">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Scripts -->
 <script src="js/auth.js?v=2"></script>
 <script src="js/data.js?v=2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/supabase-client.js?v=2"></script>
 <script src="js/app.js?v=2"></script>
-<script src="js/export.js?v=3"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    updateHubStats();
+  });
+
+  function updateHubStats() {
+    const supCount = DB.count('exp_suppliers');
+    const whStock = DB.get('exp_warehouse').reduce((s, i) => s + (Number(i.remainingWeight) || 0), 0);
+    const prodStock = DB.filter('exp_production', p => p.status === 'pending' || p.status === 'in_process')
+                        .reduce((s, p) => s + (Number(p.weight) || 0), 0);
+    const fgStock = DB.get('exp_finished_goods').reduce((s, i) => s + (Number(i.remainingWeight) || 0), 0);
+
+    const setT = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setT('statExpSuppliers', supCount);
+    setT('statExpWh', formatKG(whStock) + ' TON');
+    setT('statExpProd', formatKG(prodStock) + ' TON');
+    setT('statExpFg', formatKG(fgStock) + ' TON');
+  }
+</script>
 </body>
 </html>

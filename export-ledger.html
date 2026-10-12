@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Export Supplier Ledger — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css?v=2" />
+  <link rel="stylesheet" href="css/ledger.css?v=2" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+    <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Export Operations</span>
+      <a href="export.html" class="nav-item"><i class="fas fa-ship"></i><span>Export Hub</span></a>
+      <a href="export-suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Export Suppliers</span></a>
+      <a href="export-suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Export Suppliers Finance</span></a>
+      <a href="export-booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Export Booking</span></a>
+      <a href="export-warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Export Warehouse</span></a>
+      <a href="export-production.html" class="nav-item"><i class="fas fa-industry"></i><span>Export Production</span></a>
+      <a href="export-finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Export Finished Goods</span></a>
+      <a href="export-delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Export Delivery / Sale</span></a>
+      <a href="export-ledger.html" class="nav-item active"><i class="fas fa-book"></i><span>Export Supplier Ledger</span></a>
+      <a href="export-income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Export Income &amp; Expense</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Domestic System</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Export Supplier Ledger</h1>
+        <span class="breadcrumb">Complete account history per supplier</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()"><i class="fas fa-cloud-upload-alt"></i></button>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Supplier Ledger</h2>
+        <p>Full material flow per supplier — from booking to delivery. Select a supplier to view their account.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="suppliers.html" class="btn btn-secondary"><i class="fas fa-users"></i> Suppliers</a>
+      </div>
+    </div>
+
+    <!-- TWO-PANEL LAYOUT -->
+    <div class="ledger-layout">
+
+      <!-- LEFT: Supplier list -->
+      <div class="supplier-list-panel">
+        <div class="slp-header">
+          <h4><i class="fas fa-users" style="margin-right:6px;color:var(--teal);"></i>Suppliers</h4>
+          <div class="slp-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="supplierSearch" placeholder="Search suppliers..." autocomplete="off" />
+          </div>
+        </div>
+        <div class="slp-list" id="supplierListItems"></div>
+      </div>
+
+      <!-- RIGHT: Ledger detail -->
+      <div class="ledger-detail-panel" id="ledgerDetailPanel">
+        <div class="ledger-empty">
+          <i class="fas fa-book-open"></i>
+          <p>Select a supplier from the list to view their ledger.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<script src="js/auth.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js?v=2"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/export-ledger.js?v=2"></script>
+</body>
+</html>
