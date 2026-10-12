@@ -10,6 +10,28 @@ let _fgFilterSupplier = '';
 let _fgFilterDateFrom = '';
 let _fgFilterDateTo   = '';
 let _viewingId      = null;
+let _expActiveFgId  = null;
+
+/* =============================================
+   COST & EXPENSE CALCULATOR
+   ============================================= */
+function getBatchCostDetails(item) {
+  /* 1. Base booking cost from exp_bookings */
+  let baseAmount = 0;
+  if (item.bookingNo) {
+    const bk = DB.filter('exp_bookings', b => b.bookingNo === item.bookingNo)[0];
+    if (bk && bk.total) {
+      baseAmount = Number(bk.total) || 0;
+    }
+  }
+
+  /* 2. Additional batch expenses */
+  const expenses = Array.isArray(item.expenses) ? item.expenses : [];
+  const extraExpenses = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const netAmount = baseAmount + extraExpenses;
+
+  return { baseAmount, extraExpenses, netAmount, expenses };
+}
 
 /* =============================================
    INIT
@@ -124,14 +146,14 @@ function renderFinishedPanel(filtered) {
 
   if (!filtered.length) {
     tbody.innerHTML = `
-      <tr><td colspan="8">
+      <tr><td colspan="9">
         <div class="empty-state" style="padding:40px;">
           <i class="fas fa-layer-group"></i>
           <p>${_fgFilter || _fgFilterSupplier || _fgFilterDateFrom || _fgFilterDateTo
               ? 'No records match your filters.'
               : 'No finished goods yet. Complete a production batch first.'}</p>
           ${!_fgFilter && !_fgFilterSupplier
-            ? '<a href="production.html" class="btn btn-primary btn-sm" style="margin-top:10px;"><i class="fas fa-industry"></i> Go to Production</a>'
+            ? '<a href="export-production.html" class="btn btn-primary btn-sm" style="margin-top:10px;"><i class="fas fa-industry"></i> Go to Production</a>'
             : ''}
         </div>
       </td></tr>`;
@@ -145,6 +167,9 @@ function renderFinishedPanel(filtered) {
     const delivered  = finished - remaining;
     const pct        = finished > 0 ? Math.round((remaining / finished) * 100) : 0;
     const fillClass  = pct <= 0 ? 'empty' : pct <= 30 ? 'low' : '';
+
+    /* Calculate Cost & Expenses */
+    const cost = getBatchCostDetails(item);
 
     return `
       <tr>
@@ -173,6 +198,24 @@ function renderFinishedPanel(filtered) {
         }</td>
         <td>${formatDateTime(item.date)}</td>
         <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div>
+              <div style="font-weight:800;font-size:13px;color:var(--color-text);">
+                PKR ${formatCurrency(cost.netAmount)}
+              </div>
+              ${cost.extraExpenses > 0 ? `
+                <div style="font-size:10.5px;color:var(--copper, #d97706);font-weight:600;">
+                  Base: ${formatCurrency(cost.baseAmount)} + Exp: ${formatCurrency(cost.extraExpenses)}
+                </div>` : ''}
+            </div>
+            <button class="btn btn-secondary btn-sm btn-icon" title="Add / View Expenses"
+              style="color:var(--teal);border-color:var(--color-border);width:30px;height:30px;"
+              onclick="openFgExpenseModal('${escapeHtml(item.id)}')">
+              <i class="fas fa-coins"></i>
+            </button>
+          </div>
+        </td>
+        <td>
           <button class="btn btn-secondary btn-sm btn-icon" title="View Details"
             onclick="viewFgDetail('${escapeHtml(item.id)}')">
             <i class="fas fa-eye"></i>
@@ -183,10 +226,11 @@ function renderFinishedPanel(filtered) {
 
   /* Footer */
   if (tfoot) {
-    const totalInput    = filtered.reduce((s, i) => s + (Number(i.inputWeight)    || 0), 0);
-    const totalFinished = filtered.reduce((s, i) => s + (Number(i.finishedWeight) || 0), 0);
-    const totalRemaining = filtered.reduce((s, i) => s + (Number(i.remainingWeight)|| 0), 0);
+    const totalInput     = filtered.reduce((s, i) => s + (Number(i.inputWeight)     || 0), 0);
+    const totalFinished  = filtered.reduce((s, i) => s + (Number(i.finishedWeight)  || 0), 0);
+    const totalRemaining = filtered.reduce((s, i) => s + (Number(i.remainingWeight) || 0), 0);
     const totalDelivered = totalFinished - totalRemaining;
+    const totalNetCost   = filtered.reduce((s, i) => s + getBatchCostDetails(i).netAmount, 0);
 
     tfoot.innerHTML = `
       <tr style="background:var(--color-surface-2);">
@@ -195,7 +239,9 @@ function renderFinishedPanel(filtered) {
         <td style="font-weight:800;color:var(--emerald);">${formatKG(totalFinished)} <small style="color:var(--text-muted);">TON</small></td>
         <td style="font-weight:800;color:var(--teal);">${formatKG(totalRemaining)} <small style="color:var(--text-muted);">TON</small></td>
         <td style="font-weight:800;color:var(--copper);">${formatKG(totalDelivered)} <small style="color:var(--text-muted);">TON</small></td>
-        <td colspan="2"></td>
+        <td></td>
+        <td style="font-weight:800;color:var(--color-text);">PKR ${formatCurrency(totalNetCost)}</td>
+        <td></td>
       </tr>`;
   }
 }
@@ -341,3 +387,188 @@ function exportFgCSV() {
   URL.revokeObjectURL(url);
   showToast('CSV exported successfully.', 'success');
 }
+
+/* =============================================
+   EXPENSE MANAGEMENT MODAL LOGIC
+   ============================================= */
+function openFgExpenseModal(id) {
+  const item = DB.findById('exp_finished_goods', id);
+  if (!item) return;
+
+  _expActiveFgId = id;
+  cancelExpenseEdit();
+
+  /* Set summary details */
+  const setEl = (eid, val) => { const el = document.getElementById(eid); if (el) el.textContent = val; };
+  setEl('expModalBookingNo', item.bookingNo || '—');
+  setEl('expModalSupplier',  item.supplierName || '—');
+
+  refreshExpenseModalUI();
+  openModal('fgExpenseModal');
+}
+
+function refreshExpenseModalUI() {
+  const item = _expActiveFgId ? DB.findById('exp_finished_goods', _expActiveFgId) : null;
+  if (!item) return;
+
+  const cost = getBatchCostDetails(item);
+
+  const setEl = (eid, val) => { const el = document.getElementById(eid); if (el) el.textContent = val; };
+  setEl('expModalBaseCost',  `PKR ${formatCurrency(cost.baseAmount)}`);
+  setEl('expModalExtraCost', `+ PKR ${formatCurrency(cost.extraExpenses)}`);
+  setEl('expModalNetCost',   `PKR ${formatCurrency(cost.netAmount)}`);
+
+  /* Render expenses list */
+  const tbody = document.getElementById('expListTbody');
+  if (!tbody) return;
+
+  if (!cost.expenses.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted);">
+          No additional expenses added for this batch yet.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = cost.expenses.map((exp, idx) => `
+    <tr>
+      <td>
+        <div style="font-weight:700;">${escapeHtml(exp.title || 'Expense')}</div>
+        ${exp.notes ? `<div style="font-size:11px;color:var(--text-muted);">${escapeHtml(exp.notes)}</div>` : ''}
+      </td>
+      <td style="font-weight:700;color:var(--copper, #d97706);">
+        PKR ${formatCurrency(exp.amount)}
+      </td>
+      <td style="font-size:11.5px;color:var(--text-muted);">
+        ${formatDate(exp.date)}
+      </td>
+      <td style="text-align:center;">
+        <div style="display:flex;gap:4px;justify-content:center;">
+          <button class="btn btn-secondary btn-sm btn-icon" title="Edit"
+            onclick="editBatchExpense('${escapeHtml(exp.id || idx)}')">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Delete"
+            onclick="deleteBatchExpense('${escapeHtml(exp.id || idx)}')">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function saveBatchExpense(e) {
+  if (e) e.preventDefault();
+  const item = _expActiveFgId ? DB.findById('exp_finished_goods', _expActiveFgId) : null;
+  if (!item) return;
+
+  const title    = sanitizeInput(document.getElementById('expTitle')?.value  || '');
+  const amount   = parseFloat(document.getElementById('expAmount')?.value)   || 0;
+  const notes    = sanitizeInput(document.getElementById('expNotes')?.value  || '');
+  const editId   = document.getElementById('expEditingId')?.value            || '';
+
+  if (!title) {
+    showToast('Expense title is required.', 'error');
+    return;
+  }
+  if (amount <= 0) {
+    showToast('Amount must be greater than 0.', 'error');
+    return;
+  }
+
+  const expenses = Array.isArray(item.expenses) ? [...item.expenses] : [];
+
+  if (editId) {
+    /* Update existing */
+    const idx = expenses.findIndex(x => (x.id || '') === editId);
+    if (idx !== -1) {
+      expenses[idx] = {
+        ...expenses[idx],
+        title,
+        amount,
+        notes,
+        updatedAt: new Date().toISOString()
+      };
+      showToast('Expense updated successfully.', 'success');
+    }
+  } else {
+    /* Add new */
+    expenses.push({
+      id: generateId(),
+      title,
+      amount,
+      notes,
+      date: new Date().toISOString()
+    });
+    showToast('Expense added successfully.', 'success');
+  }
+
+  /* Save to DB */
+  DB.update('exp_finished_goods', _expActiveFgId, { expenses });
+
+  cancelExpenseEdit();
+  refreshExpenseModalUI();
+  renderFgTable();
+}
+
+function editBatchExpense(expId) {
+  const item = _expActiveFgId ? DB.findById('exp_finished_goods', _expActiveFgId) : null;
+  if (!item) return;
+
+  const expenses = Array.isArray(item.expenses) ? item.expenses : [];
+  const exp = expenses.find(x => (x.id || '') === expId) || expenses[parseInt(expId)];
+  if (!exp) return;
+
+  document.getElementById('expEditingId').value = exp.id || expId;
+  document.getElementById('expTitle').value     = exp.title || '';
+  document.getElementById('expAmount').value    = exp.amount || '';
+  document.getElementById('expNotes').value     = exp.notes || '';
+
+  const titleEl = document.getElementById('expFormTitle');
+  if (titleEl) titleEl.innerHTML = '<i class="fas fa-edit"></i> Edit Expense';
+
+  const subBtn = document.getElementById('expSubmitBtn');
+  if (subBtn) subBtn.innerHTML = '<i class="fas fa-save"></i> Update Expense';
+
+  const cancelBtn = document.getElementById('expCancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+}
+
+function cancelExpenseEdit() {
+  document.getElementById('fgExpenseForm')?.reset();
+  const editIdEl = document.getElementById('expEditingId');
+  if (editIdEl) editIdEl.value = '';
+
+  const titleEl = document.getElementById('expFormTitle');
+  if (titleEl) titleEl.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Expense';
+
+  const subBtn = document.getElementById('expSubmitBtn');
+  if (subBtn) subBtn.innerHTML = '<i class="fas fa-plus"></i> Add Expense';
+
+  const cancelBtn = document.getElementById('expCancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
+}
+
+function deleteBatchExpense(expId) {
+  const item = _expActiveFgId ? DB.findById('exp_finished_goods', _expActiveFgId) : null;
+  if (!item) return;
+
+  showConfirm(
+    'Are you sure you want to delete this expense record?',
+    () => {
+      let expenses = Array.isArray(item.expenses) ? [...item.expenses] : [];
+      expenses = expenses.filter((x, idx) => (x.id || String(idx)) !== String(expId));
+
+      DB.update('exp_finished_goods', _expActiveFgId, { expenses });
+      showToast('Expense removed.', 'success');
+
+      cancelExpenseEdit();
+      refreshExpenseModalUI();
+      renderFgTable();
+    },
+    'Delete Expense'
+  );
+}
+

@@ -167,6 +167,7 @@
                 <th>Remaining Stock</th>
                 <th>Delivered (TON)</th>
                 <th>Completed On</th>
+                <th>Total Amount</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -200,6 +201,92 @@
 
   </div>
 </main>
+
+<!-- EXPENSE MANAGEMENT MODAL -->
+<div class="modal-overlay" id="fgExpenseModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-coins" style="color:var(--teal);margin-right:8px;"></i>Finished Goods Expenses</h3>
+      <button class="modal-close" onclick="closeModal('fgExpenseModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Batch Summary Box -->
+      <div style="background:var(--color-surface-2, #f8fafc);border:1px solid var(--color-border, #e2e8f0);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Booking Voucher</span>
+          <span style="font-weight:700;color:var(--teal);font-size:13.5px;" id="expModalBookingNo">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:var(--text-muted);">Supplier</span>
+          <span style="font-weight:600;" id="expModalSupplier">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--color-border, #e2e8f0);padding-top:6px;margin-top:6px;">
+          <span style="font-size:12px;color:var(--text-muted);">Base Booking Cost:</span>
+          <span style="font-weight:700;color:var(--color-text);" id="expModalBaseCost">PKR 0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+          <span style="font-size:12px;color:var(--text-muted);">Additional Expenses:</span>
+          <span style="font-weight:700;color:var(--copper, #d97706);" id="expModalExtraCost">+ PKR 0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--color-border, #cbd5e1);padding-top:6px;margin-top:6px;">
+          <span style="font-weight:700;font-size:13px;">Net Batch Amount:</span>
+          <span style="font-weight:800;font-size:15px;color:var(--emerald, #059669);" id="expModalNetCost">PKR 0</span>
+        </div>
+      </div>
+
+      <!-- Add / Edit Expense Form -->
+      <form id="fgExpenseForm" onsubmit="saveBatchExpense(event)" style="background:var(--color-surface, #fff);border:1px solid var(--color-border, #e2e8f0);border-radius:8px;padding:14px;margin-bottom:16px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--teal);" id="expFormTitle">
+          <i class="fas fa-plus-circle"></i> Add New Expense
+        </div>
+        <input type="hidden" id="expEditingId" value="" />
+        <div class="form-row" style="margin-bottom:10px;">
+          <div class="form-group" style="flex:2;">
+            <label class="form-label" for="expTitle">Expense Title / Category <span style="color:var(--crimson);">*</span></label>
+            <input type="text" id="expTitle" class="form-control" placeholder="e.g. Loading, Transport, Bags, Washing" required />
+          </div>
+          <div class="form-group" style="flex:1.5;">
+            <label class="form-label" for="expAmount">Amount (PKR) <span style="color:var(--crimson);">*</span></label>
+            <input type="number" id="expAmount" class="form-control" placeholder="0" min="1" step="any" required />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label class="form-label" for="expNotes">Description / Notes</label>
+          <input type="text" id="expNotes" class="form-control" placeholder="Optional notes (e.g. Truck # 8243)" />
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary btn-sm" id="expCancelEditBtn" style="display:none;" onclick="cancelExpenseEdit()">
+            Cancel Edit
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm" id="expSubmitBtn">
+            <i class="fas fa-plus"></i> Add Expense
+          </button>
+        </div>
+      </form>
+
+      <!-- Expense List Table -->
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px;">
+        <i class="fas fa-list"></i> Added Expenses for this Batch
+      </div>
+      <div class="table-wrapper" style="max-height:180px;overflow-y:auto;border:1px solid var(--color-border,#e2e8f0);border-radius:6px;">
+        <table class="data-table" style="font-size:12.5px;">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Amount (PKR)</th>
+              <th>Date</th>
+              <th style="text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="expListTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('fgExpenseModal')"><i class="fas fa-times"></i> Close</button>
+    </div>
+  </div>
+</div>
 
 <!-- DETAIL MODAL -->
 <div class="modal-overlay" id="fgDetailModal">
