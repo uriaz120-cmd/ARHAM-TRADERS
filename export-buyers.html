@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Export Buyers — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css?v=2" />
+  <link rel="stylesheet" href="css/suppliers.css?v=2" />
+  <link rel="stylesheet" href="css/suppliers-finance.css?v=2" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .buyer-country-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--color-surface-2, #f1f5f9);
+      color: var(--teal, #0d9488);
+      border: 1px solid var(--color-border, #e2e8f0);
+    }
+    .buyer-stat-pill {
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .buyer-stat-pill.receivable {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .buyer-stat-pill.clear {
+      background: #ecfdf5;
+      color: #059669;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Export Operations</span>
+      <a href="export.html" class="nav-item"><i class="fas fa-ship"></i><span>Export Hub</span></a>
+      <a href="export-buyers.html" class="nav-item active"><i class="fas fa-user-tie"></i><span>Export Buyers</span></a>
+      <a href="export-sales.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Export Sales</span></a>
+      <a href="export-suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Export Suppliers</span></a>
+      <a href="export-suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Export Suppliers Finance</span></a>
+      <a href="export-booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Export Booking</span></a>
+      <a href="export-warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Export Warehouse</span></a>
+      <a href="export-production.html" class="nav-item"><i class="fas fa-industry"></i><span>Export Production</span></a>
+      <a href="export-finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Export Finished Goods</span></a>
+      <a href="export-delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Export Delivery / Sale</span></a>
+      <a href="export-ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Export Supplier Ledger</span></a>
+      <a href="export-income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Export Income &amp; Expense</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Domestic System</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Export Buyers Management</h1>
+        <span class="breadcrumb">International buyer profiles, sales ledgers &amp; payment tracking</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()"><i class="fas fa-cloud-upload-alt"></i></button>
+      <button class="topbar-btn" title="Refresh" onclick="renderBuyerDashboard()"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <div id="buyerRoot">
+
+      <!-- ==================== LIST / DASHBOARD VIEW ==================== -->
+      <div id="buyerListView">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Export Buyers &amp; Accounts</h2>
+            <p>Manage international clients, track sales orders, payments received, and outstanding balances.</p>
+          </div>
+          <div class="page-header-actions">
+            <a href="export-sales.html" class="btn btn-secondary"><i class="fas fa-shopping-cart"></i> Go to Export Sales</a>
+            <button class="btn btn-primary" onclick="openAddBuyerModal()"><i class="fas fa-user-plus"></i> Add New Buyer</button>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="sf-summary-row">
+          <div class="sf-sum-card ssc-suppliers">
+            <div class="sf-sum-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-user-tie"></i></div>
+            <div><div class="sf-sum-value" id="sumTotalBuyers">0</div><div class="sf-sum-label">Active Buyers</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+          <div class="sf-sum-card ssc-bookings">
+            <div class="sf-sum-icon" style="background:#e0e7ff;color:#4f46e5;"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div><div class="sf-sum-value" id="sumTotalSales">PKR 0</div><div class="sf-sum-label">Total Sales Invoiced</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+          <div class="sf-sum-card ssc-received">
+            <div class="sf-sum-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-hand-holding-dollar"></i></div>
+            <div><div class="sf-sum-value" id="sumTotalReceived">PKR 0</div><div class="sf-sum-label">Total Received</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+          <div class="sf-sum-card ssc-balance" id="sumBalCard">
+            <div class="sf-sum-icon" style="background:#fef2f2;color:#dc2626;"><i class="fas fa-scale-balanced"></i></div>
+            <div><div class="sf-sum-value" id="sumTotalBalance">PKR 0</div><div class="sf-sum-label">Total Balance Due</div></div>
+            <div class="sf-sum-glow"></div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="sf-controls">
+          <div class="sf-search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="buyerSearchInput" placeholder="Search by buyer name, company, country, phone..." autocomplete="off" />
+          </div>
+          <span class="text-muted" id="buyerResultCount" style="font-size:12.5px;white-space:nowrap;"></span>
+        </div>
+
+        <!-- Buyers Grid / Cards -->
+        <div class="sf-suppliers-grid" id="buyersCardsGrid"></div>
+
+      </div>
+      <!-- END LIST VIEW -->
+
+      <!-- ==================== DETAIL / ACCOUNT VIEW ==================== -->
+      <div id="buyerDetailView" style="display:none;">
+
+        <!-- Back + Buyer Info Header -->
+        <div class="sf-detail-back">
+          <button class="sf-back-btn" onclick="buyerGoBack()">
+            <i class="fas fa-arrow-left"></i> Back to Buyers
+          </button>
+          <div class="sf-det-sup-info">
+            <h3 id="detBuyerName">Buyer Name</h3>
+            <div class="sf-det-sup-meta" id="detBuyerMeta"></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-success btn-sm" onclick="openReceiveModalForActiveBuyer()" style="background:#059669;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+              <i class="fas fa-plus-circle"></i> Receive Amount
+            </button>
+            <button class="sf-pdf-btn" onclick="printBuyerStatement()">
+              <i class="fas fa-print"></i> Print Statement
+            </button>
+          </div>
+
+          <!-- Balance summary row -->
+          <div class="sf-dbal-card dbc-booking">
+            <div class="sf-dbal-icon"><i class="fas fa-shopping-cart"></i></div>
+            <div><div class="sf-dbal-value" id="detBuyerSales">PKR 0</div><div class="sf-dbal-label">Total Sales Invoiced</div></div>
+            <div class="sf-dbal-glow"></div>
+          </div>
+          <div class="sf-dbal-card dbc-received">
+            <div class="sf-dbal-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+            <div><div class="sf-dbal-value" id="detBuyerReceived">PKR 0</div><div class="sf-dbal-label">Total Payments Received</div></div>
+            <div class="sf-dbal-glow"></div>
+          </div>
+          <div class="sf-dbal-card dbc-balance" id="detBuyerBalCard">
+            <div class="sf-dbal-icon"><i class="fas fa-scale-balanced"></i></div>
+            <div><div class="sf-dbal-value" id="detBuyerBalance">PKR 0</div><div class="sf-dbal-label">Remaining Balance Due</div></div>
+            <div class="sf-dbal-glow"></div>
+          </div>
+        </div>
+
+        <!-- Detail Panels (Sales Orders & Payments Received) -->
+        <div class="sf-det-panels">
+
+          <!-- SALES ORDERS PANEL -->
+          <div class="sf-det-panel">
+            <div class="sf-det-panel-header">
+              <div class="sf-det-panel-title sf-bk-panel-title">
+                <i class="fas fa-shopping-bag"></i> Sales Invoices / Orders
+              </div>
+              <span class="sf-panel-total sf-bk-total-badge" id="detSalesCountBadge">0 Sales</span>
+            </div>
+            <div class="sf-bk-table-wrap" id="detSalesTableWrap">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- PAYMENTS RECEIVED PANEL -->
+          <div class="sf-det-panel">
+            <div class="sf-det-panel-header">
+              <div class="sf-det-panel-title sf-rcv-panel-title">
+                <i class="fas fa-receipt"></i> Payments Received History
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="openReceiveModalForActiveBuyer()" style="font-size:12px;padding:4px 10px;">
+                <i class="fas fa-plus"></i> New Receipt
+              </button>
+            </div>
+            <div class="sf-bk-table-wrap" id="detPaymentsTableWrap">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- END DETAIL VIEW -->
+
+    </div>
+  </div>
+</main>
+
+<!-- ADD / EDIT BUYER MODAL -->
+<div class="modal-overlay" id="buyerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="buyerModalTitle"><i class="fas fa-user-plus" style="color:var(--teal);margin-right:8px;"></i>Add New Export Buyer</h3>
+      <button class="modal-close" onclick="closeModal('buyerModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="buyerForm" novalidate>
+        <input type="hidden" id="fBuyerId" />
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label" for="fBuyerName">Buyer / Contact Person <span style="color:var(--crimson);">*</span></label>
+          <input type="text" id="fBuyerName" class="form-control" placeholder="e.g. Zhang Wei / John Smith" maxlength="100" required />
+        </div>
+        <div class="form-row" style="margin-bottom:14px;">
+          <div class="form-group">
+            <label class="form-label" for="fBuyerCompany">Company Name</label>
+            <input type="text" id="fBuyerCompany" class="form-control" placeholder="e.g. Sino Minerals International Ltd" maxlength="100" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fBuyerCountry">Country / Port</label>
+            <input type="text" id="fBuyerCountry" class="form-control" placeholder="e.g. China / Tianjin Port" maxlength="80" />
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px;">
+          <div class="form-group">
+            <label class="form-label" for="fBuyerPhone">Phone / WhatsApp</label>
+            <input type="text" id="fBuyerPhone" class="form-control" placeholder="e.g. +86-138-00000000" maxlength="30" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fBuyerEmail">Email</label>
+            <input type="email" id="fBuyerEmail" class="form-control" placeholder="e.g. buyer@example.com" maxlength="80" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fBuyerAddress">Address / Notes</label>
+          <textarea id="fBuyerAddress" class="form-control" placeholder="Full address or shipping terms..." rows="2" maxlength="300"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('buyerModal')"><i class="fas fa-times"></i> Cancel</button>
+      <button class="btn btn-primary" id="saveBuyerBtn" onclick="saveBuyer()"><i class="fas fa-save"></i> Save Buyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIVE PAYMENT MODAL -->
+<div class="modal-overlay" id="receivePaymentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-hand-holding-dollar" style="color:var(--emerald);margin-right:8px;"></i>Receive Payment from Buyer</h3>
+      <button class="modal-close" onclick="closeModal('receivePaymentModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="receivePaymentForm" novalidate>
+        <input type="hidden" id="fPayBuyerId" />
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="form-label">Buyer</label>
+          <input type="text" id="fPayBuyerNameDisplay" class="form-control" readonly style="background:var(--color-surface-2);font-weight:700;" />
+        </div>
+        <div class="form-row" style="margin-bottom:14px;">
+          <div class="form-group">
+            <label class="form-label" for="fPayAmount">Received Amount (PKR) <span style="color:var(--crimson);">*</span></label>
+            <input type="number" id="fPayAmount" class="form-control" placeholder="e.g. 500000" min="1" step="any" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fPayDate">Payment Date <span style="color:var(--crimson);">*</span></label>
+            <input type="date" id="fPayDate" class="form-control" required />
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:14px;">
+          <div class="form-group">
+            <label class="form-label" for="fPayMethod">Payment Method</label>
+            <select id="fPayMethod" class="form-control">
+              <option value="Bank Transfer">Bank Transfer / TT</option>
+              <option value="Cash">Cash</option>
+              <option value="Letter of Credit (LC)">Letter of Credit (LC)</option>
+              <option value="Cheque">Cheque</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fPayRef">Reference / TT No</label>
+            <input type="text" id="fPayRef" class="form-control" placeholder="e.g. TT-98432 or Cheque #" maxlength="50" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fPayNotes">Notes / Remarks</label>
+          <textarea id="fPayNotes" class="form-control" placeholder="Any payment remarks..." rows="2" maxlength="250"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('receivePaymentModal')"><i class="fas fa-times"></i> Cancel</button>
+      <button class="btn btn-primary" onclick="submitBuyerPayment()"><i class="fas fa-check-circle"></i> Confirm &amp; Save Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="js/auth.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js?v=2"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/export-buyers.js?v=2"></script>
+</body>
+</html>

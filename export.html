@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -129,6 +129,8 @@
     <div class="nav-section">
       <span class="nav-section-label">Export Operations</span>
       <a href="export.html" class="nav-item active"><i class="fas fa-ship"></i><span>Export Hub</span></a>
+      <a href="export-buyers.html" class="nav-item"><i class="fas fa-user-tie"></i><span>Export Buyers</span></a>
+      <a href="export-sales.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Export Sales</span></a>
       <a href="export-suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Export Suppliers</span></a>
       <a href="export-suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Export Suppliers Finance</span></a>
       <a href="export-booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Export Booking</span></a>
@@ -222,10 +224,50 @@
           <div class="hstat-lbl">Ready Stock (FG)</div>
         </div>
       </div>
+      <div class="hub-stat-box">
+        <div class="hstat-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-user-tie"></i></div>
+        <div>
+          <div class="hstat-val" id="statExpBuyers">0</div>
+          <div class="hstat-lbl">Export Buyers</div>
+        </div>
+      </div>
+      <div class="hub-stat-box">
+        <div class="hstat-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fas fa-shopping-cart"></i></div>
+        <div>
+          <div class="hstat-val" id="statExpSales">0 TON</div>
+          <div class="hstat-lbl">Export Sales</div>
+        </div>
+      </div>
     </div>
 
     <!-- MODULE CARDS -->
     <div class="hub-grid">
+
+      <!-- Export Buyers -->
+      <a href="export-buyers.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(2,132,199,0.12);color:#0284c7;">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="hub-title">Export Buyers</div>
+        <div class="hub-desc">Manage international buyer profiles, sales ledgers, and receive incoming payments.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
+
+      <!-- Export Sales -->
+      <a href="export-sales.html" class="hub-card">
+        <div class="hub-icon" style="background:rgba(79,70,229,0.12);color:#4f46e5;">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="hub-title">Export Sales</div>
+        <div class="hub-desc">Sell finished goods ready stock to export buyers with auto stock deduction and invoices.</div>
+        <div class="hub-footer">
+          <span>Open Module</span>
+          <i class="fas fa-arrow-right"></i>
+        </div>
+      </a>
 
       <!-- 1. Export Suppliers -->
       <a href="export-suppliers.html" class="hub-card">
@@ -371,6 +413,11 @@
     setT('statExpWh', formatKG(whStock) + ' TON');
     setT('statExpProd', formatKG(prodStock) + ' TON');
     setT('statExpFg', formatKG(fgStock) + ' TON');
+
+    const buyerCount = DB.count('exp_buyers');
+    const salesTons = DB.get('exp_sales').reduce((s, x) => s + (Number(x.weight) || 0), 0);
+    setT('statExpBuyers', buyerCount);
+    setT('statExpSales', formatKG(salesTons) + ' TON');
   }
 </script>
 </body>

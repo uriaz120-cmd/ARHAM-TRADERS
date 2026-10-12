@@ -243,6 +243,22 @@ function generateExportDeliveryNo() {
   return `EXP-DL-${year}${month}-${seq}`;
 }
 
+function generateExportSaleNo() {
+  const sales = DB.get('exp_sales');
+  const year = new Date().getFullYear().toString().substr(-2);
+  const month = String(new Date().getMonth() + 1).padStart(2, '0');
+  const seq = String(sales.length + 1).padStart(4, '0');
+  return `EXP-SL-${year}${month}-${seq}`;
+}
+
+function generateExportPaymentNo() {
+  const payments = DB.get('exp_buyer_payments');
+  const year = new Date().getFullYear().toString().substr(-2);
+  const month = String(new Date().getMonth() + 1).padStart(2, '0');
+  const seq = String(payments.length + 1).padStart(4, '0');
+  return `EXP-PM-${year}${month}-${seq}`;
+}
+
 const ExpStats = {
   getTotalSuppliers() {
     return DB.count('exp_suppliers');

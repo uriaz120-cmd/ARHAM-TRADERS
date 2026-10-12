@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Export Sales — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css?v=2" />
+  <link rel="stylesheet" href="css/delivery.css?v=2" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .ready-stock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stock-batch-card {
+      background: var(--color-surface, #ffffff);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .stock-batch-card:hover {
+      border-color: var(--teal, #0d9488);
+      box-shadow: 0 4px 12px rgba(13,148,136,0.08);
+    }
+    .stock-batch-card.selected {
+      border-color: var(--teal, #0d9488);
+      background: rgba(13,148,136,0.03);
+      box-shadow: 0 0 0 2px rgba(13,148,136,0.25);
+    }
+    .stock-batch-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .stock-batch-no {
+      font-weight: 700;
+      color: var(--teal, #0d9488);
+      font-size: 13px;
+    }
+    .stock-avail-badge {
+      background: #ecfdf5;
+      color: #059669;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .stock-meta {
+      font-size: 12px;
+      color: var(--text-muted, #64748b);
+      line-height: 1.5;
+    }
+    .sale-calc-box {
+      background: var(--color-surface-2, #f8fafc);
+      border: 1px dashed var(--teal, #0d9488);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .sale-calc-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted, #64748b);
+      text-transform: uppercase;
+    }
+    .sale-calc-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--teal, #0d9488);
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Export Operations</span>
+      <a href="export.html" class="nav-item"><i class="fas fa-ship"></i><span>Export Hub</span></a>
+      <a href="export-buyers.html" class="nav-item"><i class="fas fa-user-tie"></i><span>Export Buyers</span></a>
+      <a href="export-sales.html" class="nav-item active"><i class="fas fa-shopping-cart"></i><span>Export Sales</span></a>
+      <a href="export-suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Export Suppliers</span></a>
+      <a href="export-suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Export Suppliers Finance</span></a>
+      <a href="export-booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Export Booking</span></a>
+      <a href="export-warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Export Warehouse</span></a>
+      <a href="export-production.html" class="nav-item"><i class="fas fa-industry"></i><span>Export Production</span></a>
+      <a href="export-finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Export Finished Goods</span></a>
+      <a href="export-delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Export Delivery / Sale</span></a>
+      <a href="export-ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Export Supplier Ledger</span></a>
+      <a href="export-income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Export Income &amp; Expense</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Domestic System</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Export Sales Management</h1>
+        <span class="breadcrumb">Sell processed ready stock to international buyers &amp; track invoices</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()"><i class="fas fa-cloud-upload-alt"></i></button>
+      <button class="topbar-btn" title="Refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Export Finished Goods Sales</h2>
+        <p>Select available ready stock, choose export buyer, record sales with automatic stock deduction and buyer ledger credit.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="export-buyers.html" class="btn btn-secondary"><i class="fas fa-user-tie"></i> Manage Buyers</a>
+        <button class="btn btn-primary" onclick="scrollToSaleForm()"><i class="fas fa-plus"></i> New Sale Order</button>
+      </div>
+    </div>
+
+    <!-- STATS SUMMARY -->
+    <div class="delivery-stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-layer-group"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="statReadyStock">0 TON</div>
+          <div class="stat-label">Total Ready Stock (FG)</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-shopping-cart"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="statTotalSalesCount">0</div>
+          <div class="stat-label">Export Sales Invoiced</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-truck-loading"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="statTotalTonsSold">0 TON</div>
+          <div class="stat-label">Total Tonnage Sold</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fas fa-coins"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="statTotalSalesValue">PKR 0</div>
+          <div class="stat-label">Total Sales Revenue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1: READY STOCK QUICK SELECTION -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;">
+      <h3 style="font-size:16px;font-weight:700;color:var(--color-text);display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-boxes" style="color:var(--teal);"></i> Available Ready Stock in Finished Goods
+      </h3>
+      <span class="text-muted" id="readyStockBatchCount" style="font-size:12.5px;"></span>
+    </div>
+    <div class="ready-stock-grid" id="readyStockCards"></div>
+
+    <!-- SECTION 2: CREATE SALE FORM CARD -->
+    <div class="card" id="saleFormCard" style="margin-bottom:28px;">
+      <div class="card-header" style="border-bottom:1px solid var(--color-border);padding:16px 20px;">
+        <h3 style="margin:0;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-file-invoice-dollar" style="color:var(--teal);"></i> Create Export Sale Order
+        </h3>
+      </div>
+      <div class="card-body" style="padding:20px;">
+        <form id="saleForm" novalidate>
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label" for="fSaleNo">Sale Voucher No</label>
+              <div style="display:flex;gap:6px;">
+                <input type="text" id="fSaleNo" class="form-control" readonly style="background:var(--color-surface-2);font-weight:700;color:var(--teal);" />
+                <button type="button" class="btn btn-secondary btn-icon" id="regenSaleNo" title="Regenerate No"><i class="fas fa-sync-alt"></i></button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fSaleDate">Sale Date <span style="color:var(--crimson);">*</span></label>
+              <input type="date" id="fSaleDate" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fSaleBuyer">Export Buyer <span style="color:var(--crimson);">*</span></label>
+              <select id="fSaleBuyer" class="form-control" required>
+                <option value="">— Select Buyer —</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label" for="fSaleFgBatch">Select Finished Goods Batch <span style="color:var(--crimson);">*</span></label>
+              <select id="fSaleFgBatch" class="form-control" required>
+                <option value="">— Select Ready Stock Batch —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fSaleWeight">
+                Sale Weight (TON) <span style="color:var(--crimson);">*</span>
+                <span id="availWeightNote" style="font-weight:normal;color:var(--teal);margin-left:8px;font-size:12px;"></span>
+              </label>
+              <div style="display:flex;gap:6px;">
+                <input type="number" id="fSaleWeight" class="form-control" placeholder="e.g. 25.5" step="0.01" min="0.01" required />
+                <button type="button" class="btn btn-secondary btn-sm" id="fillMaxWeightBtn" style="white-space:nowrap;font-size:12px;">Max TON</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fSaleRate">Sale Rate per TON (PKR) <span style="color:var(--crimson);">*</span></label>
+              <input type="number" id="fSaleRate" class="form-control" placeholder="e.g. 15000" min="1" step="any" required />
+            </div>
+          </div>
+
+          <!-- Total Calculation Box -->
+          <div class="sale-calc-box">
+            <div>
+              <div class="sale-calc-label">Total Sale Invoice Amount</div>
+              <small style="color:var(--text-muted);">Weight (TON) &times; Rate per TON = Total Receivable</small>
+            </div>
+            <div class="sale-calc-val" id="dispTotalSaleAmount">PKR 0</div>
+          </div>
+
+          <div class="form-row" style="margin-top:16px;margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label" for="fSaleContainer">Container No / Shipping Ref</label>
+              <input type="text" id="fSaleContainer" class="form-control" placeholder="e.g. MSKU-9284729 / Vessel Name" maxlength="80" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fSaleDestination">Port of Discharge / Destination</label>
+              <input type="text" id="fSaleDestination" class="form-control" placeholder="e.g. Qingdao Port, China" maxlength="80" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="fSaleNotes">Notes / Commercial Terms</label>
+              <input type="text" id="fSaleNotes" class="form-control" placeholder="e.g. FOB Karachi, 100% TT" maxlength="200" />
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px;">
+            <button type="button" class="btn btn-secondary" onclick="resetSaleForm()"><i class="fas fa-undo"></i> Reset</button>
+            <button type="submit" class="btn btn-primary" id="confirmSaleBtn" style="padding:10px 24px;font-size:14px;font-weight:700;">
+              <i class="fas fa-check-circle"></i> Confirm &amp; Record Sale
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SECTION 3: SALES HISTORY TABLE -->
+    <div class="page-header" style="margin-bottom:12px;">
+      <div class="page-header-left">
+        <h3>Export Sales History</h3>
+        <p>List of all completed export sales, commercial invoices &amp; buyer account records.</p>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="search-box" style="flex:1;min-width:220px;">
+        <i class="fas fa-search"></i>
+        <input type="text" id="salesSearchInput" placeholder="Search by sale no, buyer, batch, destination..." autocomplete="off" />
+      </div>
+      <select id="filterSalesBuyer" class="form-control" style="width:auto;min-width:180px;">
+        <option value="">All Buyers</option>
+      </select>
+      <input type="date" id="filterSalesDateFrom" class="form-control" style="width:auto;" title="From Date" />
+      <input type="date" id="filterSalesDateTo" class="form-control" style="width:auto;" title="To Date" />
+      <span class="text-muted" id="salesResultCount" style="font-size:12.5px;white-space:nowrap;"></span>
+    </div>
+
+    <div class="card sup-table-card desktop-view">
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Sale No</th>
+              <th>Date</th>
+              <th>Buyer</th>
+              <th>Batch / Mineral</th>
+              <th style="text-align:right;">Weight (TON)</th>
+              <th style="text-align:right;">Rate/TON</th>
+              <th style="text-align:right;">Total Amount</th>
+              <th>Destination</th>
+              <th style="text-align:center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="salesTableBody"></tbody>
+          <tfoot id="salesTableFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile view cards -->
+    <div class="mobile-view" id="salesMobileCards"></div>
+
+  </div>
+</main>
+
+<!-- SALE INVOICE / RECEIPT MODAL -->
+<div class="modal-overlay" id="saleInvoiceModal">
+  <div class="modal" style="max-width:550px;">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-file-invoice" style="color:var(--teal);margin-right:8px;"></i>Export Commercial Invoice</h3>
+      <button class="modal-close" onclick="closeModal('saleInvoiceModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="saleInvoiceContainer"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('saleInvoiceModal')"><i class="fas fa-times"></i> Close</button>
+      <button class="btn btn-primary" onclick="printCurrentSaleInvoice()"><i class="fas fa-print"></i> Print Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="js/auth.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js?v=2"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/export-sales.js?v=2"></script>
+</body>
+</html>

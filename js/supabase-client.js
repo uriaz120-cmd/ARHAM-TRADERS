@@ -24,7 +24,8 @@
     /* Export Module Data Keys (Mirrors Domestic System) */
     'exp_suppliers', 'exp_bookings', 'exp_warehouse', 'exp_production',
     'exp_finished_goods', 'exp_deliveries', 'exp_sf_payments',
-    'exp_income', 'exp_expenses', 'exp_monthly_closings'
+    'exp_income', 'exp_expenses', 'exp_monthly_closings',
+    'exp_buyers', 'exp_sales', 'exp_buyer_payments'
   ];
 
   /* ---- Init Supabase client ---- */
