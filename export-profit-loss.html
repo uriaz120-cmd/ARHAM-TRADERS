@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Export Profit &amp; Loss — Arham Traders</title>
+  <link rel="stylesheet" href="css/main.css?v=2" />
+  <link rel="stylesheet" href="css/suppliers-finance.css?v=2" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    .pl-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .pl-card {
+      background: var(--color-surface, #ffffff);
+      border: 1px solid var(--color-border, #e2e8f0);
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .pl-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .pl-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--color-text, #0f172a);
+      line-height: 1.2;
+    }
+    .pl-lbl {
+      font-size: 11.5px;
+      color: var(--text-muted, #64748b);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .profit-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .profit-pill.is-profit {
+      background: #ecfdf5;
+      color: #059669;
+    }
+    .profit-pill.is-loss {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    .margin-tag {
+      font-size: 10.5px;
+      display: block;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon"><i class="fas fa-gem"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Arham Traders</span>
+        <span class="brand-sub">Management System</span>
+      </div>
+    </div>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <span class="nav-section-label">Main</span>
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Export Operations</span>
+      <a href="export.html" class="nav-item"><i class="fas fa-ship"></i><span>Export Hub</span></a>
+      <a href="export-buyers.html" class="nav-item"><i class="fas fa-user-tie"></i><span>Export Buyers</span></a>
+      <a href="export-sales.html" class="nav-item"><i class="fas fa-shopping-cart"></i><span>Export Sales</span></a>
+      <a href="export-profit-loss.html" class="nav-item active"><i class="fas fa-chart-line"></i><span>Export Profit &amp; Loss</span></a>
+      <a href="export-suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Export Suppliers</span></a>
+      <a href="export-suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Export Suppliers Finance</span></a>
+      <a href="export-booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Export Booking</span></a>
+      <a href="export-warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Export Warehouse</span></a>
+      <a href="export-production.html" class="nav-item"><i class="fas fa-industry"></i><span>Export Production</span></a>
+      <a href="export-finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Export Finished Goods</span></a>
+      <a href="export-delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Export Delivery / Sale</span></a>
+      <a href="export-ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Export Supplier Ledger</span></a>
+      <a href="export-income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Export Income &amp; Expense</span></a>
+    </div>
+    <div class="nav-section">
+      <span class="nav-section-label">Domestic System</span>
+      <a href="suppliers.html" class="nav-item"><i class="fas fa-users"></i><span>Suppliers</span></a>
+      <a href="suppliers-finance.html" class="nav-item"><i class="fas fa-coins"></i><span>Suppliers Finance</span></a>
+      <a href="booking.html" class="nav-item"><i class="fas fa-clipboard-list"></i><span>Booking</span></a>
+      <a href="warehouse.html" class="nav-item"><i class="fas fa-warehouse"></i><span>Warehouse</span></a>
+      <a href="production.html" class="nav-item"><i class="fas fa-industry"></i><span>Production</span></a>
+      <a href="finished-goods.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Finished Goods</span></a>
+      <a href="delivery.html" class="nav-item"><i class="fas fa-truck"></i><span>Delivery</span></a>
+      <a href="ledger.html" class="nav-item"><i class="fas fa-book"></i><span>Supplier Ledger</span></a>
+      <a href="vendors-ledger.html" class="nav-item"><i class="fas fa-store"></i><span>Vendors Ledger</span></a>
+      <a href="income-expense.html" class="nav-item"><i class="fas fa-wallet"></i><span>Income &amp; Expense</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar"><i class="fas fa-user"></i></div>
+      <div class="user-details"><span class="user-name">Admin</span><span class="user-role">Administrator</span></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content" id="mainContent">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+      <div class="page-title">
+        <h1>Export Profit &amp; Loss Statement</h1>
+        <span class="breadcrumb">Sale revenue, mineral batch cost &amp; shipment expenses net profit</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date"><i class="fas fa-calendar-alt"></i><span id="currentDate"></span></div>
+      <button id="sbSyncBtn" class="topbar-btn" title="Sync to Cloud" onclick="syncNow()"><i class="fas fa-cloud-upload-alt"></i></button>
+      <button class="topbar-btn" title="Refresh" onclick="renderPlDashboard()"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2>Export Profit &amp; Loss Analysis</h2>
+        <p>Auto-loaded from Export Sales. Calculates finished goods batch cost, shipment expenses, and net profit.</p>
+      </div>
+      <div class="page-header-actions">
+        <a href="export-sales.html" class="btn btn-secondary"><i class="fas fa-shopping-cart"></i> Export Sales</a>
+        <button class="btn btn-primary" onclick="printPlReport()"><i class="fas fa-print"></i> Print P&amp;L Report</button>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="pl-metric-grid">
+      <div class="pl-card">
+        <div class="pl-icon" style="background:#eff6ff;color:#2563eb;"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div>
+          <div class="pl-val" id="statPlRevenue">PKR 0</div>
+          <div class="pl-lbl">Total Sales Revenue</div>
+        </div>
+      </div>
+      <div class="pl-card">
+        <div class="pl-icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-layer-group"></i></div>
+        <div>
+          <div class="pl-val" id="statPlCogs">PKR 0</div>
+          <div class="pl-lbl">Finished Goods Cost (COGS)</div>
+        </div>
+      </div>
+      <div class="pl-card">
+        <div class="pl-icon" style="background:#fdf2f8;color:#db2777;"><i class="fas fa-ship"></i></div>
+        <div>
+          <div class="pl-val" id="statPlExpenses">PKR 0</div>
+          <div class="pl-lbl">Sale &amp; Shipping Expenses</div>
+        </div>
+      </div>
+      <div class="pl-card" id="statPlNetCard">
+        <div class="pl-icon" id="statPlNetIcon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <div class="pl-val" id="statPlNetProfit">PKR 0</div>
+          <div class="pl-lbl" id="statPlNetLbl">Net Export Profit</div>
+        </div>
+      </div>
+      <div class="pl-card">
+        <div class="pl-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fas fa-percentage"></i></div>
+        <div>
+          <div class="pl-val" id="statPlMargin">0.0%</div>
+          <div class="pl-lbl">Average Profit Margin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="filter-bar" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="search-box" style="flex:1;min-width:220px;">
+        <i class="fas fa-search"></i>
+        <input type="text" id="plSearchInput" placeholder="Search by sale no, buyer, batch ref, destination..." autocomplete="off" />
+      </div>
+      <select id="filterPlBuyer" class="form-control" style="width:auto;min-width:180px;">
+        <option value="">All Buyers</option>
+      </select>
+      <input type="date" id="filterPlDateFrom" class="form-control" style="width:auto;" title="From Date" />
+      <input type="date" id="filterPlDateTo" class="form-control" style="width:auto;" title="To Date" />
+      <span class="text-muted" id="plResultCount" style="font-size:12.5px;white-space:nowrap;"></span>
+    </div>
+
+    <!-- MAIN P&L TABLE (DESKTOP) -->
+    <div class="card sup-table-card desktop-view">
+      <div class="table-wrapper">
+        <table class="data-table" style="font-size:13px;">
+          <thead>
+            <tr>
+              <th>Sale No</th>
+              <th>Date</th>
+              <th>Buyer</th>
+              <th>Batch / Mineral</th>
+              <th style="text-align:right;">Weight</th>
+              <th style="text-align:right;">Sale Amount</th>
+              <th style="text-align:right;">FG Cost (COGS)</th>
+              <th style="text-align:right;">Sale Expenses</th>
+              <th style="text-align:right;">Net Profit / Loss</th>
+              <th style="text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="plTableBody"></tbody>
+          <tfoot id="plTableFoot"></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- MOBILE VIEW CARDS -->
+    <div class="mobile-view" id="plMobileCards"></div>
+
+  </div>
+</main>
+
+<!-- SALE EXPENSE MODAL (Add / Edit / Delete Expenses for a Sale) -->
+<div class="modal-overlay" id="saleExpenseModal">
+  <div class="modal" style="max-width:650px;">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-coins" style="color:var(--teal);margin-right:8px;"></i>Sale Shipment &amp; Port Expenses</h3>
+      <button class="modal-close" onclick="closeModal('saleExpenseModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Sale Header Info -->
+      <div id="seModalSaleHeader" style="background:var(--color-surface-2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12.5px;border:1px solid var(--color-border);"></div>
+
+      <!-- Add/Edit Expense Form -->
+      <form id="saleExpenseForm" onsubmit="saveSaleExpense(event)" style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;padding:14px;margin-bottom:18px;">
+        <input type="hidden" id="fExpEditId" />
+        <div style="font-weight:700;font-size:13px;margin-bottom:10px;color:var(--teal);" id="expFormTitle">
+          <i class="fas fa-plus-circle"></i> Add New Expense for this Sale
+        </div>
+        <div class="form-row" style="margin-bottom:12px;">
+          <div class="form-group">
+            <label class="form-label" for="fExpCategory">Expense Category / Title <span style="color:var(--crimson);">*</span></label>
+            <input type="text" id="fExpCategory" class="form-control" list="expCategoryList" placeholder="e.g. Ocean Freight / Port Handling" required />
+            <datalist id="expCategoryList">
+              <option value="Ocean Freight">
+              <option value="Shipping Line Charges">
+              <option value="Port Handling &amp; Wharfage">
+              <option value="Customs Clearing &amp; Forwarding">
+              <option value="Stevedoring &amp; Loading">
+              <option value="Inspection &amp; Lab Testing">
+              <option value="Container Trucking">
+              <option value="Demurrage">
+              <option value="Documentation &amp; Certificate of Origin">
+              <option value="Insurance">
+              <option value="Other">
+            </datalist>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fExpAmount">Amount (PKR) <span style="color:var(--crimson);">*</span></label>
+            <input type="number" id="fExpAmount" class="form-control" placeholder="e.g. 50000" min="1" step="any" required />
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px;">
+          <div class="form-group">
+            <label class="form-label" for="fExpDate">Expense Date</label>
+            <input type="date" id="fExpDate" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="fExpNotes">Notes / Receipt / Bill No</label>
+            <input type="text" id="fExpNotes" class="form-control" placeholder="e.g. BL-9842 or Invoice #104" maxlength="120" />
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="cancelExpEditBtn" style="display:none;" onclick="cancelSaleExpenseEdit()">
+            Cancel Edit
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm" id="saveExpBtn">
+            <i class="fas fa-plus"></i> Add Expense
+          </button>
+        </div>
+      </form>
+
+      <!-- Expenses List Table -->
+      <div style="font-weight:700;font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+        <span>Added Expenses</span>
+        <span class="badge" style="background:#fef2f2;color:#dc2626;font-size:12px;font-weight:800;" id="seModalTotalExp">Total: PKR 0</span>
+      </div>
+      <div class="table-wrapper" style="max-height:220px;overflow-y:auto;border:1px solid var(--color-border);border-radius:6px;">
+        <table class="data-table" style="font-size:12px;">
+          <thead>
+            <tr>
+              <th>Expense Title</th>
+              <th>Date</th>
+              <th>Notes / Ref</th>
+              <th style="text-align:right;">Amount (PKR)</th>
+              <th style="text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="seModalTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('saleExpenseModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- SALE P&L DETAIL STATEMENT MODAL -->
+<div class="modal-overlay" id="salePlDetailModal">
+  <div class="modal" style="max-width:550px;">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="fas fa-file-invoice-dollar" style="color:var(--teal);margin-right:8px;"></i>Sale P&amp;L Breakdown</h3>
+      <button class="modal-close" onclick="closeModal('salePlDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="salePlDetailContainer"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('salePlDetailModal')">Close</button>
+      <button class="btn btn-primary" onclick="printSingleSalePl()"><i class="fas fa-print"></i> Print Statement</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="js/auth.js?v=2"></script>
+<script src="js/data.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js?v=2"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/export-profit-loss.js?v=2"></script>
+</body>
+</html>
