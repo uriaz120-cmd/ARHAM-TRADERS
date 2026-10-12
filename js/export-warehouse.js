@@ -12,6 +12,28 @@ let _filterDateTo    = '';
 
 /* Selected item for production modal */
 let _selectedWarehouseId = null;
+let _whExpActiveId       = null;
+
+/* =============================================
+   COST & EXPENSE CALCULATOR
+   ============================================= */
+function getWarehouseCostDetails(w) {
+  /* 1. Base booking amount */
+  let baseAmount = Number(w.total) || 0;
+  if (!baseAmount && w.bookingNo) {
+    const bk = DB.filter('exp_bookings', b => b.bookingNo === w.bookingNo)[0];
+    if (bk && bk.total) {
+      baseAmount = Number(bk.total) || 0;
+    }
+  }
+
+  /* 2. Additional warehouse expenses */
+  const expenses = Array.isArray(w.expenses) ? w.expenses : [];
+  const extraExpenses = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const netAmount = baseAmount + extraExpenses;
+
+  return { baseAmount, extraExpenses, netAmount, expenses };
+}
 
 /* =============================================
    INIT
@@ -114,6 +136,9 @@ function renderWarehouseTable() {
     const statusInfo = getStatusInfo(w.status, pct);
     const barColor   = pct >= 70 ? 'var(--emerald)' : pct >= 30 ? '#b8960a' : 'var(--copper)';
 
+    /* Cost & Expenses */
+    const cost = getWarehouseCostDetails(w);
+
     return `
       <tr>
         <td>
@@ -144,6 +169,24 @@ function renderWarehouseTable() {
           </span>
         </td>
         <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div>
+              <div style="font-weight:800;font-size:13px;color:var(--color-text);">
+                PKR ${formatCurrency(cost.netAmount)}
+              </div>
+              ${cost.extraExpenses > 0 ? `
+                <div style="font-size:10.5px;color:var(--copper, #d97706);font-weight:600;">
+                  Base: ${formatCurrency(cost.baseAmount)} + Exp: ${formatCurrency(cost.extraExpenses)}
+                </div>` : ''}
+            </div>
+            <button class="btn btn-secondary btn-sm btn-icon" title="Add / View Expenses"
+              style="color:var(--teal);border-color:var(--color-border);width:30px;height:30px;"
+              onclick="openWhExpenseModal('${escapeHtml(w.id)}')">
+              <i class="fas fa-coins"></i>
+            </button>
+          </div>
+        </td>
+        <td>
           <div style="display:flex;gap:5px;">
             ${remain > 0 ? `
             <button class="btn btn-primary btn-sm" title="Send to Production"
@@ -153,7 +196,7 @@ function renderWarehouseTable() {
             <span class="badge badge-stone" style="font-size:11px;">Used Up</span>
             `}
             <button class="btn btn-secondary btn-sm btn-icon" title="View Booking"
-              onclick="window.location.href='booking.html'">
+              onclick="window.location.href='export-booking.html'">
               <i class="fas fa-eye"></i>
             </button>
           </div>
@@ -320,4 +363,184 @@ function confirmSendToProduction() {
       window.location.href = 'export-production.html';
     }
   }, 300);
+}
+
+
+/* =============================================
+   WAREHOUSE EXPENSE MANAGEMENT MODAL
+   ============================================= */
+function openWhExpenseModal(id) {
+  const item = DB.findById('exp_warehouse', id);
+  if (!item) return;
+
+  _whExpActiveId = id;
+  cancelWhExpenseEdit();
+
+  const setEl = (eid, val) => { const el = document.getElementById(eid); if (el) el.textContent = val; };
+  setEl('whExpModalBookingNo', item.bookingNo || '—');
+  setEl('whExpModalSupplier',  item.supplierName || '—');
+
+  refreshWhExpenseModalUI();
+  openModal('whExpenseModal');
+}
+
+function refreshWhExpenseModalUI() {
+  const item = _whExpActiveId ? DB.findById('exp_warehouse', _whExpActiveId) : null;
+  if (!item) return;
+
+  const cost = getWarehouseCostDetails(item);
+
+  const setEl = (eid, val) => { const el = document.getElementById(eid); if (el) el.textContent = val; };
+  setEl('whExpModalBaseCost',  `PKR ${formatCurrency(cost.baseAmount)}`);
+  setEl('whExpModalExtraCost', `+ PKR ${formatCurrency(cost.extraExpenses)}`);
+  setEl('whExpModalNetCost',   `PKR ${formatCurrency(cost.netAmount)}`);
+
+  const tbody = document.getElementById('whExpListTbody');
+  if (!tbody) return;
+
+  if (!cost.expenses.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;padding:16px;color:var(--text-muted);">
+          No additional warehouse expenses added yet.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = cost.expenses.map((exp, idx) => `
+    <tr>
+      <td>
+        <div style="font-weight:700;">${escapeHtml(exp.title || 'Expense')}</div>
+        ${exp.notes ? `<div style="font-size:11px;color:var(--text-muted);">${escapeHtml(exp.notes)}</div>` : ''}
+      </td>
+      <td style="font-weight:700;color:var(--copper, #d97706);">
+        PKR ${formatCurrency(exp.amount)}
+      </td>
+      <td style="font-size:11.5px;color:var(--text-muted);">
+        ${formatDate(exp.date)}
+      </td>
+      <td style="text-align:center;">
+        <div style="display:flex;gap:4px;justify-content:center;">
+          <button class="btn btn-secondary btn-sm btn-icon" title="Edit"
+            onclick="editWhBatchExpense('${escapeHtml(exp.id || idx)}')">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Delete"
+            onclick="deleteWhBatchExpense('${escapeHtml(exp.id || idx)}')">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function saveWhBatchExpense(e) {
+  if (e) e.preventDefault();
+  const item = _whExpActiveId ? DB.findById('exp_warehouse', _whExpActiveId) : null;
+  if (!item) return;
+
+  const title    = sanitizeInput(document.getElementById('whExpTitle')?.value  || '');
+  const amount   = parseFloat(document.getElementById('whExpAmount')?.value)   || 0;
+  const notes    = sanitizeInput(document.getElementById('whExpNotes')?.value  || '');
+  const editId   = document.getElementById('whExpEditingId')?.value            || '';
+
+  if (!title) {
+    showToast('Expense title is required.', 'error');
+    return;
+  }
+  if (amount <= 0) {
+    showToast('Amount must be greater than 0.', 'error');
+    return;
+  }
+
+  const expenses = Array.isArray(item.expenses) ? [...item.expenses] : [];
+
+  if (editId) {
+    const idx = expenses.findIndex(x => (x.id || '') === editId);
+    if (idx !== -1) {
+      expenses[idx] = {
+        ...expenses[idx],
+        title,
+        amount,
+        notes,
+        updatedAt: new Date().toISOString()
+      };
+      showToast('Warehouse expense updated successfully.', 'success');
+    }
+  } else {
+    expenses.push({
+      id: generateId(),
+      title,
+      amount,
+      notes,
+      date: new Date().toISOString()
+    });
+    showToast('Warehouse expense added successfully.', 'success');
+  }
+
+  DB.update('exp_warehouse', _whExpActiveId, { expenses });
+
+  cancelWhExpenseEdit();
+  refreshWhExpenseModalUI();
+  renderWarehouseTable();
+}
+
+function editWhBatchExpense(expId) {
+  const item = _whExpActiveId ? DB.findById('exp_warehouse', _whExpActiveId) : null;
+  if (!item) return;
+
+  const expenses = Array.isArray(item.expenses) ? item.expenses : [];
+  const exp = expenses.find(x => (x.id || '') === expId) || expenses[parseInt(expId)];
+  if (!exp) return;
+
+  document.getElementById('whExpEditingId').value = exp.id || expId;
+  document.getElementById('whExpTitle').value     = exp.title || '';
+  document.getElementById('whExpAmount').value    = exp.amount || '';
+  document.getElementById('whExpNotes').value     = exp.notes || '';
+
+  const titleEl = document.getElementById('whExpFormTitle');
+  if (titleEl) titleEl.innerHTML = '<i class="fas fa-edit"></i> Edit Expense';
+
+  const subBtn = document.getElementById('whExpSubmitBtn');
+  if (subBtn) subBtn.innerHTML = '<i class="fas fa-save"></i> Update Expense';
+
+  const cancelBtn = document.getElementById('whExpCancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+}
+
+function cancelWhExpenseEdit() {
+  document.getElementById('whExpenseForm')?.reset();
+  const editIdEl = document.getElementById('whExpEditingId');
+  if (editIdEl) editIdEl.value = '';
+
+  const titleEl = document.getElementById('whExpFormTitle');
+  if (titleEl) titleEl.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Expense';
+
+  const subBtn = document.getElementById('whExpSubmitBtn');
+  if (subBtn) subBtn.innerHTML = '<i class="fas fa-plus"></i> Add Expense';
+
+  const cancelBtn = document.getElementById('whExpCancelEditBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
+}
+
+function deleteWhBatchExpense(expId) {
+  const item = _whExpActiveId ? DB.findById('exp_warehouse', _whExpActiveId) : null;
+  if (!item) return;
+
+  showConfirm(
+    'Are you sure you want to delete this warehouse expense?',
+    () => {
+      let expenses = Array.isArray(item.expenses) ? [...item.expenses] : [];
+      expenses = expenses.filter((x, idx) => (x.id || String(idx)) !== String(expId));
+
+      DB.update('exp_warehouse', _whExpActiveId, { expenses });
+      showToast('Warehouse expense removed.', 'success');
+
+      cancelWhExpenseEdit();
+      refreshWhExpenseModalUI();
+      renderWarehouseTable();
+    },
+    'Delete Expense'
+  );
 }

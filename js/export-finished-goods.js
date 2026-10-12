@@ -16,21 +16,44 @@ let _expActiveFgId  = null;
    COST & EXPENSE CALCULATOR
    ============================================= */
 function getBatchCostDetails(item) {
-  /* 1. Base booking cost from exp_bookings */
+  /* 1. Base amount from exp_warehouse (Booking Amount + Warehouse Expenses) */
   let baseAmount = 0;
+  let whExpenses = 0;
   if (item.bookingNo) {
-    const bk = DB.filter('exp_bookings', b => b.bookingNo === item.bookingNo)[0];
-    if (bk && bk.total) {
-      baseAmount = Number(bk.total) || 0;
+    const wh = DB.filter('exp_warehouse', w => w.bookingNo === item.bookingNo)[0];
+    if (wh) {
+      baseAmount = Number(wh.total) || 0;
+      if (!baseAmount) {
+        const bk = DB.filter('exp_bookings', b => b.bookingNo === item.bookingNo)[0];
+        if (bk && bk.total) baseAmount = Number(bk.total) || 0;
+      }
+      if (Array.isArray(wh.expenses)) {
+        whExpenses = wh.expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      }
+    } else {
+      const bk = DB.filter('exp_bookings', b => b.bookingNo === item.bookingNo)[0];
+      if (bk && bk.total) {
+        baseAmount = Number(bk.total) || 0;
+      }
     }
   }
 
-  /* 2. Additional batch expenses */
-  const expenses = Array.isArray(item.expenses) ? item.expenses : [];
-  const extraExpenses = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  const netAmount = baseAmount + extraExpenses;
+  /* Warehouse Total Amount = Base Booking Amount + Warehouse Expenses */
+  const warehouseTotalAmount = baseAmount + whExpenses;
 
-  return { baseAmount, extraExpenses, netAmount, expenses };
+  /* 2. Additional Finished Goods batch expenses */
+  const fgExpenses = Array.isArray(item.expenses) ? item.expenses : [];
+  const extraExpenses = fgExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const netAmount = warehouseTotalAmount + extraExpenses;
+
+  return {
+    baseAmount: warehouseTotalAmount,
+    bookingBaseAmount: baseAmount,
+    whExpenses,
+    extraExpenses,
+    netAmount,
+    expenses: fgExpenses
+  };
 }
 
 /* =============================================
